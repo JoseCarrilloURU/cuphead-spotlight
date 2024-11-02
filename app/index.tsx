@@ -1,26 +1,20 @@
 import { Image, Pressable, TextInput, StyleSheet } from "react-native";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-  withDelay,
-} from "react-native-reanimated";
+import { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
 import { router, SplashScreen } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
 import { playSound } from "../components/soundUtils";
 import LottieView from "lottie-react-native";
 import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "../components/AnimatedButton";
+import { setTransition } from "../components/globals";
+import styles from "./indexstyles";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function Index() {
   setTimeout(() => {
     SplashScreen.hideAsync();
-  }, 800);
+  }, 100);
 
   const [pressableDisabled, setPressableDisabled] = useState(false);
   const [loginEnabled, setLoginEnabled] = useState(false);
@@ -34,7 +28,7 @@ export default function Index() {
     const loadMusic = async () => {
       await playSound(require("../assets/sound/indexMusic.wav"), {
         isLooping: true,
-        volume: 0.5,
+        volume: 0.4,
       });
     };
 
@@ -53,7 +47,12 @@ export default function Index() {
 
   const handleLoginPressed = async () => {
     console.log("Login Pressed");
+    setTransition(true);
     await playSound(require("../assets/sound/LoginTransition.wav"));
+    setTimeout(() => {
+      setTransition(false);
+      router.push("/home");
+    }, 750);
   };
 
   const handleGoToRegister = async () => {
@@ -219,7 +218,7 @@ export default function Index() {
           }}
           transition={{
             type: "timing",
-            duration: 2000,
+            duration: 1300,
             loop: !pressableDisabled,
           }}
         />
@@ -722,413 +721,3 @@ export default function Index() {
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  confirmbutton: {
-    position: "absolute",
-    width: 210,
-    height: 45,
-    top: 628,
-    left: 85,
-    zIndex: 6,
-  },
-  backtologin4: {
-    position: "absolute",
-    width: 170,
-    height: 60,
-    top: 712,
-    left: 110,
-    zIndex: 6,
-  },
-  boardconfirm: {
-    position: "absolute",
-    width: 325,
-    height: 225,
-    top: 590,
-    left: 32,
-  },
-  confirmcard: {
-    position: "absolute",
-    width: 380,
-    height: 410,
-    top: 190,
-    left: 9,
-    zIndex: 6,
-  },
-  field3forgot: {
-    position: "absolute",
-    width: 300,
-    height: 80,
-    top: 350,
-    left: 51,
-    zIndex: 6,
-  },
-  text3forgot: {
-    position: "absolute",
-    fontFamily: "BaseFont",
-    fontSize: 24,
-    width: 250,
-    height: 60,
-    padding: 10,
-    backgroundColor: "transparent",
-    color: "#000",
-    top: 330,
-    left: 64,
-    zIndex: 7,
-  },
-  field4forgot: {
-    position: "absolute",
-    width: 300,
-    height: 80,
-    top: 460,
-    left: 42,
-    zIndex: 6,
-  },
-  text4forgot: {
-    position: "absolute",
-    fontFamily: "BaseFont",
-    fontSize: 24,
-    width: 260,
-    height: 60,
-    padding: 10,
-    backgroundColor: "transparent",
-    color: "#000",
-    top: 440,
-    left: 57,
-    zIndex: 7,
-  },
-  verifybutton: {
-    position: "absolute",
-    width: 190,
-    height: 55,
-    top: 623,
-    left: 96,
-    zIndex: 6,
-  },
-  backtologin3: {
-    position: "absolute",
-    width: 170,
-    height: 60,
-    top: 712,
-    left: 110,
-    zIndex: 6,
-  },
-  boardverify: {
-    position: "absolute",
-    width: 325,
-    height: 225,
-    top: 590,
-    left: 32,
-  },
-  verifycard: {
-    position: "absolute",
-    width: 380,
-    height: 410,
-    top: 190,
-    left: 9,
-    zIndex: 6,
-  },
-  field2forgot: {
-    position: "absolute",
-    width: 300,
-    height: 80,
-    top: 430,
-    left: 44,
-    zIndex: 6,
-  },
-  text2forgot: {
-    position: "absolute",
-    fontFamily: "BaseFont",
-    fontSize: 24,
-    width: 250,
-    height: 60,
-    padding: 10,
-    backgroundColor: "transparent",
-    color: "#000",
-    top: 410,
-    left: 58,
-    zIndex: 7,
-  },
-  sendbutton: {
-    position: "absolute",
-    width: 170,
-    height: 55,
-    top: 622,
-    left: 108,
-    zIndex: 6,
-  },
-  backtologin2: {
-    position: "absolute",
-    width: 170,
-    height: 60,
-    top: 712,
-    left: 110,
-    zIndex: 6,
-  },
-  boardsend: {
-    position: "absolute",
-    width: 325,
-    height: 225,
-    top: 590,
-    left: 32,
-  },
-  sendcard: {
-    position: "absolute",
-    width: 380,
-    height: 410,
-    top: 190,
-    left: 9,
-    zIndex: 6,
-  },
-  field1forgot: {
-    position: "absolute",
-    width: 300,
-    height: 80,
-    top: 430,
-    left: 44,
-    zIndex: 6,
-  },
-  text1forgot: {
-    position: "absolute",
-    fontFamily: "BaseFont",
-    fontSize: 24,
-    width: 230,
-    height: 60,
-    padding: 10,
-    backgroundColor: "transparent",
-    color: "#000",
-    top: 410,
-    left: 58,
-    zIndex: 7,
-  },
-  regbutton: {
-    position: "absolute",
-    width: 200,
-    height: 40,
-    top: 630,
-    left: 94,
-    zIndex: 6,
-  },
-  backtologin1: {
-    position: "absolute",
-    width: 170,
-    height: 60,
-    top: 712,
-    left: 110,
-    zIndex: 6,
-  },
-  boardreg: {
-    position: "absolute",
-    width: 325,
-    height: 225,
-    top: 590,
-    left: 32,
-  },
-  regcard: {
-    position: "absolute",
-    width: 380,
-    height: 410,
-    top: 190,
-    left: 9,
-    zIndex: 6,
-  },
-  field1reg: {
-    position: "absolute",
-    width: 300,
-    height: 80,
-    top: 320,
-    left: 44,
-    zIndex: 6,
-  },
-  text1reg: {
-    position: "absolute",
-    fontFamily: "BaseFont",
-    fontSize: 24,
-    width: 230,
-    height: 60,
-    padding: 10,
-    backgroundColor: "transparent",
-    color: "#000",
-    top: 300,
-    left: 58,
-    zIndex: 7,
-  },
-  field2reg: {
-    position: "absolute",
-    width: 300,
-    height: 80,
-    top: 400,
-    left: 44,
-    zIndex: 6,
-  },
-  text2reg: {
-    position: "absolute",
-    fontFamily: "BaseFont",
-    fontSize: 24,
-    width: 230,
-    height: 60,
-    padding: 10,
-    backgroundColor: "transparent",
-    color: "#000",
-    top: 380,
-    left: 57,
-    zIndex: 7,
-  },
-  field3reg: {
-    position: "absolute",
-    width: 300,
-    height: 80,
-    top: 480,
-    left: 44,
-    zIndex: 6,
-  },
-  text3reg: {
-    position: "absolute",
-    fontFamily: "BaseFont",
-    fontSize: 24,
-    width: 230,
-    height: 60,
-    padding: 10,
-    backgroundColor: "transparent",
-    color: "#000",
-    top: 460,
-    left: 58,
-    zIndex: 7,
-  },
-  logbutton: {
-    position: "absolute",
-    width: 190,
-    height: 45,
-    top: 625,
-    left: 105,
-    zIndex: 6,
-  },
-  gotoregister: {
-    position: "absolute",
-    width: 130,
-    height: 32,
-    top: 700,
-    left: 140,
-    zIndex: 6,
-  },
-  gotoforgot: {
-    position: "absolute",
-    width: 145,
-    height: 30,
-    top: 750,
-    left: 128,
-    zIndex: 6,
-  },
-  boardlogin: {
-    position: "absolute",
-    width: 325,
-    height: 225,
-    top: 595,
-    left: 40,
-  },
-  logincard: {
-    position: "absolute",
-    width: 380,
-    height: 410,
-    top: 185,
-    left: 7,
-    zIndex: 6,
-  },
-  field1login: {
-    position: "absolute",
-    width: 300,
-    height: 80,
-    top: 350,
-    left: 44,
-    zIndex: 6,
-  },
-  text1login: {
-    position: "absolute",
-    fontFamily: "BaseFont",
-    fontSize: 24,
-    width: 230,
-    height: 60,
-    padding: 10,
-    backgroundColor: "transparent",
-    color: "#000",
-    top: 330,
-    left: 57,
-    zIndex: 7,
-  },
-  text2login: {
-    position: "absolute",
-    fontFamily: "BaseFont",
-    fontSize: 24,
-    width: 230,
-    height: 60,
-    padding: 10,
-    backgroundColor: "transparent",
-    color: "#000",
-    top: 430,
-    left: 68,
-    zIndex: 7,
-  },
-  field2login: {
-    position: "absolute",
-    width: 300,
-    height: 80,
-    top: 450,
-    left: 57,
-    zIndex: 6,
-  },
-  tapfade: {
-    position: "absolute",
-    width: 900,
-    height: 900,
-    backgroundColor: "#000",
-    zIndex: 5,
-  },
-  padncar: {
-    fontFamily: "PadNCarrilloFont",
-    fontSize: 15,
-    position: "absolute",
-    top: 235,
-    left: 24,
-  },
-  cuphead: {
-    position: "absolute",
-    width: 450,
-    height: 450,
-    top: 290,
-    left: -30,
-    zIndex: 1,
-  },
-  chips: {
-    position: "absolute",
-    width: 1000,
-    height: 150,
-    top: 678,
-    left: -25,
-    zIndex: 2,
-  },
-  logo: {
-    position: "absolute",
-    top: 50,
-    left: 15,
-    width: 360,
-    height: 180,
-    zIndex: 6,
-  },
-  taptobegin: {
-    position: "absolute",
-    width: 250,
-    height: 50,
-    top: 730,
-    left: 64,
-    zIndex: 5,
-  },
-  background: {
-    position: "absolute",
-    width: 900,
-    height: 900,
-    top: -35,
-    left: -260,
-    zIndex: -1,
-    alignSelf: "center",
-  },
-});

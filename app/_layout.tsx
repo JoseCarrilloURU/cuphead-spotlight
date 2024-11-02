@@ -3,11 +3,15 @@ import React, { useEffect, useState } from "react";
 import { Platform, View, Image, StyleSheet } from "react-native";
 import * as Font from "expo-font";
 import useDisableBackButton from "../components/useDisableBackButton";
+import { MotiView } from "moti";
 import { playSound } from "../components/soundUtils";
 import LottieView from "lottie-react-native";
+import { useTransition } from "../hooks/useTransition";
 
 export default function RootLayout() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const isTransitioning = useTransition();
+
   if (Platform.OS === "android") {
     useDisableBackButton();
   }
@@ -24,7 +28,7 @@ export default function RootLayout() {
     const loadSFX = async () => {
       await playSound(require("../assets/sound/OldFilmLoop.wav"), {
         isLooping: true,
-        volume: 0.4,
+        volume: 0.6,
       });
       loadFonts();
     };
@@ -58,13 +62,26 @@ export default function RootLayout() {
         <LottieView
           source={require("../assets/images/scratchgrain.json")}
           loop={true}
-          speed={0.9}
+          speed={1.0}
           autoPlay
-          style={texturestyle.texture}
+          style={texturestyle.scratch}
+        />
+        <MotiView
+          from={{ opacity: 1 }}
+          animate={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 1000, delay: 1000 }}
+          style={texturestyle.fadescreen}
+        />
+        <MotiView
+          from={{ opacity: 0 }}
+          animate={{ opacity: isTransitioning ? 1 : 0 }}
+          transition={{ type: "timing", duration: 600 }}
+          style={texturestyle.fadescreen}
         />
       </View>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
         {/*VER TRANSICIONES DE NAVIGATOR, Y MANEJAR OPACIDAD DE LAYOUT DESDE INDEX*/}
       </Stack>
     </View>
@@ -76,6 +93,13 @@ const texturestyle = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
+    opacity: 0.25,
+    zIndex: 84,
+  },
+  scratch: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
     opacity: 0.6,
     zIndex: 84,
   },
@@ -84,5 +108,12 @@ const texturestyle = StyleSheet.create({
     width: "100%",
     height: "100%",
     zIndex: 85,
+  },
+  fadescreen: {
+    backgroundColor: "black",
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    zIndex: 80,
   },
 });
