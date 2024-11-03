@@ -24,7 +24,13 @@ export default function Index() {
   const [confirmEnabled, setConfirmEnabled] = useState(false);
   const [cardOpacity, setCardOpacity] = useState(0);
   const [loginuser, setLoginuser] = useState("");
-  const [loginpass, setLoginpass] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const[email, setEmail] = useState("");
+  const[secretToken, setSecretToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); 
+
 
   useEffect(() => {
     const loadMusic = async () => {
@@ -54,7 +60,7 @@ export default function Index() {
 
     const dataLogin = {
       identifier: loginuser,
-      password: loginpass,
+      password: password,
     };
 
     try {
@@ -107,11 +113,38 @@ export default function Index() {
 
   const handleRegisterPressed = async () => {
     console.log("Register Pressed");
-    setTimeout(async () => {
-      await playSound(require("../assets/sound/ToggleCard.wav"));
-    }, 650);
-    setLoginEnabled(true);
-    setRegisterEnabled(false);
+  
+    const dataRegister = {
+      email_user: email,
+      password: password,
+      username: username,
+    };
+  
+    try {
+      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataRegister),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Registration successful:", data);
+  
+      setTimeout(async () => {
+        await playSound(require("../assets/sound/ToggleCard.wav"));
+      }, 650);
+  
+      setLoginEnabled(true);
+      setRegisterEnabled(false);
+    } catch (error) {
+      console.error("Registration failed:", error);
+    }
   };
 
   const handleSendPressed = async () => {
@@ -336,8 +369,8 @@ export default function Index() {
           placeholder="Enter Password..."
           placeholderTextColor="#555"
           secureTextEntry={true}
-          value={loginpass}
-          onChangeText={(text) => setLoginpass(text.toLowerCase())} // Convierte a minúsculas
+          value={password}
+          onChangeText={(text) => setPassword(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -416,8 +449,8 @@ export default function Index() {
           style={styles.text1reg}
           placeholder="Enter E-Mail..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={email}
+          onChangeText={(text) => setEmail(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -433,8 +466,8 @@ export default function Index() {
           style={styles.text2reg}
           placeholder="Enter Username..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={username}
+          onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -450,9 +483,8 @@ export default function Index() {
           style={styles.text3reg}
           placeholder="Enter Password..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
+          value={password}
+          onChangeText={(text) => setPassword(text.toLowerCase())} // Convierte a minúsculas
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
           numberOfLines={1} // Forzar una sola línea
@@ -532,8 +564,8 @@ export default function Index() {
           style={styles.text1forgot}
           placeholder="Enter E-Mail..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={email}
+          onChangeText={(text) => setEmail(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -614,9 +646,8 @@ export default function Index() {
           style={styles.text2forgot}
           placeholder="Enter the Code Sent..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
+           value={secretToken}
+          onChangeText={(text) => setSecretToken(text.toLowerCase())} // Convierte a minúsculas
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
           numberOfLines={1} // Forzar una sola línea
@@ -689,9 +720,8 @@ export default function Index() {
           style={styles.text3forgot}
           placeholder="Enter Password..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
+          value={newPassword}
+          onChangeText={(text) => setNewPassword(text.toLowerCase())} // Convierte a minúsculas
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
           numberOfLines={1} // Forzar una sola línea
@@ -706,8 +736,8 @@ export default function Index() {
           style={styles.text4forgot}
           placeholder="Verify Password..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={confirmPassword}
+          onChangeText={(text) => setConfirmPassword(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
