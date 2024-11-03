@@ -23,6 +23,8 @@ export default function Index() {
   const [verifyEnabled, setVerifyEnabled] = useState(false);
   const [confirmEnabled, setConfirmEnabled] = useState(false);
   const [cardOpacity, setCardOpacity] = useState(0);
+  const [loginuser, setLoginuser] = useState("");
+  const [loginpass, setLoginpass] = useState("");
 
   useEffect(() => {
     const loadMusic = async () => {
@@ -49,10 +51,39 @@ export default function Index() {
     console.log("Login Pressed");
     setTransition(true);
     await playSound(require("../assets/sound/LoginTransition.wav"));
-    setTimeout(() => {
+
+    const dataLogin = {
+      identifier: loginuser,
+      password: loginpass,
+    };
+
+    try {
+      const response = await fetch(
+        "http://backend-rottentomatoes-please-enough.up.railway.app/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataLogin),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log("Login successful:", data);
+
+      setTimeout(() => {
+        setTransition(false);
+        router.push("/home");
+      }, 750);
+    } catch (error) {
+      console.error("Login failed:", error);
       setTransition(false);
-      router.push("/home");
-    }, 750);
+    }
   };
 
   const handleGoToRegister = async () => {
@@ -287,8 +318,8 @@ export default function Index() {
           style={styles.text1login}
           placeholder="Enter Username..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={loginuser}
+          onChangeText={(text) => setLoginuser(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -305,8 +336,8 @@ export default function Index() {
           placeholder="Enter Password..."
           placeholderTextColor="#555"
           secureTextEntry={true}
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={loginpass}
+          onChangeText={(text) => setLoginpass(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
