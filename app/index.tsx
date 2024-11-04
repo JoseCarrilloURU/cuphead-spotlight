@@ -109,6 +109,29 @@ export default function Index() {
     setLoginEnabled(false);
     setSendEnabled(true);
     setCardOpacity(0);
+  
+    const dataReset = {
+      email_user: email,
+    };
+  
+    try {
+      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/resetPassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataReset),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Password reset request successful:", data);
+    } catch (error) {
+      console.error("Password reset request failed:", error);
+    }
   };
 
   const handleRegisterPressed = async () => {
