@@ -110,28 +110,7 @@ export default function Index() {
     setSendEnabled(true);
     setCardOpacity(0);
   
-    const dataReset = {
-      email_user: email,
-    };
-  
-    try {
-      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/resetPassword", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataReset),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-  
-      const data = await response.json();
-      console.log("Password reset request successful:", data);
-    } catch (error) {
-      console.error("Password reset request failed:", error);
-    }
+    
   };
 
   const handleRegisterPressed = async () => {
@@ -178,6 +157,29 @@ export default function Index() {
     setVerifyEnabled(true);
     setSendEnabled(false);
     setCardOpacity(1);
+
+    const dataReset = {
+      email_user: email,
+    };
+  
+    try {
+      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/resetPassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataReset),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Password reset request successful:", data);
+    } catch (error) {
+      console.error("Password reset request failed:", error);
+    }
   };
 
   const handleVerifyPressed = async () => {
@@ -188,8 +190,33 @@ export default function Index() {
     setConfirmEnabled(true);
     setVerifyEnabled(false);
     setCardOpacity(2);
+  
+    const dataCheckReset = {
+      email_user: email,
+      secret_token: secretToken,
+    };
+  
+    try {
+      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/checkReset", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataCheckReset),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Check reset successful:", data);
+    } catch (error) {
+      console.error("Check reset failed:", error);
+    }
   };
 
+  
   const handleConfirmPressed = async () => {
     console.log("Confirm Button Pressed");
     setTimeout(async () => {
@@ -197,6 +224,31 @@ export default function Index() {
     }, 650);
     setLoginEnabled(true);
     setConfirmEnabled(false);
+  
+    const dataNewPassword = {
+      email_user: email,
+      new_password: newPassword,
+      confirm_password: confirmPassword,
+    };
+  
+    try {
+      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/newPassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataNewPassword),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Password reset successful:", data);
+    } catch (error) {
+      console.error("Password reset failed:", error);
+    }
   };
 
   const handleBackToLogin1 = async () => {
