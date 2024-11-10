@@ -14,7 +14,7 @@ SplashScreen.preventAutoHideAsync();
 export default function Index() {
   setTimeout(() => {
     SplashScreen.hideAsync();
-  }, 100);
+  }, 300);
 
   const [pressableDisabled, setPressableDisabled] = useState(false);
   const [loginEnabled, setLoginEnabled] = useState(false);
