@@ -23,6 +23,14 @@ export default function Index() {
   const [verifyEnabled, setVerifyEnabled] = useState(false);
   const [confirmEnabled, setConfirmEnabled] = useState(false);
   const [cardOpacity, setCardOpacity] = useState(0);
+  const [loginuser, setLoginuser] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const[email, setEmail] = useState("");
+  const[secretToken, setSecretToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); 
+
 
   useEffect(() => {
     const loadMusic = async () => {
@@ -49,10 +57,39 @@ export default function Index() {
     console.log("Login Pressed");
     setTransition(true);
     await playSound(require("../assets/sound/LoginTransition.wav"));
-    setTimeout(() => {
+
+    const dataLogin = {
+      identifier: loginuser,
+      password: password,
+    };
+
+    try {
+      const response = await fetch(
+        "http://backend-rottentomatoes-please-enough.up.railway.app/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataLogin),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log("Login successful:", data);
+
+      setTimeout(() => {
+        setTransition(false);
+        router.push("/home");
+      }, 750);
+    } catch (error) {
+      console.error("Login failed:", error);
       setTransition(false);
-      router.push("/home");
-    }, 750);
+    }
   };
 
   const handleGoToRegister = async () => {
@@ -72,15 +109,44 @@ export default function Index() {
     setLoginEnabled(false);
     setSendEnabled(true);
     setCardOpacity(0);
+  
+    
   };
 
   const handleRegisterPressed = async () => {
     console.log("Register Pressed");
-    setTimeout(async () => {
-      await playSound(require("../assets/sound/ToggleCard.wav"));
-    }, 650);
-    setLoginEnabled(true);
-    setRegisterEnabled(false);
+  
+    const dataRegister = {
+      email_user: email,
+      password: password,
+      username: username,
+    };
+  
+    try {
+      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataRegister),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Registration successful:", data);
+  
+      setTimeout(async () => {
+        await playSound(require("../assets/sound/ToggleCard.wav"));
+      }, 650);
+  
+      setLoginEnabled(true);
+      setRegisterEnabled(false);
+    } catch (error) {
+      console.error("Registration failed:", error);
+    }
   };
 
   const handleSendPressed = async () => {
@@ -91,6 +157,29 @@ export default function Index() {
     setVerifyEnabled(true);
     setSendEnabled(false);
     setCardOpacity(1);
+
+    const dataReset = {
+      email_user: email,
+    };
+  
+    try {
+      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/resetPassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataReset),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Password reset request successful:", data);
+    } catch (error) {
+      console.error("Password reset request failed:", error);
+    }
   };
 
   const handleVerifyPressed = async () => {
@@ -101,8 +190,33 @@ export default function Index() {
     setConfirmEnabled(true);
     setVerifyEnabled(false);
     setCardOpacity(2);
+  
+    const dataCheckReset = {
+      email_user: email,
+      secret_token: secretToken,
+    };
+  
+    try {
+      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/checkReset", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataCheckReset),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Check reset successful:", data);
+    } catch (error) {
+      console.error("Check reset failed:", error);
+    }
   };
 
+  
   const handleConfirmPressed = async () => {
     console.log("Confirm Button Pressed");
     setTimeout(async () => {
@@ -110,6 +224,31 @@ export default function Index() {
     }, 650);
     setLoginEnabled(true);
     setConfirmEnabled(false);
+  
+    const dataNewPassword = {
+      email_user: email,
+      new_password: newPassword,
+      confirm_password: confirmPassword,
+    };
+  
+    try {
+      const response = await fetch("http://backend-rottentomatoes-please-enough.up.railway.app/newPassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataNewPassword),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Password reset successful:", data);
+    } catch (error) {
+      console.error("Password reset failed:", error);
+    }
   };
 
   const handleBackToLogin1 = async () => {
@@ -287,8 +426,8 @@ export default function Index() {
           style={styles.text1login}
           placeholder="Enter Username..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={loginuser}
+          onChangeText={(text) => setLoginuser(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -305,8 +444,8 @@ export default function Index() {
           placeholder="Enter Password..."
           placeholderTextColor="#555"
           secureTextEntry={true}
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={password}
+          onChangeText={(text) => setPassword(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -385,8 +524,8 @@ export default function Index() {
           style={styles.text1reg}
           placeholder="Enter E-Mail..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={email}
+          onChangeText={(text) => setEmail(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -402,8 +541,8 @@ export default function Index() {
           style={styles.text2reg}
           placeholder="Enter Username..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={username}
+          onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -419,9 +558,8 @@ export default function Index() {
           style={styles.text3reg}
           placeholder="Enter Password..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
+          value={password}
+          onChangeText={(text) => setPassword(text.toLowerCase())} // Convierte a minúsculas
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
           numberOfLines={1} // Forzar una sola línea
@@ -501,8 +639,8 @@ export default function Index() {
           style={styles.text1forgot}
           placeholder="Enter E-Mail..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={email}
+          onChangeText={(text) => setEmail(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
@@ -583,9 +721,8 @@ export default function Index() {
           style={styles.text2forgot}
           placeholder="Enter the Code Sent..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
+           value={secretToken}
+          onChangeText={(text) => setSecretToken(text.toLowerCase())} // Convierte a minúsculas
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
           numberOfLines={1} // Forzar una sola línea
@@ -658,9 +795,8 @@ export default function Index() {
           style={styles.text3forgot}
           placeholder="Enter Password..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
+          value={newPassword}
+          onChangeText={(text) => setNewPassword(text.toLowerCase())} // Convierte a minúsculas
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
           numberOfLines={1} // Forzar una sola línea
@@ -675,8 +811,8 @@ export default function Index() {
           style={styles.text4forgot}
           placeholder="Verify Password..."
           placeholderTextColor="#555"
-          // value={username}
-          //onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+          value={confirmPassword}
+          onChangeText={(text) => setConfirmPassword(text.toLowerCase())} // Convierte a minúsculas
           keyboardType="email-address"
           multiline={false} // No permitir múltiples líneas
           scrollEnabled={false} // Evitar que el input se desplace horizontalmente
