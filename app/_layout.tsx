@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Platform, View, Image, StyleSheet } from "react-native";
+import { Platform, View, Image, StyleSheet, StatusBar } from "react-native";
 import * as Font from "expo-font";
 import useDisableBackButton from "../components/useDisableBackButton";
 import { MotiView } from "moti";
@@ -20,6 +20,7 @@ export default function RootLayout() {
     await Font.loadAsync({
       PadNCarrilloFont: require("../assets/fonts/CupheadFelix-Regular-merged.ttf"),
       BaseFont: require("../assets/fonts/CupheadVogue-Bold-merged.ttf"),
+      BoldFont: require("../assets/fonts/CupheadVogue-ExtraBold.otf"),
     });
     setFontsLoaded(true);
   };
@@ -42,6 +43,7 @@ export default function RootLayout() {
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar translucent={true} backgroundColor={"transparent"} />
       <View
         pointerEvents="none"
         style={{
@@ -100,7 +102,7 @@ const texturestyle = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
-    opacity: 0.6,
+    opacity: 0.8,
     zIndex: 84,
   },
   shade: {

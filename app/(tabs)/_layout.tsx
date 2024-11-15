@@ -1,44 +1,16 @@
 import { Tabs } from "expo-router";
-import { Image, View, Pressable, TextInput, StyleSheet } from "react-native";
+import { Image, View, Pressable, TextInput } from "react-native";
 import { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
 import { router, SplashScreen } from "expo-router";
 import LottieView from "lottie-react-native";
 import { MotiView, MotiImage, MotiText } from "moti";
-import { Audio } from "expo-av";
+
 import AnimatedButton from "@/components/AnimatedButton";
 import { setTransition } from "@/components/globals";
 import { TabBarIcon } from "@/components/TabBarIcon";
 
-const preloadMusic = async () => {
-  const { sound } = await Audio.Sound.createAsync(
-    require("@/assets/sound/appMusic.wav"),
-    {
-      isLooping: true,
-      volume: 0.4,
-    }
-  );
-  await setTimeout(() => {
-    sound.playAsync();
-  }, 400);
-  return sound;
-};
-
 export default function HomeTabLayout() {
-  const [music, setMusic] = useState<Audio.Sound | null>(null);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setTransition(false);
-    }, 350);
-    const loadAndPlayMusic = async () => {
-      const sound = await preloadMusic();
-      setMusic(sound);
-    };
-
-    loadAndPlayMusic();
-  }, []);
-
   return (
     <Tabs
       screenOptions={{
@@ -46,7 +18,7 @@ export default function HomeTabLayout() {
         lazy: false,
         tabBarStyle: {
           backgroundColor: "#c66242",
-          borderColor: "#d7c7b5",
+          borderColor: "#ccbcab",
           borderWidth: 5,
           borderTopWidth: 5,
           borderStyle: "solid",

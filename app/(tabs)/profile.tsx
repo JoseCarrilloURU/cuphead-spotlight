@@ -1,22 +1,33 @@
-import { Image, View, Pressable, TextInput, StyleSheet } from "react-native";
-import { Easing } from "react-native-reanimated";
+import {
+  ScrollView,
+  Image,
+  Text,
+  View,
+  TextInput,
+  StyleSheet,
+} from "react-native";
+import Animated, { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
 import { router, SplashScreen } from "expo-router";
 import { playSound } from "@/components/soundUtils";
 import LottieView from "lottie-react-native";
 import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
+import HomeHeader from "@/components/homeHeader";
 import { setTransition } from "@/components/globals";
 
 export default function Home() {
   return (
     <View>
       <View
+        pointerEvents={"none"}
         style={{
+          position: "absolute",
           backgroundColor: "black",
           opacity: 0.6,
-          width: "100%",
-          height: "100%",
+          width: 400,
+          height: 800,
+          zIndex: 0,
         }}
       />
       <MotiImage
@@ -36,26 +47,18 @@ export default function Home() {
           easing: Easing.linear,
         }}
       />
+      <HomeHeader placeholder={"Search TV Shows..."} isProfile={true} />
     </View>
   );
 }
 
 const tab1styles = StyleSheet.create({
-  goback: {
-    position: "absolute",
-    width: 170,
-    height: 60,
-    top: 712,
-    left: 110,
-    zIndex: 6,
-  },
   background: {
     position: "absolute",
     width: 900,
     height: 900,
-    top: -38,
-    left: -260,
+    top: -44,
+    left: -254,
     zIndex: -1,
-    alignSelf: "center",
   },
 });

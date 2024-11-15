@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable } from "react-native";
 import { MotiImage } from "moti";
 
 const AnimatedButton = ({ onPress, source, style }) => {
@@ -18,6 +18,7 @@ const AnimatedButton = ({ onPress, source, style }) => {
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
+      style={{ zIndex: 15 }}
     >
       <MotiImage
         source={source}

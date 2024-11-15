@@ -1,4 +1,4 @@
-import { Image, Pressable, TextInput, StyleSheet } from "react-native";
+import { Image, Pressable, TextInput } from "react-native";
 import { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
 import { router, SplashScreen } from "expo-router";
@@ -14,7 +14,7 @@ SplashScreen.preventAutoHideAsync();
 
 const preloadMusic = async () => {
   const { sound } = await Audio.Sound.createAsync(
-    require("@/assets/sound/indexMusic.wav"),
+    require("@/assets/sound/appMusic.wav"),
     {
       isLooping: true,
       volume: 0.4,
@@ -22,7 +22,7 @@ const preloadMusic = async () => {
   );
   await setTimeout(() => {
     sound.playAsync();
-  }, 800);
+  }, 300);
   return sound;
 };
 
@@ -48,6 +48,9 @@ export default function Index() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
+    setTimeout(() => {
+      setTransition(false);
+    }, 350);
     const loadAndPlayMusic = async () => {
       const sound = await preloadMusic();
       setMusic(sound);
@@ -68,15 +71,10 @@ export default function Index() {
 
   const handleLoginPressed = async () => {
     console.log("Login Pressed");
-
     setTransition(true);
     await playSound(require("@/assets/sound/LoginTransition.wav"));
-    if (music) {
-      await music.stopAsync();
-    }
-
     setTimeout(() => {
-      router.push("/(tabs)/");
+      router.push("/(tabs)");
     }, 1000);
 
     const dataLogin = {
@@ -385,13 +383,16 @@ export default function Index() {
           from={{
             opacity: 1,
           }}
-          animate={{
-            opacity: 0,
-          }}
+          animate={
+            pressableDisabled
+              ? {
+                  opacity: 0,
+                }
+              : {}
+          }
           transition={{
             type: "timing",
-            duration: 1300,
-            loop: !pressableDisabled,
+            duration: 900,
           }}
         />
         <LottieView
