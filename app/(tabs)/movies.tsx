@@ -17,6 +17,7 @@ import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import HomeHeader from "@/components/homeHeader";
 import {
+  mockPosterMap,
   backdropImageMap,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
@@ -57,42 +58,46 @@ const Movies: Movie[] = [
 ];
 
 export default function Home() {
+  const [bestToggle, setBestToggle] = useState(false);
+
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
   };
 
+  const handleBestToggle = () => {
+    console.log("Best Toggle Pressed");
+    setBestToggle(!bestToggle);
+  };
+
   const Movie: React.FC<Movie> = ({ id, title, score, date }) => (
-    <View style={tab2styles.itemContainer}>
+    <View style={tab1styles.itemContainer}>
       <Pressable onPress={handleItemPress}>
         <Image
           source={require("@/assets/images/home/itemcard.png")}
-          style={tab2styles.itemCard}
+          style={tab1styles.itemCard}
         />
-        <Image
-          source={require("@/assets/images/home/poster.jpg")}
-          style={tab2styles.itemPoster}
-        />
+        <Image source={mockPosterMap[id]} style={tab1styles.itemPoster} />
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
-        style={tab2styles.itemScoreBadge}
+        style={tab1styles.itemScoreBadge}
       />
-      <Text style={tab2styles.itemScore}>{score}</Text>
+      <Text style={tab1styles.itemScore}>{score}</Text>
       {/* <Image
         source={getFlagImageForNumber(score)}
-        style={tab2styles.itemScoreFlag}
+        style={tab1styles.itemScoreFlag}
       /> */}
       <LottieView
         source={getFlagVideoForNumber(score)}
         loop={true}
         speed={0.6}
         autoPlay
-        style={tab2styles.itemScoreFlag}
+        style={tab1styles.itemScoreFlag}
       />
-      <Text style={tab2styles.itemTitle} numberOfLines={3} ellipsizeMode="tail">
+      <Text style={tab1styles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
         {title}
       </Text>
-      <Text style={tab2styles.itemDate} numberOfLines={1} ellipsizeMode="tail">
+      <Text style={tab1styles.itemDate} numberOfLines={1} ellipsizeMode="tail">
         {date}
       </Text>
     </View>
@@ -105,7 +110,7 @@ export default function Home() {
         style={{
           position: "absolute",
           backgroundColor: "black",
-          opacity: 0.6,
+          opacity: 0.5,
           width: 400,
           height: 800,
           zIndex: 0,
@@ -113,7 +118,7 @@ export default function Home() {
       />
       <MotiImage
         source={require("@/assets/images/backgrounds/bg_movies.png")}
-        style={tab2styles.background}
+        style={tab1styles.background}
         from={{
           transform: [{ rotateZ: "0deg" }],
         }}
@@ -130,11 +135,15 @@ export default function Home() {
       />
       <ScrollView>
         <HomeHeader placeholder={"Search Movies..."} isProfile={false} />
-        <View style={tab2styles.listcontainer}>
-          <Text style={tab2styles.stripTitle} numberOfLines={1}>
+        <View style={tab1styles.listcontainer}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tab1styles.stripbg}
+          />
+          <Text style={tab1styles.stripTitle} numberOfLines={1}>
             Most Popular in Theaters
           </Text>
-          <Image source={backdropImageMap[1]} style={tab2styles.backdrop} />
+          <Image source={backdropImageMap[1]} style={tab1styles.backdrop} />
           <FlatList
             data={Movies}
             renderItem={({ item }) => (
@@ -150,11 +159,50 @@ export default function Home() {
             showsHorizontalScrollIndicator={false}
           ></FlatList>
         </View>
-        <View style={tab2styles.listcontainer2}>
-          <Text style={tab2styles.stripTitle} numberOfLines={1}>
+        <View style={tab1styles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tab1styles.stripbg}
+          />
+          <Text style={tab1styles.stripTitle} numberOfLines={1}>
             The Best Movies
           </Text>
-          <Image source={backdropImageMap[2]} style={tab2styles.backdrop2} />
+          <Pressable
+            onPress={handleBestToggle}
+            style={{
+              borderColor: "black",
+              borderWidth: 2,
+              borderStyle: "solid",
+              position: "absolute",
+              top: 28,
+              right: 0,
+              zIndex: 14,
+            }}
+          >
+            <MotiText
+              from={{ scale: 1.1, opacity: 1 }}
+              animate={bestToggle ? { scale: 0.8, opacity: 0.4 } : {}}
+              transition={{
+                type: "timing",
+                duration: 800,
+              }}
+              style={tab1styles.toggle1}
+            >
+              This Year
+            </MotiText>
+            <MotiText
+              from={{ scale: 0.8, opacity: 0.4 }}
+              animate={bestToggle ? { scale: 1.1, opacity: 1 } : {}}
+              transition={{
+                type: "timing",
+                duration: 800,
+              }}
+              style={tab1styles.toggle2}
+            >
+              All Time
+            </MotiText>
+          </Pressable>
+          <Image source={backdropImageMap[2]} style={tab1styles.backdrop2} />
           <FlatList
             data={Movies}
             renderItem={({ item }) => (
@@ -170,11 +218,15 @@ export default function Home() {
             showsHorizontalScrollIndicator={false}
           />
         </View>
-        <View style={tab2styles.listcontainer2}>
-          <Text style={tab2styles.stripTitle} numberOfLines={1}>
-            Best of... genero x
+        <View style={tab1styles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tab1styles.stripbg}
+          />
+          <Text style={tab1styles.stripTitle} numberOfLines={1}>
+            Best in Action Movies
           </Text>
-          <Image source={backdropImageMap[3]} style={tab2styles.backdrop} />
+          <Image source={backdropImageMap[3]} style={tab1styles.backdrop} />
           <FlatList
             data={Movies}
             renderItem={({ item }) => (
@@ -190,11 +242,15 @@ export default function Home() {
             showsHorizontalScrollIndicator={false}
           />
         </View>
-        <View style={tab2styles.listcontainer2}>
-          <Text style={tab2styles.stripTitle} numberOfLines={1}>
+        <View style={tab1styles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tab1styles.stripbg}
+          />
+          <Text style={tab1styles.stripTitle} numberOfLines={1}>
             Last Seen By You
           </Text>
-          <Image source={backdropImageMap[4]} style={tab2styles.backdrop} />
+          <Image source={backdropImageMap[4]} style={tab1styles.backdrop} />
           <FlatList
             data={Movies}
             renderItem={({ item }) => (
@@ -215,22 +271,61 @@ export default function Home() {
   );
 }
 
-const tab2styles = StyleSheet.create({
+const tab1styles = StyleSheet.create({
+  toggle1: {
+    position: "absolute",
+    width: 100,
+    top: -40,
+    right: 25,
+    fontSize: 14,
+    fontFamily: "PadNCarrilloFont",
+    color: "#f8e7d5",
+    zIndex: 1,
+    textShadowRadius: 6,
+    textAlign: "center",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 3, height: 3 },
+    borderColor: "transparent",
+    borderWidth: 1,
+  },
+  toggle2: {
+    position: "absolute",
+    width: 100,
+    top: -22,
+    right: 25,
+    fontSize: 14,
+    fontFamily: "PadNCarrilloFont",
+    color: "#f8e7d5",
+    zIndex: 1,
+    textShadowRadius: 6,
+    textAlign: "center",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 3, height: 3 },
+    borderColor: "transparent",
+    borderWidth: 1,
+  },
   backdrop: {
     position: "absolute",
-    width: 220,
-    height: 220,
-    top: 30,
+    width: 240,
+    height: 240,
+    top: 25,
     left: 75,
     opacity: 0.4,
   },
   backdrop2: {
     position: "absolute",
-    width: 260,
-    height: 220,
-    top: 30,
+    width: 280,
+    height: 240,
+    top: 25,
     left: 50,
     opacity: 0.4,
+  },
+  stripbg: {
+    position: "absolute",
+    width: 400,
+    height: 425,
+    opacity: 0.7,
+    top: -50,
   },
   itemContainer: {
     marginRight: 30,
@@ -253,7 +348,7 @@ const tab2styles = StyleSheet.create({
   },
   itemTitle: {
     position: "relative",
-    width: 130,
+    width: 133,
     top: 2,
     left: 5,
     fontSize: 16,
@@ -313,7 +408,7 @@ const tab2styles = StyleSheet.create({
   },
   stripTitle: {
     width: 400,
-    top: -10,
+    top: -6,
     left: 15,
     fontSize: 18,
     fontFamily: "PadNCarrilloFont",
@@ -326,11 +421,11 @@ const tab2styles = StyleSheet.create({
     borderWidth: 1,
   },
   listcontainer: {
-    marginTop: 270,
+    marginTop: 300,
     height: 380,
   },
   listcontainer2: {
-    marginTop: 0,
+    marginTop: 40,
     height: 380,
   },
   background: {

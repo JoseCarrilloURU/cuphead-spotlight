@@ -17,6 +17,7 @@ import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import HomeHeader from "@/components/homeHeader";
 import {
+  mockPosterMap,
   backdropImageMap,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
@@ -68,10 +69,7 @@ export default function Home() {
           source={require("@/assets/images/home/itemcard.png")}
           style={tab1styles.itemCard}
         />
-        <Image
-          source={require("@/assets/images/home/poster.jpg")}
-          style={tab1styles.itemPoster}
-        />
+        <Image source={mockPosterMap[id]} style={tab1styles.itemPoster} />
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
@@ -89,7 +87,7 @@ export default function Home() {
         autoPlay
         style={tab1styles.itemScoreFlag}
       />
-      <Text style={tab1styles.itemTitle} numberOfLines={3} ellipsizeMode="tail">
+      <Text style={tab1styles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
         {title}
       </Text>
       <Text style={tab1styles.itemDate} numberOfLines={1} ellipsizeMode="tail">
@@ -105,7 +103,7 @@ export default function Home() {
         style={{
           position: "absolute",
           backgroundColor: "black",
-          opacity: 0.6,
+          opacity: 0.5,
           width: 400,
           height: 800,
           zIndex: 0,
@@ -131,6 +129,10 @@ export default function Home() {
       <ScrollView>
         <HomeHeader placeholder={"Search Movies & TV..."} isProfile={false} />
         <View style={tab1styles.listcontainer}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tab1styles.stripbg}
+          />
           <Text style={tab1styles.stripTitle} numberOfLines={1}>
             Trending Right Now
           </Text>
@@ -151,6 +153,10 @@ export default function Home() {
           ></FlatList>
         </View>
         <View style={tab1styles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tab1styles.stripbg}
+          />
           <Text style={tab1styles.stripTitle} numberOfLines={1}>
             Top Rated This Year
           </Text>
@@ -171,6 +177,10 @@ export default function Home() {
           />
         </View>
         <View style={tab1styles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tab1styles.stripbg}
+          />
           <Text style={tab1styles.stripTitle} numberOfLines={1}>
             Your Watchlist
           </Text>
@@ -191,6 +201,10 @@ export default function Home() {
           />
         </View>
         <View style={tab1styles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tab1styles.stripbg}
+          />
           <Text style={tab1styles.stripTitle} numberOfLines={1}>
             Last Seen By You
           </Text>
@@ -218,19 +232,26 @@ export default function Home() {
 const tab1styles = StyleSheet.create({
   backdrop: {
     position: "absolute",
-    width: 220,
-    height: 220,
-    top: 30,
+    width: 240,
+    height: 240,
+    top: 25,
     left: 75,
     opacity: 0.4,
   },
   backdrop2: {
     position: "absolute",
-    width: 260,
-    height: 220,
-    top: 30,
+    width: 280,
+    height: 240,
+    top: 25,
     left: 50,
     opacity: 0.4,
+  },
+  stripbg: {
+    position: "absolute",
+    width: 400,
+    height: 425,
+    opacity: 0.7,
+    top: -50,
   },
   itemContainer: {
     marginRight: 30,
@@ -253,7 +274,7 @@ const tab1styles = StyleSheet.create({
   },
   itemTitle: {
     position: "relative",
-    width: 130,
+    width: 133,
     top: 2,
     left: 5,
     fontSize: 16,
@@ -313,7 +334,7 @@ const tab1styles = StyleSheet.create({
   },
   stripTitle: {
     width: 400,
-    top: -10,
+    top: -6,
     left: 15,
     fontSize: 18,
     fontFamily: "PadNCarrilloFont",
@@ -326,11 +347,11 @@ const tab1styles = StyleSheet.create({
     borderWidth: 1,
   },
   listcontainer: {
-    marginTop: 270,
+    marginTop: 300,
     height: 380,
   },
   listcontainer2: {
-    marginTop: 0,
+    marginTop: 40,
     height: 380,
   },
   background: {

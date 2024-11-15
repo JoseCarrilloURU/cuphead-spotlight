@@ -200,7 +200,7 @@ const headerstyles = StyleSheet.create({
     position: "absolute",
     width: 145,
     height: 72.5,
-    top: 52,
+    top: 54,
     left: 123,
     zIndex: 6,
   },
