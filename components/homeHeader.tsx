@@ -15,7 +15,19 @@ import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import { setTransition } from "@/components/globals";
 
-const HomeHeader = ({ placeholder, isProfile }) => {
+interface HomeHeaderProps {
+  placeholder: string;
+  originTab: number;
+  searchValue: string;
+}
+
+const HomeHeader: React.FC<HomeHeaderProps> = ({
+  placeholder,
+  originTab,
+  searchValue,
+}) => {
+  const [searchText, setSearchText] = useState(searchValue);
+
   useEffect(() => {
     setTimeout(() => {
       setTransition(false);
@@ -30,7 +42,18 @@ const HomeHeader = ({ placeholder, isProfile }) => {
 
     setTimeout(() => {
       setTransition(false);
-      router.navigate("../");
+      router.navigate({ pathname: "/" });
+    }, 1000);
+  };
+  const handleBackToHome = async () => {
+    console.log("Log Out Pressed");
+
+    setTransition(true);
+    await playSound(require("@/assets/sound/Back.wav"));
+
+    setTimeout(() => {
+      setTransition(false);
+      router.navigate({ pathname: "/(tabs)/discover" });
     }, 1000);
   };
 
@@ -41,8 +64,21 @@ const HomeHeader = ({ placeholder, isProfile }) => {
     console.log("Delete Account Pressed");
   };
 
-  const handleSearchGo = () => {
+  const handleSearchGo = async () => {
     console.log("Search Go Pressed");
+    setTransition(true);
+    await playSound(require("@/assets/sound/Go.wav"));
+    setTimeout(() => {
+      setTransition(false);
+      router.push({
+        pathname: "/search",
+        params: {
+          placeholder: placeholder,
+          originTab: originTab,
+          searchText: searchText,
+        },
+      });
+    }, 1000);
   };
   return (
     <View>
@@ -57,13 +93,24 @@ const HomeHeader = ({ placeholder, isProfile }) => {
       <Text style={headerstyles.padncar}>
         Pad N' Carrillo Entertainment Inc.
       </Text>
-      <AnimatedButton
-        onPress={handleLogOutPressed}
-        source={require("@/assets/images/home/LogOut.png")}
-        style={headerstyles.logoutbutton}
-      />
+      {originTab !== 5 && (
+        <AnimatedButton
+          onPress={handleLogOutPressed}
+          source={require("@/assets/images/home/LogOut.png")}
+          style={headerstyles.logoutbutton}
+          disabled={false}
+        />
+      )}
+      {originTab === 5 && (
+        <AnimatedButton
+          onPress={handleBackToHome}
+          source={require("@/assets/images/home/BackToHome.png")}
+          style={headerstyles.logoutbutton}
+          disabled={false}
+        />
+      )}
       {
-        !isProfile && (
+        originTab !== 4 && (
           <View>
             <Image
               source={require("@/assets/images/home/searchbar.png")}
@@ -71,32 +118,36 @@ const HomeHeader = ({ placeholder, isProfile }) => {
             />
             <TextInput
               style={headerstyles.searchtext}
+              value={searchText}
+              onChangeText={(text) => setSearchText(text)}
               placeholder={placeholder}
               placeholderTextColor="#555"
               keyboardType="email-address"
               numberOfLines={1}
-              ellipsizeMode="tail"
-              maxLength={50}
+              maxLength={20}
             />
             <AnimatedButton
               onPress={handleSearchFiltersPressed}
               source={require("@/assets/images/home/FiltersButton.png")}
               style={headerstyles.searchfiltersbutton}
+              disabled={false}
             />
             <AnimatedButton
               onPress={handleSearchGo}
               source={require("@/assets/images/home/searchicon2.png")}
               style={headerstyles.searchicon}
+              disabled={false}
             />
           </View>
         ) /* isProfile && BOTON DE ELIMINAR CUENTA, NOMBRE DE USUARIO Y E-MAIL */
       }
-      {isProfile && (
+      {originTab === 4 && (
         <View>
           <AnimatedButton
             onPress={handleDeleteAccount}
             source={require("@/assets/images/home/DeleteAccount.png")}
             style={headerstyles.searchfiltersbutton}
+            disabled={false}
           />
           <Text
             style={headerstyles.username}

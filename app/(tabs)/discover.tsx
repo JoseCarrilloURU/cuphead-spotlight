@@ -21,6 +21,7 @@ import {
   backdropImageMap,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
+import tabstyles from "../tabstyles";
 import { setTransition } from "@/components/globals";
 
 interface Movie {
@@ -63,34 +64,34 @@ export default function Home() {
   };
 
   const Movie: React.FC<Movie> = ({ id, title, score, date }) => (
-    <View style={tab1styles.itemContainer}>
+    <View style={tabstyles.itemContainer}>
       <Pressable onPress={handleItemPress}>
         <Image
           source={require("@/assets/images/home/itemcard.png")}
-          style={tab1styles.itemCard}
+          style={tabstyles.itemCard}
         />
-        <Image source={mockPosterMap[id]} style={tab1styles.itemPoster} />
+        <Image source={mockPosterMap[id]} style={tabstyles.itemPoster} />
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
-        style={tab1styles.itemScoreBadge}
+        style={tabstyles.itemScoreBadge}
       />
-      <Text style={tab1styles.itemScore}>{score}</Text>
+      <Text style={tabstyles.itemScore}>{score}</Text>
       {/* <Image
         source={getFlagImageForNumber(score)}
-        style={tab1styles.itemScoreFlag}
+        style={tabstyles.itemScoreFlag}
       /> */}
       <LottieView
         source={getFlagVideoForNumber(score)}
         loop={true}
         speed={0.6}
         autoPlay
-        style={tab1styles.itemScoreFlag}
+        style={tabstyles.itemScoreFlag}
       />
-      <Text style={tab1styles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
+      <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
         {title}
       </Text>
-      <Text style={tab1styles.itemDate} numberOfLines={1} ellipsizeMode="tail">
+      <Text style={tabstyles.itemDate} numberOfLines={1} ellipsizeMode="tail">
         {date}
       </Text>
     </View>
@@ -111,7 +112,7 @@ export default function Home() {
       />
       <MotiImage
         source={require("@/assets/images/backgrounds/bg_discover.png")}
-        style={tab1styles.background}
+        style={tabstyles.background}
         from={{
           transform: [{ rotateZ: "0deg" }],
         }}
@@ -127,16 +128,16 @@ export default function Home() {
         }}
       />
       <ScrollView>
-        <HomeHeader placeholder={"Search Movies & TV..."} isProfile={false} />
-        <View style={tab1styles.listcontainer}>
+        <HomeHeader placeholder={"Search Movies & TV..."} originTab={1} searchValue={""} />
+        <View style={tabstyles.listcontainer}>
           <Image
             source={require("@/assets/images/home/stripbg.png")}
-            style={tab1styles.stripbg}
+            style={tabstyles.stripbg}
           />
-          <Text style={tab1styles.stripTitle} numberOfLines={1}>
+          <Text style={tabstyles.stripTitle} numberOfLines={1}>
             Trending Right Now
           </Text>
-          <Image source={backdropImageMap[1]} style={tab1styles.backdrop} />
+          <Image source={backdropImageMap[1]} style={tabstyles.backdrop} />
           <FlatList
             data={Movies}
             renderItem={({ item }) => (
@@ -152,15 +153,15 @@ export default function Home() {
             showsHorizontalScrollIndicator={false}
           ></FlatList>
         </View>
-        <View style={tab1styles.listcontainer2}>
+        <View style={tabstyles.listcontainer2}>
           <Image
             source={require("@/assets/images/home/stripbg.png")}
-            style={tab1styles.stripbg}
+            style={tabstyles.stripbg}
           />
-          <Text style={tab1styles.stripTitle} numberOfLines={1}>
-            Top Rated This Year
+          <Text style={tabstyles.stripTitle} numberOfLines={1}>
+            Top rated This Year
           </Text>
-          <Image source={backdropImageMap[2]} style={tab1styles.backdrop2} />
+          <Image source={backdropImageMap[2]} style={tabstyles.backdrop2} />
           <FlatList
             data={Movies}
             renderItem={({ item }) => (
@@ -176,15 +177,15 @@ export default function Home() {
             showsHorizontalScrollIndicator={false}
           />
         </View>
-        <View style={tab1styles.listcontainer2}>
+        <View style={tabstyles.listcontainer2}>
           <Image
             source={require("@/assets/images/home/stripbg.png")}
-            style={tab1styles.stripbg}
+            style={tabstyles.stripbg}
           />
-          <Text style={tab1styles.stripTitle} numberOfLines={1}>
+          <Text style={tabstyles.stripTitle} numberOfLines={1}>
             Your Watchlist
           </Text>
-          <Image source={backdropImageMap[3]} style={tab1styles.backdrop} />
+          <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
             data={Movies}
             renderItem={({ item }) => (
@@ -200,15 +201,15 @@ export default function Home() {
             showsHorizontalScrollIndicator={false}
           />
         </View>
-        <View style={tab1styles.listcontainer2}>
+        <View style={tabstyles.listcontainer2}>
           <Image
             source={require("@/assets/images/home/stripbg.png")}
-            style={tab1styles.stripbg}
+            style={tabstyles.stripbg}
           />
-          <Text style={tab1styles.stripTitle} numberOfLines={1}>
+          <Text style={tabstyles.stripTitle} numberOfLines={1}>
             Last Seen By You
           </Text>
-          <Image source={backdropImageMap[4]} style={tab1styles.backdrop} />
+          <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
             data={Movies}
             renderItem={({ item }) => (
@@ -228,138 +229,3 @@ export default function Home() {
     </View>
   );
 }
-
-const tab1styles = StyleSheet.create({
-  backdrop: {
-    position: "absolute",
-    width: 240,
-    height: 240,
-    top: 25,
-    left: 75,
-    opacity: 0.4,
-  },
-  backdrop2: {
-    position: "absolute",
-    width: 280,
-    height: 240,
-    top: 25,
-    left: 50,
-    opacity: 0.4,
-  },
-  stripbg: {
-    position: "absolute",
-    width: 400,
-    height: 425,
-    opacity: 0.7,
-    top: -50,
-  },
-  itemContainer: {
-    marginRight: 30,
-    marginLeft: 18,
-  },
-  itemCard: {
-    position: "relative",
-    width: 150,
-    height: 230,
-  },
-  itemPoster: {
-    position: "absolute",
-    width: 136,
-    height: 202,
-    top: 11,
-    left: 2.5,
-    borderStyle: "solid",
-    borderColor: "#222",
-    borderWidth: 1,
-  },
-  itemTitle: {
-    position: "relative",
-    width: 133,
-    top: 2,
-    left: 5,
-    fontSize: 16,
-    fontFamily: "BoldFont",
-    color: "#ccbcab",
-    zIndex: 1,
-    textShadowRadius: 6,
-    textShadowColor: "#000",
-    textShadowOffset: { width: 3, height: -1 },
-    borderColor: "transparent",
-    borderWidth: 1,
-  },
-  itemDate: {
-    position: "relative",
-    width: 140,
-    height: 140,
-    top: 1,
-    left: 5,
-    fontSize: 16,
-    fontFamily: "BaseFont",
-    color: "#ccbcab",
-    zIndex: 1,
-    textShadowRadius: 6,
-    textShadowColor: "#000",
-    textShadowOffset: { width: 3, height: -1 },
-  },
-  itemScore: {
-    position: "absolute",
-    width: 70,
-    height: 70,
-    top: 195.5,
-    left: 106.8,
-    fontSize: 25,
-    fontFamily: "BoldFont",
-    color: "#ccbcab",
-    zIndex: 1,
-    textShadowRadius: 6,
-    textShadowColor: "#000",
-    textAlign: "center",
-    textShadowOffset: { width: 2, height: 2 },
-  },
-  itemScoreBadge: {
-    position: "absolute",
-    width: 75,
-    height: 75,
-    top: 175,
-    left: 105,
-    zIndex: 1,
-  },
-  itemScoreFlag: {
-    position: "absolute",
-    width: 70,
-    height: 140,
-    top: 98,
-    left: 115,
-    transform: [{ rotate: "-5deg" }],
-  },
-  stripTitle: {
-    width: 400,
-    top: -6,
-    left: 15,
-    fontSize: 18,
-    fontFamily: "PadNCarrilloFont",
-    color: "#f8e7d5",
-    zIndex: 1,
-    textShadowRadius: 6,
-    textShadowColor: "#000",
-    textShadowOffset: { width: 3, height: 3 },
-    borderColor: "transparent",
-    borderWidth: 1,
-  },
-  listcontainer: {
-    marginTop: 300,
-    height: 380,
-  },
-  listcontainer2: {
-    marginTop: 40,
-    height: 380,
-  },
-  background: {
-    position: "absolute",
-    width: 900,
-    height: 900,
-    top: -44,
-    left: -254,
-    zIndex: -1,
-  },
-});

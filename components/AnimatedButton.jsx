@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable } from "react-native";
 import { MotiImage } from "moti";
 
-const AnimatedButton = ({ onPress, source, style }) => {
+const AnimatedButton = ({ onPress, source, style, disabled }) => {
   const [isPressed, setIsPressed] = React.useState(false);
 
   const handlePressIn = () => {
@@ -18,6 +18,7 @@ const AnimatedButton = ({ onPress, source, style }) => {
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
+      disabled={disabled}
       style={{ zIndex: 15 }}
     >
       <MotiImage
@@ -25,6 +26,7 @@ const AnimatedButton = ({ onPress, source, style }) => {
         style={style}
         animate={{
           transform: [{ scale: isPressed ? 1.2 : 1 }],
+          opacity: disabled ? 0.5 : 1,
         }}
         transition={{
           type: "timing",

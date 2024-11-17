@@ -11,6 +11,11 @@ const mockPosterMap: { [key: number]: any } = {
   3: require("@/assets/images/home/mockPosters/3.jpg"),
   4: require("@/assets/images/home/mockPosters/4.jpg"),
 };
+const searchBGMap: { [key: number]: any } = {
+  1: require("@/assets/images/backgrounds/bg_discover.png"),
+  2: require("@/assets/images/backgrounds/bg_movies.png"),
+  3: require("@/assets/images/backgrounds/bg_tv.png"),
+};
 
 const getFlagImageForNumber = (number: number): void => {
   if (number >= 85 && number <= 100) {
@@ -42,6 +47,7 @@ const getFlagVideoForNumber = (number: number): void => {
 export {
   backdropImageMap,
   mockPosterMap,
+  searchBGMap,
   getFlagImageForNumber,
   getFlagVideoForNumber,
 };

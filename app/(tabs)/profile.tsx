@@ -14,6 +14,7 @@ import LottieView from "lottie-react-native";
 import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import HomeHeader from "@/components/homeHeader";
+import tabstyles from "../tabstyles";
 import { setTransition } from "@/components/globals";
 
 export default function Home() {
@@ -32,7 +33,7 @@ export default function Home() {
       />
       <MotiImage
         source={require("@/assets/images/backgrounds/bg_profile.png")}
-        style={tab1styles.background}
+        style={tabstyles.background}
         from={{
           transform: [{ rotateZ: "0deg" }],
         }}
@@ -47,18 +48,7 @@ export default function Home() {
           easing: Easing.linear,
         }}
       />
-      <HomeHeader placeholder={"Search TV Shows..."} isProfile={true} />
+      <HomeHeader placeholder={""} originTab={4} searchValue={""} />
     </View>
   );
 }
-
-const tab1styles = StyleSheet.create({
-  background: {
-    position: "absolute",
-    width: 900,
-    height: 900,
-    top: -44,
-    left: -254,
-    zIndex: -1,
-  },
-});

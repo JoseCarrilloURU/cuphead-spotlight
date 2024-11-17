@@ -74,7 +74,7 @@ export default function Index() {
     setTransition(true);
     await playSound(require("@/assets/sound/LoginTransition.wav"));
     setTimeout(() => {
-      router.push("/(tabs)");
+      router.push("/(tabs)/discover");
     }, 1000);
 
     const dataLogin = {
@@ -514,16 +514,19 @@ export default function Index() {
           onPress={handleLoginPressed}
           source={require("@/assets/images/index/loginbutton.png")}
           style={styles.logbutton}
+          disabled={false}
         />
         <AnimatedButton
           onPress={handleGoToRegister}
           source={require("@/assets/images/index/gotoregister.png")}
           style={styles.gotoregister}
+          disabled={false}
         />
         <AnimatedButton
           onPress={handleGoToForgot}
           source={require("@/assets/images/index/gotoforgotcreds.png")}
           style={styles.gotoforgot}
+          disabled={false}
         />
       </MotiView>
 
@@ -627,11 +630,13 @@ export default function Index() {
           onPress={handleRegisterPressed}
           source={require("@/assets/images/index/registerbutton.png")}
           style={styles.regbutton}
+          disabled={false}
         />
         <AnimatedButton
           onPress={handleBackToLogin1}
           source={require("@/assets/images/index/gobacktologin.png")}
           style={styles.backtologin1}
+          disabled={false}
         />
       </MotiView>
 
@@ -709,11 +714,13 @@ export default function Index() {
           onPress={handleSendPressed}
           source={require("@/assets/images/index/send.png")}
           style={styles.sendbutton}
+          disabled={false}
         />
         <AnimatedButton
           onPress={handleBackToLogin2}
           source={require("@/assets/images/index/gobacktologin.png")}
           style={styles.backtologin2}
+          disabled={false}
         />
       </MotiView>
 
@@ -790,11 +797,13 @@ export default function Index() {
           onPress={handleVerifyPressed}
           source={require("@/assets/images/index/verify.png")}
           style={styles.verifybutton}
+          disabled={false}
         />
         <AnimatedButton
           onPress={handleBackToLogin3}
           source={require("@/assets/images/index/gobacktologin.png")}
           style={styles.backtologin3}
+          disabled={false}
         />
       </MotiView>
 
@@ -881,11 +890,13 @@ export default function Index() {
           onPress={handleConfirmPressed}
           source={require("@/assets/images/index/confirm.png")}
           style={styles.confirmbutton}
+          disabled={false}
         />
         <AnimatedButton
           onPress={handleBackToLogin4}
           source={require("@/assets/images/index/gobacktologin.png")}
           style={styles.backtologin2}
+          disabled={false}
         />
       </MotiView>
     </Pressable>

@@ -15,7 +15,7 @@ export default function HomeTabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        lazy: false,
+        lazy: true,
         tabBarStyle: {
           backgroundColor: "#c66242",
           borderColor: "#ccbcab",
@@ -34,7 +34,7 @@ export default function HomeTabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="discover"
         options={{
           title: "Discover",
           tabBarIcon: ({ color, focused }) => (
