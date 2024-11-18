@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import Animated, { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
-import { router, useLocalSearchParams, SplashScreen } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { playSound } from "@/components/soundUtils";
 import LottieView from "lottie-react-native";
 import { MotiView, MotiImage, MotiText } from "moti";
@@ -21,7 +21,7 @@ import {
   searchBGMap,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
-import { setTransition } from "@/components/globals";
+import routerTransition from "@/components/routerTransition";
 
 interface Movie {
   id: number;

@@ -71,13 +71,13 @@ export default function RootLayout() {
         <MotiView
           from={{ opacity: 1 }}
           animate={{ opacity: 0 }}
-          transition={{ type: "timing", duration: 1250, delay: 1000 }}
+          transition={{ type: "timing", duration: 1800, delay: 1000 }}
           style={texturestyle.fadescreen}
         />
         <MotiView
           from={{ opacity: 0 }}
           animate={{ opacity: isTransitioning ? 1 : 0 }}
-          transition={{ type: "timing", duration: 600 }}
+          transition={{ type: "timing", duration: 500 }}
           style={texturestyle.fadescreen}
         />
       </View>
@@ -85,7 +85,6 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="search" />
-        {/*VER TRANSICIONES DE NAVIGATOR, Y MANEJAR OPACIDAD DE LAYOUT DESDE INDEX*/}
       </Stack>
     </View>
   );

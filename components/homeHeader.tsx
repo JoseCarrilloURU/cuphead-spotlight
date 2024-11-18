@@ -6,14 +6,10 @@ import {
   TextInput,
   StyleSheet,
 } from "react-native";
-import Animated, { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
-import { router, SplashScreen } from "expo-router";
 import { playSound } from "@/components/soundUtils";
-import LottieView from "lottie-react-native";
-import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
-import { setTransition } from "@/components/globals";
+import routerTransition from "./routerTransition";
 
 interface HomeHeaderProps {
   placeholder: string;
@@ -28,33 +24,22 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 }) => {
   const [searchText, setSearchText] = useState(searchValue);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setTransition(false);
-    }, 500);
-  }, []);
-
   const handleLogOutPressed = async () => {
     console.log("Log Out Pressed");
-
-    setTransition(true);
     await playSound(require("@/assets/sound/Back.wav"));
-
-    setTimeout(() => {
-      setTransition(false);
-      router.navigate({ pathname: "/" });
-    }, 1000);
+    routerTransition("navigate", "/", {});
   };
+
   const handleBackToHome = async () => {
-    console.log("Log Out Pressed");
-
-    setTransition(true);
+    console.log("Back To Home Pressed");
     await playSound(require("@/assets/sound/Back.wav"));
+    routerTransition("navigate", "/(tabs)/discover", {});
+  };
 
-    setTimeout(() => {
-      setTransition(false);
-      router.navigate({ pathname: "/(tabs)/discover" });
-    }, 1000);
+  const handleGoBack = async () => {
+    console.log("Go Back Pressed");
+    await playSound(require("@/assets/sound/Back.wav"));
+    routerTransition("back", "/", {});
   };
 
   const handleSearchFiltersPressed = () => {
@@ -66,20 +51,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
   const handleSearchGo = async () => {
     console.log("Search Go Pressed");
-    setTransition(true);
     await playSound(require("@/assets/sound/Go.wav"));
-    setTimeout(() => {
-      setTransition(false);
-      router.push({
-        pathname: "/search",
-        params: {
-          placeholder: placeholder,
-          originTab: originTab,
-          searchText: searchText,
-        },
-      });
-    }, 1000);
+    routerTransition("push", "/search", {
+      placeholder: placeholder,
+      originTab: originTab,
+      searchText: searchText,
+    });
   };
+
   return (
     <View>
       <Image
@@ -93,10 +72,18 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
       <Text style={headerstyles.padncar}>
         Pad N' Carrillo Entertainment Inc.
       </Text>
-      {originTab !== 5 && (
+      {originTab <= 4 && (
         <AnimatedButton
           onPress={handleLogOutPressed}
           source={require("@/assets/images/home/LogOut.png")}
+          style={headerstyles.logoutbutton}
+          disabled={false}
+        />
+      )}
+      {originTab === 6 && (
+        <AnimatedButton
+          onPress={handleGoBack}
+          source={require("@/assets/images/home/GoBack.png")}
           style={headerstyles.logoutbutton}
           disabled={false}
         />

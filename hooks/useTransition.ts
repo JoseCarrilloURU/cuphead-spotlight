@@ -7,7 +7,7 @@ export function useTransition() {
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(transition);
-    }, 100);
+    }, 150);
 
     return () => clearInterval(interval);
   }, []);

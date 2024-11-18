@@ -1,13 +1,13 @@
 import { Image, Pressable, TextInput } from "react-native";
 import { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
-import { router, SplashScreen } from "expo-router";
+import { SplashScreen } from "expo-router";
 import { playSound } from "@/components/soundUtils";
 import { Audio } from "expo-av";
 import LottieView from "lottie-react-native";
 import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
-import { setTransition } from "@/components/globals";
+import routerTransition from "@/components/routerTransition";
 import styles from "./indexstyles";
 
 SplashScreen.preventAutoHideAsync();
@@ -48,9 +48,6 @@ export default function Index() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
-    setTimeout(() => {
-      setTransition(false);
-    }, 350);
     const loadAndPlayMusic = async () => {
       const sound = await preloadMusic();
       setMusic(sound);
@@ -71,11 +68,14 @@ export default function Index() {
 
   const handleLoginPressed = async () => {
     console.log("Login Pressed");
-    setTransition(true);
-    await playSound(require("@/assets/sound/LoginTransition.wav"));
-    setTimeout(() => {
-      router.push("/(tabs)/discover");
-    }, 1000);
+
+    routerTransition("push", "/(tabs)/discover", {});
+
+    // setTransition(true);
+    // await playSound(require("@/assets/sound/LoginTransition.wav"));
+    // setTimeout(() => {
+    //   router.push("/(tabs)/discover");
+    // }, 1000);
 
     const dataLogin = {
       identifier: loginuser,

@@ -22,7 +22,7 @@ import {
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import tabstyles from "../tabstyles";
-import { setTransition } from "@/components/globals";
+import routerTransition from "@/components/routerTransition";
 
 interface Movie {
   id: number;
@@ -61,6 +61,7 @@ const Movies: Movie[] = [
 export default function Home() {
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
+    routerTransition("push", "/movie", {});
   };
 
   const Movie: React.FC<Movie> = ({ id, title, score, date }) => (
@@ -128,7 +129,11 @@ export default function Home() {
         }}
       />
       <ScrollView>
-        <HomeHeader placeholder={"Search Movies & TV..."} originTab={1} searchValue={""} />
+        <HomeHeader
+          placeholder={"Search Movies & TV..."}
+          originTab={1}
+          searchValue={""}
+        />
         <View style={tabstyles.listcontainer}>
           <Image
             source={require("@/assets/images/home/stripbg.png")}
