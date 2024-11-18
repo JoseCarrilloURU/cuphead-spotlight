@@ -19,6 +19,7 @@ import HomeHeader from "@/components/homeHeader";
 import {
   mockPosterMap,
   backdropImageMap,
+  getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import tabstyles from "../tabstyles";
@@ -78,17 +79,17 @@ export default function Home() {
         style={tabstyles.itemScoreBadge}
       />
       <Text style={tabstyles.itemScore}>{score}</Text>
-      {/* <Image
+      <Image
         source={getFlagImageForNumber(score)}
-        style={tabstyles.itemScoreFlag}
-      /> */}
-      <LottieView
+        style={tabstyles.imgScoreFlag}
+      />
+      {/* <LottieView
         source={getFlagVideoForNumber(score)}
         loop={true}
         speed={0.6}
         autoPlay
         style={tabstyles.itemScoreFlag}
-      />
+      /> */}
       <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
         {title}
       </Text>
@@ -114,19 +115,19 @@ export default function Home() {
       <MotiImage
         source={require("@/assets/images/backgrounds/bg_discover.png")}
         style={tabstyles.background}
-        from={{
-          transform: [{ rotateZ: "0deg" }],
-        }}
-        animate={{
-          transform: [{ rotateZ: "-360deg" }],
-        }}
-        transition={{
-          type: "timing",
-          duration: 45000,
-          loop: true,
-          repeatReverse: false,
-          easing: Easing.linear,
-        }}
+        // from={{
+        //   transform: [{ rotateZ: "0deg" }],
+        // }}
+        // animate={{
+        //   transform: [{ rotateZ: "-360deg" }],
+        // }}
+        // transition={{
+        //   type: "timing",
+        //   duration: 45000,
+        //   loop: true,
+        //   repeatReverse: false,
+        //   easing: Easing.linear,
+        // }}
       />
       <ScrollView>
         <HomeHeader

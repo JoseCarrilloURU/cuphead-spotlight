@@ -135,6 +135,14 @@ const tabstyles = StyleSheet.create({
     left: 115,
     transform: [{ rotate: "-5deg" }],
   },
+  imgScoreFlag: {
+    position: "absolute",
+    width: 55,
+    height: 110,
+    top: 115,
+    left: 120,
+    transform: [{ rotate: "-8deg" }],
+  },
   stripTitle: {
     width: 400,
     top: -6,

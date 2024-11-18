@@ -409,19 +409,19 @@ export default function Index() {
         <MotiImage
           source={require("@/assets/images/backgrounds/bg_start.png")}
           style={styles.background}
-          from={{
-            transform: [{ rotateZ: "0deg" }],
-          }}
-          animate={{
-            transform: [{ rotateZ: "-360deg" }],
-          }}
-          transition={{
-            type: "timing",
-            duration: 45000,
-            loop: true,
-            repeatReverse: false,
-            easing: Easing.linear,
-          }}
+          // from={{
+          //   transform: [{ rotateZ: "0deg" }],
+          // }}
+          // animate={{
+          //   transform: [{ rotateZ: "-360deg" }],
+          // }}
+          // transition={{
+          //   type: "timing",
+          //   duration: 45000,
+          //   loop: true,
+          //   repeatReverse: false,
+          //   easing: Easing.linear,
+          // }}
         />
       </MotiView>
 

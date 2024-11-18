@@ -19,6 +19,7 @@ import HomeHeader from "@/components/homeHeader";
 import {
   mockPosterMap,
   backdropImageMap,
+  getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import tabstyles from "../tabstyles";
@@ -84,17 +85,17 @@ export default function Home() {
         style={tabstyles.itemScoreBadge}
       />
       <Text style={tabstyles.itemScore}>{score}</Text>
-      {/* <Image
+      <Image
         source={getFlagImageForNumber(score)}
-        style={tabstyles.itemScoreFlag}
-      /> */}
-      <LottieView
+        style={tabstyles.imgScoreFlag}
+      />
+      {/* <LottieView
         source={getFlagVideoForNumber(score)}
         loop={true}
         speed={0.6}
         autoPlay
         style={tabstyles.itemScoreFlag}
-      />
+      /> */}
       <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
         {title}
       </Text>

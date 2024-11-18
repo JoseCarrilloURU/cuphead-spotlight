@@ -19,6 +19,7 @@ import HomeHeader from "@/components/homeHeader";
 import {
   mockPosterMap,
   searchBGMap,
+  getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import routerTransition from "@/components/routerTransition";
@@ -112,17 +113,17 @@ export default function Search() {
           style={searchstyles.itemScoreBadge}
         />
         <Text style={searchstyles.itemScore}>{score}</Text>
-        {/* <Image
-        source={getFlagImageForNumber(score)}
-        style={searchstyles.itemScoreFlag}
-      /> */}
-        <LottieView
+        <Image
+          source={getFlagImageForNumber(score)}
+          style={searchstyles.imgScoreFlag}
+        />
+        {/* <LottieView
           source={getFlagVideoForNumber(score)}
           loop={true}
           speed={0.6}
           autoPlay
           style={searchstyles.itemScoreFlag}
-        />
+        /> */}
         <Text
           style={searchstyles.itemTitle}
           numberOfLines={1}
@@ -164,19 +165,19 @@ export default function Search() {
       <MotiImage
         source={searchBGMap[bgnum]}
         style={searchstyles.background}
-        from={{
-          transform: [{ rotateZ: "0deg" }],
-        }}
-        animate={{
-          transform: [{ rotateZ: "-360deg" }],
-        }}
-        transition={{
-          type: "timing",
-          duration: 45000,
-          loop: true,
-          repeatReverse: false,
-          easing: Easing.linear,
-        }}
+        // from={{
+        //   transform: [{ rotateZ: "0deg" }],
+        // }}
+        // animate={{
+        //   transform: [{ rotateZ: "-360deg" }],
+        // }}
+        // transition={{
+        //   type: "timing",
+        //   duration: 45000,
+        //   loop: true,
+        //   repeatReverse: false,
+        //   easing: Easing.linear,
+        // }}
       />
       <ScrollView>
         <HomeHeader
@@ -365,6 +366,14 @@ const searchstyles = StyleSheet.create({
     top: 55,
     left: 322,
     transform: [{ rotate: "-10deg" }],
+  },
+  imgScoreFlag: {
+    position: "absolute",
+    width: 50,
+    height: 100,
+    top: 68,
+    left: 325,
+    transform: [{ rotate: "-8deg" }],
   },
   listcontainer: {
     marginTop: 360,

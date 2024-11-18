@@ -40,19 +40,19 @@ export default function Movie() {
       <MotiImage
         source={require("@/assets/images/backgrounds/bg_movies.png")}
         style={moviestyles.background}
-        from={{
-          transform: [{ rotateZ: "0deg" }],
-        }}
-        animate={{
-          transform: [{ rotateZ: "-360deg" }],
-        }}
-        transition={{
-          type: "timing",
-          duration: 45000,
-          loop: true,
-          repeatReverse: false,
-          easing: Easing.linear,
-        }}
+        // from={{
+        //   transform: [{ rotateZ: "0deg" }],
+        // }}
+        // animate={{
+        //   transform: [{ rotateZ: "-360deg" }],
+        // }}
+        // transition={{
+        //   type: "timing",
+        //   duration: 45000,
+        //   loop: true,
+        //   repeatReverse: false,
+        //   easing: Easing.linear,
+        // }}
       />
       <HomeHeader placeholder="Search Movies..." originTab={6} searchValue="" />
     </View>
