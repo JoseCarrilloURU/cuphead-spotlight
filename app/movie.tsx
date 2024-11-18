@@ -54,7 +54,11 @@ export default function Movie() {
         //   easing: Easing.linear,
         // }}
       />
-      <HomeHeader placeholder="Search Movies..." originTab={6} searchValue="" />
+      <HomeHeader
+        placeholder="Search Movies & TV..."
+        originTab={6}
+        searchValue=""
+      />
     </View>
   );
 }
