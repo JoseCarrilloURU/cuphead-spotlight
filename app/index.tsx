@@ -9,6 +9,7 @@ import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "@/components/routerTransition";
 import styles from "./indexstyles";
+import { setTransition } from "@/components/globals";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -68,8 +69,8 @@ export default function Index() {
 
   const handleLoginPressed = async () => {
     console.log("Login Pressed");
-
-    routerTransition("push", "/(tabs)/discover", {});
+    
+    //routerTransition("push", "/(tabs)/discover", {});
 
     // setTransition(true);
     // await playSound(require("@/assets/sound/LoginTransition.wav"));
@@ -82,36 +83,47 @@ export default function Index() {
       password: password,
     };
 
-    // try {
-    //   const response = await fetch(
-    //     "http://backend-rottentomatoes-please-enough.up.railway.app/login",
-    //     {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify(dataLogin),
-    //     }
-    //   );
+    try {
+      const primaryUrl = "http://backend-rottentomatoes-please-enough.up.railway.app/login";
+      const backupUrl = "https://backend-rottentomatoes.onrender.com/login";
 
-    //   if (!response.ok) {
-    //     throw new Error("Network response was not ok");
-    //   }
+      let response = await fetch(primaryUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataLogin),
+      });
 
-    //   const data = await response.json();
-    //   console.log("Login successful:", data);
+      if (!response.ok) {
+        console.warn("Primary API failed, trying backup API...");
+        response = await fetch(backupUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataLogin),
+        });
 
-    //   setTransition(true);
-    //   await playSound(require("@/assets/sound/LoginTransition.wav"));
+        if (!response.ok) {
+          throw new Error("Backup API response was not ok");
+        }
+      }
 
-    //   setTimeout(() => {
-    //     setTransition(false);
-    //     router.push("/home");
-    //   }, 750);
-    // } catch (error) {
-    //   console.error("Login failed:", error);
-    //   setTransition(false);
-    // }
+      const data = await response.json();
+      console.log("Login successful:", data);
+
+      setTimeout(() => {
+        setTransition(false);
+        router.push({
+          pathname: "/(tabs)/discover",
+          params: { name: username, personId: data.personId }, 
+        });
+      }, 750);
+    } catch (error) {
+      console.error("Login failed:", error);
+      setTransition(false);
+    }
   };
 
   const handleGoToRegister = async () => {

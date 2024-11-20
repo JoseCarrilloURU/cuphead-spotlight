@@ -30,6 +30,11 @@ interface Movie {
   title: string;
   score: number;
   date: string;
+  banner?: string;
+}
+
+interface HomeProps {
+  personId: string;
 }
 
 const Movies: Movie[] = [
@@ -60,19 +65,116 @@ const Movies: Movie[] = [
 ];
 
 export default function Home() {
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
+  const [primaryUrl] = useState("http://backend-rottentomatoes-please-enough.up.railway.app");
+  const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
+
+  useEffect(() => {
+    console.log("Received personId:", personId); // Log the personId to verify
+
+    const fetchTrendingMovies = async () => {
+      const primaryUrl =
+        "http://backend-rottentomatoes-please-enough.up.railway.app";
+      const backupUrl = "https://backend-rottentomatoes.onrender.com";
+
+      try {
+        let response = await fetch(`${primaryUrl}/trendingMovies`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          console.warn("Primary API failed, trying backup API...");
+          response = await fetch(`${backupUrl}/trendingMovies`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Backup API response was not ok");
+          }
+        }
+
+        const responseData = await response.json();
+        console.log(responseData);
+        const formattedMovies = responseData.results
+          .slice(0, 10)
+          .map((movie: any) => ({
+            id: movie.id,
+            title: movie.name || movie.original_title,
+            score: Math.floor(movie.vote_average * 10),
+            date: movie.release_date || movie.first_air_date,
+            banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+          }));
+        setMovies(formattedMovies);
+        console.log("Trending movies fetched successfully:", formattedMovies);
+      } catch (error) {
+        console.error("Fetching trending movies failed:", error);
+      }
+    };
+
+    const fetchPopularMovies = async () => {
+      try {
+        let response = await fetch(`${primaryUrl}/popularMovies`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          console.warn("Primary API failed, trying backup API...");
+          response = await fetch(`${backupUrl}/popularMovies`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Backup API response was not ok");
+          }
+        }
+
+        const responseData = await response.json();
+        const formattedMovies = responseData.results
+          .slice(0, 10)
+          .map((movie: any) => ({
+            id: movie.id,
+            title: movie.name || movie.original_title,
+            score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
+            date: movie.release_date || movie.first_air_date,
+            banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+          }));
+        setPopularMovies(formattedMovies);
+        console.log("Popular movies fetched successfully:", formattedMovies);
+      } catch (error) {
+        console.error("Fetching popular movies failed:", error);
+      }
+    };
+
+    fetchTrendingMovies();
+    fetchPopularMovies();
+  }, [primaryUrl, backupUrl]);
+
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
     routerTransition("push", "/movie", {});
   };
 
-  const Movie: React.FC<Movie> = ({ id, title, score, date }) => (
+  const Movie: React.FC<Movie> = ({ id, title, score, date, banner }) => (
     <View style={tabstyles.itemContainer}>
       <Pressable onPress={handleItemPress}>
         <Image
           source={require("@/assets/images/home/itemcard.png")}
           style={tabstyles.itemCard}
         />
-        <Image source={mockPosterMap[id]} style={tabstyles.itemPoster} />
+        <Image source={{ uri: banner }} style={tabstyles.itemPoster} />
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
@@ -83,13 +185,6 @@ export default function Home() {
         source={getFlagImageForNumber(score)}
         style={tabstyles.imgScoreFlag}
       />
-      {/* <LottieView
-        source={getFlagVideoForNumber(score)}
-        loop={true}
-        speed={0.6}
-        autoPlay
-        style={tabstyles.itemScoreFlag}
-      /> */}
       <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
         {title}
       </Text>
@@ -145,13 +240,14 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[1]} style={tabstyles.backdrop} />
           <FlatList
-            data={Movies}
+            data={movies}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -169,13 +265,14 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[2]} style={tabstyles.backdrop2} />
           <FlatList
-            data={Movies}
+            data={popularMovies}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -234,4 +331,6 @@ export default function Home() {
       </ScrollView>
     </View>
   );
-}
+};
+
+
