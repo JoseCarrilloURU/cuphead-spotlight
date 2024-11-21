@@ -34,6 +34,10 @@ interface Movie {
   banner?: string;
 }
 
+interface personIdProps {
+  personId: number; // personId is a number
+}
+
 
 
 // const Movies: Movie[] = [
@@ -63,7 +67,7 @@ interface Movie {
 //   },
 // ];
 
-const Home: React.FC = () => {
+export default function Home() {
   const { personId } = useLocalSearchParams<{ personId: string }>();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
@@ -75,87 +79,39 @@ const Home: React.FC = () => {
       console.log("personId is not available yet");
       return;
     }
-
+  
     console.log("Received personId from discover:", personId); // Log the personId to verify
-
-    const fetchTrendingMovies = async () => {
-      try {
-        let response = await fetch(`${primaryUrl}/trendingMovies`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          console.warn("Primary API failed, trying backup API...");
-          response = await fetch(`${backupUrl}/trendingMovies`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error("Backup API response was not ok");
-          }
-        }
-
-        const responseData = await response.json();
-        const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
-          id: movie.id,
-          title: movie.name || movie.original_title,
-          score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
-          date: movie.release_date || movie.first_air_date,
-          banner: 'https://image.tmdb.org/t/p/w500${movie.poster_path}',
-        }));
-        setMovies(formattedMovies);
-        //console.log("Trending movies fetched successfully:", formattedMovies);
-      } catch (error) {
-        console.error("Fetching trending movies failed:", error);
-      }
-    };
-
-    const fetchPopularMovies = async () => {
-      try {
-        let response = await fetch(`${primaryUrl}/popularMovies`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          console.warn("Primary API failed, trying backup API...");
-          response = await fetch(`${backupUrl}/popularMovies`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error("Backup API response was not ok");
-          }
-        }
-
-        const responseData = await response.json();
-        const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
-          id: movie.id,
-          title: movie.name || movie.original_title,
-          score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
-          date: movie.release_date || movie.first_air_date,
-          banner: 'https://image.tmdb.org/t/p/w500${movie.poster_path}',
-        }));
-        setPopularMovies(formattedMovies);
-        //console.log("Popular movies fetched successfully:", formattedMovies);
-      } catch (error) {
-        console.error("Fetching popular movies failed:", error);
-      }
-    };
-
-    fetchTrendingMovies();
-    fetchPopularMovies();
+  
+    // const fetchMovies = async (endpoint: string, setState: React.Dispatch<React.SetStateAction<Movie[]>>) => {
+    //   try {
+    //     const response = await fetch(`${backupUrl}/${endpoint}`, {
+    //       method: "GET",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //     });
+  
+    //     if (!response.ok) {
+    //       throw new Error(`API response was not ok: ${response.statusText}`);
+    //     }
+  
+    //     const responseData = await response.json();
+    //     const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
+    //       id: movie.id,
+    //       title: movie.name || movie.original_title,
+    //       score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
+    //       date: movie.release_date || movie.first_air_date,
+    //       banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+    //     }));
+    //     setState(formattedMovies);
+    //     console.log(`${endpoint} fetched successfully:`, formattedMovies);
+    //   } catch (error) {
+    //     console.error(`Fetching ${endpoint} failed:`, error);
+    //   }
+    // };
+  
+    // fetchMovies("trendingMovies", setMovies);
+    // fetchMovies("popularMovies", setPopularMovies);
   }, [personId, primaryUrl, backupUrl]);
 
   const handleItemPress = (/*id: number*/) => {
@@ -332,4 +288,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+
