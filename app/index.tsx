@@ -10,6 +10,7 @@ import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "@/components/routerTransition";
 import styles from "./indexstyles";
 import { setTransition } from "@/components/globals";
+import{router} from "expo-router";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -69,6 +70,10 @@ export default function Index() {
 
   const handleLoginPressed = async () => {
     console.log("Login Pressed");
+
+   // routerTransition("push", "/(tabs)/discover", {});
+
+    // setTransition(true);
     // await playSound(require("@/assets/sound/LoginTransition.wav"));
     // routerTransition("push", "/(tabs)/discover", {});
 
@@ -76,44 +81,29 @@ export default function Index() {
       identifier: loginuser,
       password: password,
     };
-
+  
+    const primaryUrl = "http://backend-rottentomatoes-please-enough.up.railway.app/login";
+    const backupUrl = "https://backend-rottentomatoes.onrender.com/login";
+  
     try {
-      const primaryUrl =
-        "http://backend-rottentomatoes-please-enough.up.railway.app/login";
-      const backupUrl = "https://backend-rottentomatoes.onrender.com/login";
-
-      let response = await fetch(primaryUrl, {
+      const response = await fetch(backupUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(dataLogin),
       });
-
+  
       if (!response.ok) {
-        console.warn("Primary API failed, trying backup API...");
-        response = await fetch(backupUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dataLogin),
-        });
-
-        if (!response.ok) {
-          throw new Error("Backup API response was not ok");
-        }
+        throw new Error("Primary API response was not ok");
       }
-
+  
       const data = await response.json();
       console.log("Login successful:", data);
-
+  
       setTimeout(() => {
         setTransition(false);
-        router.push({
-          pathname: "/(tabs)/discover",
-          params: { name: username, personId: data.personId },
-        });
+        routerTransition("push", "/(tabs)/discover", { personId: data.personId });
       }, 750);
     } catch (error) {
       console.error("Login failed:", error);
