@@ -62,15 +62,15 @@ const Movies: Movie[] = [
     duration: "1h 49m",
     desc: "Eddie and Venom are on the run. Hunted by both of their worlds and with the net closing in, the duo are forced into a devastating decision that will bring the curtains down on Venom and Eddie's last dance.",
   },
-  {
-    id: 4,
-    type: "Movie",
-    title: "Sharknado",
-    score: 33,
-    date: "July 11, 2013",
-    duration: "1h 26m",
-    desc: "A freak hurricane hits Los Angeles, causing man-eating sharks to be scooped up in tornadoes and flooding the city with shark-infested seawater. Surfer and bar-owner Fin sets out with his friends Baz and Nova to rescue his estranged wife April and teenage daughter Claudia.",
-  },
+  // {
+  //   id: 4,
+  //   type: "Movie",
+  //   title: "Sharknado",
+  //   score: 33,
+  //   date: "July 11, 2013",
+  //   duration: "1h 26m",
+  //   desc: "A freak hurricane hits Los Angeles, causing man-eating sharks to be scooped up in tornadoes and flooding the city with shark-infested seawater. Surfer and bar-owner Fin sets out with his friends Baz and Nova to rescue his estranged wife April and teenage daughter Claudia.",
+  // },
 ];
 
 export default function Search() {
@@ -84,6 +84,9 @@ export default function Search() {
 
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
+  };
+  const GoToFirstPage = (/*id: number*/) => {
+    console.log("First Page Pressed");
   };
   const handlePreviousPage = (/*id: number*/) => {
     console.log("Previous Page Pressed");
@@ -113,17 +116,17 @@ export default function Search() {
           style={searchstyles.itemScoreBadge}
         />
         <Text style={searchstyles.itemScore}>{score}</Text>
-        <Image
+        {/* <Image
           source={getFlagImageForNumber(score)}
           style={searchstyles.imgScoreFlag}
-        />
-        {/* <LottieView
+        /> */}
+        <LottieView
           source={getFlagVideoForNumber(score)}
           loop={true}
           speed={0.6}
           autoPlay
           style={searchstyles.itemScoreFlag}
-        /> */}
+        />
         <Text
           style={searchstyles.itemTitle}
           numberOfLines={1}
@@ -209,6 +212,12 @@ export default function Search() {
         </View>
         <AnimatedButton
           onPress={handlePreviousPage}
+          source={require("@/assets/images/home/First.png")}
+          style={searchstyles.firstpage}
+          disabled={true}
+        />
+        <AnimatedButton
+          onPress={handlePreviousPage}
           source={require("@/assets/images/home/Previous.png")}
           style={searchstyles.prevpage}
           disabled={true}
@@ -232,33 +241,40 @@ export default function Search() {
 }
 
 const searchstyles = StyleSheet.create({
+  firstpage: {
+    position: "absolute",
+    width: 68,
+    height: 68,
+    top: 13,
+    left: 25,
+  },
   prevpage: {
     position: "absolute",
-    width: 76,
-    height: 76,
-    top: -6,
-    left: 67,
+    width: 72,
+    height: 72,
+    top: 3,
+    left: 112,
   },
   currentpage: {
     position: "relative",
-    width: 80,
-    height: 80,
-    top: -10,
-    left: 157,
+    width: 76,
+    height: 76,
+    top: -2,
+    left: 202,
   },
   nextpage: {
     position: "absolute",
-    width: 76,
-    height: 76,
-    top: -5,
-    left: 250,
+    width: 72,
+    height: 72,
+    top: 4,
+    left: 298,
   },
   currentpagenum: {
     position: "relative",
     width: 70,
     height: 70,
-    top: -78,
-    left: 162,
+    top: -68,
+    left: 204,
     fontSize: 34,
     fontFamily: "BoldFont",
     color: "#111",

@@ -79,17 +79,17 @@ export default function Home() {
         style={tabstyles.itemScoreBadge}
       />
       <Text style={tabstyles.itemScore}>{score}</Text>
-      <Image
+      {/* <Image
         source={getFlagImageForNumber(score)}
         style={tabstyles.imgScoreFlag}
-      />
-      {/* <LottieView
+      /> */}
+      <LottieView
         source={getFlagVideoForNumber(score)}
         loop={true}
         speed={0.6}
         autoPlay
         style={tabstyles.itemScoreFlag}
-      /> */}
+      />
       <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
         {title}
       </Text>
@@ -157,7 +157,7 @@ export default function Home() {
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-          ></FlatList>
+          />
         </View>
         <View style={tabstyles.listcontainer2}>
           <Image
@@ -189,33 +189,9 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            Your Watchlist
+            In Your Watchlist
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
-          <FlatList
-            data={Movies}
-            renderItem={({ item }) => (
-              <Movie
-                id={item.id}
-                title={item.title}
-                score={item.score}
-                date={item.date}
-              />
-            )}
-            keyExtractor={(item) => item.id.toString()}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-          />
-        </View>
-        <View style={tabstyles.listcontainer2}>
-          <Image
-            source={require("@/assets/images/home/stripbg.png")}
-            style={tabstyles.stripbg}
-          />
-          <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            Last Seen By You
-          </Text>
-          <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
             data={Movies}
             renderItem={({ item }) => (

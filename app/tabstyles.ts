@@ -86,9 +86,10 @@ const tabstyles = StyleSheet.create({
     zIndex: 1,
     textShadowRadius: 6,
     textShadowColor: "#000",
-    textShadowOffset: { width: 3, height: -1 },
-    borderColor: "transparent",
-    borderWidth: 1,
+    textShadowOffset: { width: 3, height: 3 },
+    borderColor: "black",
+    borderWidth: 0,
+    lineHeight: 20,
   },
   itemDate: {
     position: "relative",
@@ -102,7 +103,7 @@ const tabstyles = StyleSheet.create({
     zIndex: 1,
     textShadowRadius: 6,
     textShadowColor: "#000",
-    textShadowOffset: { width: 3, height: -1 },
+    textShadowOffset: { width: 3, height: 3 },
   },
   itemScore: {
     position: "absolute",

@@ -85,17 +85,17 @@ export default function Home() {
         style={tabstyles.itemScoreBadge}
       />
       <Text style={tabstyles.itemScore}>{score}</Text>
-      <Image
+      {/* <Image
         source={getFlagImageForNumber(score)}
         style={tabstyles.imgScoreFlag}
-      />
-      {/* <LottieView
+      /> */}
+      <LottieView
         source={getFlagVideoForNumber(score)}
         loop={true}
         speed={0.6}
         autoPlay
         style={tabstyles.itemScoreFlag}
-      /> */}
+      />
       <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
         {title}
       </Text>

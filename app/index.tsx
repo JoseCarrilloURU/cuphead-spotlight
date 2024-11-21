@@ -68,14 +68,8 @@ export default function Index() {
 
   const handleLoginPressed = async () => {
     console.log("Login Pressed");
-
+    await playSound(require("@/assets/sound/LoginTransition.wav"));
     routerTransition("push", "/(tabs)/discover", {});
-
-    // setTransition(true);
-    // await playSound(require("@/assets/sound/LoginTransition.wav"));
-    // setTimeout(() => {
-    //   router.push("/(tabs)/discover");
-    // }, 1000);
 
     const dataLogin = {
       identifier: loginuser,
