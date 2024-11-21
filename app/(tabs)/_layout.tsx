@@ -33,7 +33,7 @@ export default function HomeTabLayout() {
         },
       }}
     >
-      <Tabs.Screen
+     <Tabs.Screen
         name="discover"
         options={{
           title: "Discover",

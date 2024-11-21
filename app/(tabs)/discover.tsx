@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Pressable,
 } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import Animated, { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
 import { router, SplashScreen } from "expo-router";
@@ -33,51 +34,51 @@ interface Movie {
   banner?: string;
 }
 
-interface HomeProps {
-  personId: string;
-}
 
-const Movies: Movie[] = [
-  {
-    id: 1,
-    title: "Arcane",
-    score: 88,
-    date: "Nov 06, 2021",
-  },
-  {
-    id: 2,
-    title: "The Wild Robot",
-    score: 84,
-    date: "Sep 12, 2024",
-  },
-  {
-    id: 3,
-    title: "Venom: The Last Dance",
-    score: 64,
-    date: "Oct 24, 2024",
-  },
-  {
-    id: 4,
-    title: "Sharknado",
-    score: 33,
-    date: "July 11, 2013",
-  },
-];
 
-export default function Home() {
+// const Movies: Movie[] = [
+//   {
+//     id: 1,
+//     title: "Arcane",
+//     score: 88,
+//     date: "Nov 06, 2021",
+//   },
+//   {
+//     id: 2,
+//     title: "The Wild Robot",
+//     score: 84,
+//     date: "Sep 12, 2024",
+//   },
+//   {
+//     id: 3,
+//     title: "Venom: The Last Dance",
+//     score: 64,
+//     date: "Oct 24, 2024",
+//   },
+//   {
+//     id: 4,
+//     title: "Sharknado",
+//     score: 33,
+//     date: "July 11, 2013",
+//   },
+// ];
+
+const Home: React.FC = () => {
+  const { personId } = useLocalSearchParams<{ personId: string }>();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
   const [primaryUrl] = useState("http://backend-rottentomatoes-please-enough.up.railway.app");
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
   useEffect(() => {
-    console.log("Received personId:", personId); // Log the personId to verify
+    if (!personId) {
+      console.log("personId is not available yet");
+      return;
+    }
+
+    console.log("Received personId from discover:", personId); // Log the personId to verify
 
     const fetchTrendingMovies = async () => {
-      const primaryUrl =
-        "http://backend-rottentomatoes-please-enough.up.railway.app";
-      const backupUrl = "https://backend-rottentomatoes.onrender.com";
-
       try {
         let response = await fetch(`${primaryUrl}/trendingMovies`, {
           method: "GET",
@@ -101,18 +102,15 @@ export default function Home() {
         }
 
         const responseData = await response.json();
-        console.log(responseData);
-        const formattedMovies = responseData.results
-          .slice(0, 10)
-          .map((movie: any) => ({
-            id: movie.id,
-            title: movie.name || movie.original_title,
-            score: Math.floor(movie.vote_average * 10),
-            date: movie.release_date || movie.first_air_date,
-            banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-          }));
+        const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
+          id: movie.id,
+          title: movie.name || movie.original_title,
+          score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
+          date: movie.release_date || movie.first_air_date,
+          banner: 'https://image.tmdb.org/t/p/w500${movie.poster_path}',
+        }));
         setMovies(formattedMovies);
-        console.log("Trending movies fetched successfully:", formattedMovies);
+        //console.log("Trending movies fetched successfully:", formattedMovies);
       } catch (error) {
         console.error("Fetching trending movies failed:", error);
       }
@@ -142,17 +140,15 @@ export default function Home() {
         }
 
         const responseData = await response.json();
-        const formattedMovies = responseData.results
-          .slice(0, 10)
-          .map((movie: any) => ({
-            id: movie.id,
-            title: movie.name || movie.original_title,
-            score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
-            date: movie.release_date || movie.first_air_date,
-            banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-          }));
+        const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
+          id: movie.id,
+          title: movie.name || movie.original_title,
+          score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
+          date: movie.release_date || movie.first_air_date,
+          banner: 'https://image.tmdb.org/t/p/w500${movie.poster_path}',
+        }));
         setPopularMovies(formattedMovies);
-        console.log("Popular movies fetched successfully:", formattedMovies);
+        //console.log("Popular movies fetched successfully:", formattedMovies);
       } catch (error) {
         console.error("Fetching popular movies failed:", error);
       }
@@ -160,7 +156,7 @@ export default function Home() {
 
     fetchTrendingMovies();
     fetchPopularMovies();
-  }, [primaryUrl, backupUrl]);
+  }, [personId, primaryUrl, backupUrl]);
 
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
@@ -193,6 +189,7 @@ export default function Home() {
       </Text>
     </View>
   );
+
 
   return (
     <View>
@@ -290,13 +287,14 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
-            data={Movies}
+            data={popularMovies}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -314,13 +312,14 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
-            data={Movies}
+            data={popularMovies}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -333,4 +332,4 @@ export default function Home() {
   );
 };
 
-
+export default Home;
