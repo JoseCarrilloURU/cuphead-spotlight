@@ -10,7 +10,6 @@ import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "@/components/routerTransition";
 import styles from "./indexstyles";
 import { setTransition } from "@/components/globals";
-import{router} from "expo-router";
 
 SplashScreen.preventAutoHideAsync();
 

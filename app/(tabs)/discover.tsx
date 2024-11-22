@@ -71,6 +71,8 @@ export default function Home() {
   const { personId } = useLocalSearchParams<{ personId: string }>();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
+  const [watchlistMovies, setWatchlistMovies] = useState<Movie[]>([]);
+  const[lastSeenMovies, setLastSeenMovies] = useState<Movie[]>([]);
   const [primaryUrl] = useState("http://backend-rottentomatoes-please-enough.up.railway.app");
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
@@ -82,37 +84,114 @@ export default function Home() {
   
     console.log("Received personId from discover:", personId); // Log the personId to verify
   
-    // const fetchMovies = async (endpoint: string, setState: React.Dispatch<React.SetStateAction<Movie[]>>) => {
-    //   try {
-    //     const response = await fetch(`${backupUrl}/${endpoint}`, {
-    //       method: "GET",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     });
+    const fetchMovies = async (endpoint: string, setState: React.Dispatch<React.SetStateAction<Movie[]>>) => {
+      try {
+        const response = await fetch(`${backupUrl}/${endpoint}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
   
-    //     if (!response.ok) {
-    //       throw new Error(`API response was not ok: ${response.statusText}`);
-    //     }
+        if (!response.ok) {
+          throw new Error(`API response was not ok: ${response.statusText}`);
+        }
   
-    //     const responseData = await response.json();
-    //     const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
-    //       id: movie.id,
-    //       title: movie.name || movie.original_title,
-    //       score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
-    //       date: movie.release_date || movie.first_air_date,
-    //       banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-    //     }));
-    //     setState(formattedMovies);
-    //     console.log(`${endpoint} fetched successfully:`, formattedMovies);
-    //   } catch (error) {
-    //     console.error(`Fetching ${endpoint} failed:`, error);
-    //   }
-    // };
+        const responseData = await response.json();
+        console.log(`${endpoint} fetched successfully:`, responseData);
+
+        const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
+          id: movie.id,
+          title: movie.name || movie.original_title,
+          score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
+          date: movie.release_date || movie.first_air_date,
+          banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+        }));
+        setState(formattedMovies);
+        console.log(`${endpoint} fetched successfully:`, formattedMovies);
+      } catch (error) {
+        console.error(`Fetching ${endpoint} failed:`, error);
+      }
+    };
   
-    // fetchMovies("trendingMovies", setMovies);
-    // fetchMovies("popularMovies", setPopularMovies);
-  }, [personId, primaryUrl, backupUrl]);
+    const fetchLastSeenMovies = async () => {
+      try {
+        const response = await fetch(`${backupUrl}/getLastSeen/${personId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error(`API response was not ok: ${response.statusText}`);
+        }
+  
+        const responseData = await response.json();
+       // console.log("Last seen movies response:", responseData);
+       
+  
+        const formattedMovies = responseData.lastSeenMovies.slice(0, 10).map((movie: any) => {
+          const date = new Date(movie.releaseDate);
+          const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        
+          return {
+            id: movie.movieId,
+            title: movie.title,
+            score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
+            date: formattedDate,
+            banner: movie.banner ? `https://image.tmdb.org/t/p/w500${movie.banner}` : undefined,
+          };
+        });
+        setLastSeenMovies(formattedMovies);
+        console.log(`Last seen movies fetched successfully:`, formattedMovies);
+      } catch (error) {
+        console.error(`Fetching last seen  failed:`, error);
+      }
+    };
+
+    const fetchWatchlistMovies = async () => {
+      try {
+        const response = await fetch(`${backupUrl}/getWatchlist/${personId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error(`API response was not ok: ${response.statusText}`);
+        }
+  
+        const responseData = await response.json();
+        console.log("Last watchlist response:", responseData);
+       
+  
+        const formattedMovies = responseData.watchlist.slice(0, 10).map((movie: any) => {
+          const date = new Date(movie.releaseDate);
+          const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        
+          return {
+            id: movie.movieId,
+            title: movie.title,
+            score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
+            date: formattedDate,
+            banner: movie.banner ? `https://image.tmdb.org/t/p/w500${movie.banner}` : undefined,
+          };
+        });
+        setWatchlistMovies(formattedMovies);
+        console.log(`Watchlist fetched successfully:`, formattedMovies);
+      } catch (error) {
+        console.error(`Fetching last seen  failed:`, error);
+      }
+    };
+    
+  
+    fetchMovies("trendingMovies", setMovies);
+    fetchMovies("popularMovies", setPopularMovies);
+    fetchLastSeenMovies();
+    fetchWatchlistMovies();
+  }, [personId, primaryUrl,backupUrl]);
 
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
@@ -250,7 +329,7 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
-            data={popularMovies}
+            data={watchlistMovies}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
@@ -275,7 +354,7 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
-            data={popularMovies}
+            data={lastSeenMovies}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
