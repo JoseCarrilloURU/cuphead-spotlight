@@ -79,7 +79,7 @@ export default function RootLayout() {
         <MotiView
           from={{ opacity: 0 }}
           animate={{ opacity: isTransitioning ? 1 : 0 }}
-          transition={{ type: "timing", duration: 500 }}
+          transition={{ type: "timing", duration: 600 }}
           style={texturestyle.fadescreen}
         />
       </View>

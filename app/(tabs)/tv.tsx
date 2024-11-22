@@ -230,7 +230,7 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            Best in Drama TV
+            Best in adventure TV
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
@@ -254,7 +254,55 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            Last Seen By You
+            Best in Animated TV
+          </Text>
+          <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
+          <FlatList
+            data={Movies}
+            renderItem={({ item }) => (
+              <Movie
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+              />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+        <View style={tabstyles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tabstyles.stripbg}
+          />
+          <Text style={tabstyles.stripTitle} numberOfLines={1}>
+            Best in Drama TV
+          </Text>
+          <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
+          <FlatList
+            data={Movies}
+            renderItem={({ item }) => (
+              <Movie
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+              />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+        <View style={tabstyles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tabstyles.stripbg}
+          />
+          <Text style={tabstyles.stripTitle} numberOfLines={1}>
+            Best in Comedy TV
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
