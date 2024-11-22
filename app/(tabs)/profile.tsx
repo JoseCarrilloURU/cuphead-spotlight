@@ -462,7 +462,7 @@ const profilestyles = StyleSheet.create({
     width: 70,
     height: 70,
     top: 161.5,
-    left: 311.2,
+    left: 311.4,
     fontSize: 15,
     fontFamily: "BoldFont",
     color: "#ccbcab",

@@ -21,20 +21,22 @@ export default function RootLayout() {
       PadNCarrilloFont: require("../assets/fonts/CupheadFelix-Regular-merged.ttf"),
       BaseFont: require("../assets/fonts/CupheadVogue-Bold-merged.ttf"),
       BoldFont: require("../assets/fonts/CupheadVogue-ExtraBold.otf"),
+      BaseFont2: require("../assets/fonts/CupheadHenriette-A-merged.ttf"),
+      BaseFont3: require("../assets/fonts/CupheadMemphis-Medium-merged.ttf"),
     });
     setFontsLoaded(true);
   };
 
   useEffect(() => {
-    const loadSFX = async () => {
-      await playSound(require("../assets/sound/OldFilmLoop.wav"), {
-        isLooping: true,
-        volume: 0.6,
-      });
-      loadFonts();
-    };
+    // const loadSFX = async () => {
+    //   await playSound(require("../assets/sound/OldFilmLoop.wav"), {
+    //     isLooping: true,
+    //     volume: 0.6,
+    //   });
+    // };
+    // loadSFX();
 
-    loadSFX();
+    loadFonts();
   }, []);
 
   if (!fontsLoaded) {
@@ -53,21 +55,21 @@ export default function RootLayout() {
           zIndex: 80,
         }}
       >
-        <Image
+        {/* <Image
           source={require("../assets/images/graintexture.png")}
           style={texturestyle.texture}
         />
         <Image
           source={require("../assets/images/inshade.png")}
           style={texturestyle.shade}
-        />
-        <LottieView
+        /> */}
+        {/* <LottieView
           source={require("../assets/images/scratchgrain.json")}
           loop={true}
           speed={1.0}
           autoPlay
           style={texturestyle.scratch}
-        />
+        /> */}
         <MotiView
           from={{ opacity: 1 }}
           animate={{ opacity: 0 }}

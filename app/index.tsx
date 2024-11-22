@@ -10,7 +10,6 @@ import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "@/components/routerTransition";
 import styles from "./indexstyles";
 import { setTransition } from "@/components/globals";
-import{router} from "expo-router";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,14 +48,14 @@ export default function Index() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  useEffect(() => {
-    const loadAndPlayMusic = async () => {
-      const sound = await preloadMusic();
-      setMusic(sound);
-    };
+  // useEffect(() => {
+  //   const loadAndPlayMusic = async () => {
+  //     const sound = await preloadMusic();
+  //     setMusic(sound);
+  //   };
 
-    loadAndPlayMusic();
-  }, []);
+  //   loadAndPlayMusic();
+  // }, []);
 
   const handlePress = async () => {
     console.log("Tap To Begin Pressed");
@@ -71,44 +70,44 @@ export default function Index() {
   const handleLoginPressed = async () => {
     console.log("Login Pressed");
 
-   // routerTransition("push", "/(tabs)/discover", {});
-
-    // setTransition(true);
-    // await playSound(require("@/assets/sound/LoginTransition.wav"));
-    // routerTransition("push", "/(tabs)/discover", {});
-
     const dataLogin = {
       identifier: loginuser,
       password: password,
     };
-  
-    const primaryUrl = "http://backend-rottentomatoes-please-enough.up.railway.app/login";
+
+    const primaryUrl =
+      "http://backend-rottentomatoes-please-enough.up.railway.app/login";
     const backupUrl = "https://backend-rottentomatoes.onrender.com/login";
-  
-    try {
-      const response = await fetch(backupUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataLogin),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Primary API response was not ok");
-      }
-  
-      const data = await response.json();
-      console.log("Login successful:", data);
-  
-      setTimeout(() => {
-        setTransition(false);
-        routerTransition("push", "/(tabs)/discover", { personId: data.personId });
-      }, 750);
-    } catch (error) {
-      console.error("Login failed:", error);
-      setTransition(false);
-    }
+
+    await playSound(require("@/assets/sound/LoginTransition.wav"));
+    routerTransition("push", "/(tabs)/discover", {});
+
+    // try {
+    //   const response = await fetch(backupUrl, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(dataLogin),
+    //   });
+
+    //   if (!response.ok) {
+    //     throw new Error("Primary API response was not ok");
+    //   }
+
+    //   const data = await response.json();
+    //   console.log("Login successful:", data);
+
+    //   setTimeout(() => {
+    //     setTransition(false);
+    //     routerTransition("push", "/(tabs)/discover", {
+    //       personId: data.personId,
+    //     });
+    //   }, 750);
+    // } catch (error) {
+    //   console.error("Login failed:", error);
+    //   setTransition(false);
+    // }
   };
 
   const handleGoToRegister = async () => {

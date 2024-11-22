@@ -36,6 +36,13 @@ interface Cast {
   role: string;
 }
 
+interface OtherReviews {
+  name: string;
+  date: string;
+  score: number;
+  review: string;
+}
+
 const MovieInfo: Movie[] = [
   {
     title: "The Wild Robot",
@@ -62,8 +69,39 @@ const CastInfo: Cast[] = [
   },
 ];
 
+const OtherReviewsInfo: OtherReviews[] = [
+  {
+    name: "John Doe",
+    date: "Sep 27, 2024",
+    score: 100,
+    review:
+      "This movie was amazing! I loved the animation and the story was so heartwarming. I highly recommend it to anyone who loves a good family movie.",
+  },
+  {
+    name: "Jane Doe",
+    date: "Sep 27, 2024",
+    score: 80,
+    review:
+      "I thought this movie was pretty good. The animation was great and the story was interesting. I would recommend it to anyone who likes animated movies.",
+  },
+  {
+    name: "John Smith",
+    date: "Sep 27, 2024",
+    score: 60,
+    review:
+      "I thought this movie was okay. The animation was good, but the story was a bit boring. I would recommend it to anyone who likes animated movies.",
+  },
+  {
+    name: "Jane Smith",
+    date: "Sep 27, 2024",
+    score: 40,
+    review:
+      "I thought this movie was bad. The animation was good, but the story was boring. I would not recommend it to anyone.",
+  },
+];
+
 const Category: React.FC<{ category: string }> = ({ category }) => (
-  <View style={moviestyles.castContainer}>
+  <View style={moviestyles.categoryContainer}>
     <Text style={moviestyles.categoryItem}>{category}</Text>
   </View>
 );
@@ -83,8 +121,53 @@ const Cast: React.FC<Cast> = ({ name, role }) => (
   </View>
 );
 
+const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review }) => (
+  <View style={moviestyles.othersitemcontainer}>
+    <Image
+      source={require("@/assets/images/home/reviewscard.png")}
+      style={moviestyles.otherscard}
+    />
+    <Text
+      style={moviestyles.othersauthor}
+      numberOfLines={1}
+      ellipsizeMode="tail"
+    >
+      Review by {name}
+    </Text>
+    <Text style={moviestyles.othersdate} numberOfLines={1} ellipsizeMode="tail">
+      Published: {date} at {MovieInfo[0].title}
+    </Text>
+    <Text
+      style={moviestyles.othersreview}
+      ellipsizeMode="tail"
+      numberOfLines={12}
+    >
+      {review}
+    </Text>
+    <View style={{ top: -135, left: -10, marginBottom: -300 }}>
+      <Image
+        source={require("@/assets/images/home/scorebadge.png")}
+        style={moviestyles.myreviewbadge}
+      />
+      <Text style={moviestyles.myreviewscore}>{score}</Text>
+      <LottieView
+        source={getFlagVideoForNumber(score)}
+        loop={true}
+        speed={0.6}
+        autoPlay
+        style={moviestyles.myreviewflag}
+      />
+    </View>
+  </View>
+);
+
 export default function Movie() {
   let [watchlist, setWatchlist] = useState(false);
+  const [reviewText, setReviewText] = useState("");
+
+  const handleEnterReview = () => {
+    console.log("Enter Review button pressed");
+  };
 
   const handleWatchlist = () => {
     console.log("Watchlist button pressed");
@@ -178,19 +261,19 @@ export default function Movie() {
             style={moviestyles.watchlist}
             disabled={false}
           />
-          {/* <View style={moviestyles.listcontainer}>
-          <FlatList
-            data={MovieInfo[0].categories}
-            renderItem={({ item }) => <Category category={item} />}
-            keyExtractor={(index) => index.toString()}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-          />
-        </View> */}
+          <View style={moviestyles.categorylistcontainer}>
+            <FlatList
+              data={MovieInfo[0].categories}
+              renderItem={({ item }) => <Category category={item} />}
+              keyExtractor={(item) => item}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
           <Text style={moviestyles.overviewtitle}>Overview</Text>
           <Text style={moviestyles.overview}>{MovieInfo[0].desc}</Text>
-          <View style={{ top: -300, left: 0 }}>
-            <Text style={moviestyles.itemTitle}>Top Cast</Text>
+          <View style={{ top: -355, left: 0 }}>
+            <Text style={moviestyles.itemTitlesub}>Top Cast</Text>
           </View>
           <View style={moviestyles.listcontainer}>
             <FlatList
@@ -203,6 +286,68 @@ export default function Movie() {
               showsHorizontalScrollIndicator={false}
             />
           </View>
+          <View style={{ top: -200, left: 20 }}>
+            <Text style={moviestyles.itemTitlesub}>Write a Review!</Text>
+          </View>
+          <Image
+            source={require("@/assets/images/home/ReviewContainer.png")}
+            style={moviestyles.reviewcontainer}
+          />
+          <AnimatedButton
+            onPress={handleEnterReview}
+            source={require("@/assets/images/home/Review.png")}
+            style={moviestyles.reviewbutton}
+            disabled={false}
+          />
+          <Text
+            ellipsizeMode="tail"
+            style={moviestyles.reviewcollapsed}
+            numberOfLines={6}
+          >
+            You haven't reviewed this movie yet.
+          </Text>
+          <TextInput
+            style={moviestyles.reviewinput}
+            placeholder="Say something about this movie..."
+            placeholderTextColor="#555"
+            value={reviewText}
+            onChangeText={(text) => setReviewText(text)}
+            keyboardType="email-address"
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            maxLength={250}
+          />
+          <Image
+            source={require("@/assets/images/home/scorebadge.png")}
+            style={moviestyles.myreviewbadge}
+          />
+          <Text style={moviestyles.myreviewscore}>100</Text>
+          <LottieView
+            source={getFlagVideoForNumber(100)}
+            loop={true}
+            speed={0.6}
+            autoPlay
+            style={moviestyles.myreviewflag}
+          />
+        </View>
+        <View style={{ top: -625, left: 31 }}>
+          <Text style={moviestyles.itemTitlesub}>Latest Reviews</Text>
+        </View>
+        <View style={moviestyles.otherslistcontainer}>
+          <FlatList
+            data={OtherReviewsInfo}
+            renderItem={({ item }) => (
+              <OtherReview
+                name={item.name}
+                date={item.date}
+                score={item.score}
+                review={item.review}
+              />
+            )}
+            keyExtractor={(index) => index.toString()}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          />
         </View>
       </ScrollView>
     </View>
@@ -210,22 +355,167 @@ export default function Movie() {
 }
 
 const moviestyles = StyleSheet.create({
-  categoryItem: {
-    position: "absolute",
-    width: 220,
-    height: "auto",
-    top: 300,
-    left: 153,
-    fontSize: 16,
+  othersreview: {
+    width: 308,
+    height: 255,
+    top: -332,
+    left: 23,
+    fontSize: 17,
     fontFamily: "BaseFont",
-    color: "#ccbcab",
-    zIndex: 10,
-    textShadowRadius: 6,
-    textShadowColor: "#000",
-    textShadowOffset: { width: 3, height: 3 },
+    color: "#555",
+    zIndex: 1,
     borderColor: "black",
     borderWidth: 0,
-    lineHeight: 22,
+    // textShadowRadius: 6,
+    // textShadowColor: "#000",
+    // textShadowOffset: { width: 3, height: 1 },
+  },
+  othersdate: {
+    width: 324,
+    height: 25,
+    top: -331,
+    left: 22,
+    fontSize: 17,
+    fontFamily: "BaseFont",
+    color: "#222",
+    zIndex: 1,
+    borderColor: "black",
+    borderWidth: 0,
+    // textShadowRadius: 6,
+    // textShadowColor: "#000",
+    // textShadowOffset: { width: 3, height: 1 },
+  },
+  othersauthor: {
+    height: 26,
+    width: 310,
+    top: -330,
+    left: 25,
+    fontSize: 20,
+    textDecorationLine: "underline",
+    fontFamily: "BoldFont",
+    color: "#000",
+    zIndex: 1,
+    // textShadowRadius: 9,
+    // textShadowColor: "#000",
+    // textShadowOffset: { width: 3, height: 1 },
+    borderColor: "black",
+    borderWidth: 0,
+  },
+  otherscard: {
+    position: "relative",
+    width: 370,
+    height: 355,
+  },
+  othersitemcontainer: {
+    marginLeft: 10,
+    marginRight: 16,
+  },
+  otherslistcontainer: {
+    marginTop: -370,
+    marginBottom: -240,
+  },
+  categoryItem: {
+    position: "relative",
+    width: "auto",
+    height: 28,
+    top: 0,
+    left: 0,
+    fontSize: 20,
+    fontFamily: "BoldFont",
+    color: "#222",
+    zIndex: 10,
+    borderColor: "#ccbcab",
+    backgroundColor: "#ccbcab",
+    borderRadius: 10,
+    borderWidth: 2,
+    lineHeight: 23,
+    boxShadow: "3px 3px 5px 0px #000",
+  },
+  categoryContainer: {
+    marginRight: 15,
+  },
+  categorylistcontainer: {
+    position: "relative",
+    marginTop: 0,
+    width: 220,
+    top: -125,
+    left: 15,
+    height: 70,
+    borderWidth: 0,
+    borderColor: "black",
+  },
+  myreviewflag: {
+    position: "relative",
+    width: 65,
+    height: 130,
+    top: -430,
+    left: 331,
+    transform: [{ rotate: "-3deg" }],
+  },
+  myreviewscore: {
+    position: "relative",
+    width: 70,
+    height: 70,
+    top: -263.5,
+    left: 321,
+    fontSize: 15,
+    fontFamily: "BoldFont",
+    color: "#ccbcab",
+    zIndex: 1,
+    textShadowRadius: 6,
+    textShadowColor: "#000",
+    textAlign: "center",
+    textShadowOffset: { width: 2, height: 2 },
+  },
+  myreviewbadge: {
+    position: "relative",
+    width: 65,
+    height: 65,
+    top: -220,
+    left: 325,
+    zIndex: 1,
+  },
+  reviewcollapsed: {
+    position: "relative",
+    fontFamily: "BaseFont",
+    fontSize: 18,
+    width: 298,
+    height: 160,
+    padding: 10,
+    backgroundColor: "transparent",
+    color: "#bbb",
+    top: -188,
+    left: 46.5,
+    zIndex: 14,
+    borderWidth: 0,
+    borderColor: "white",
+  },
+  reviewinput: {
+    position: "absolute",
+    fontFamily: "BaseFont",
+    fontSize: 24,
+    width: 230,
+    height: 60,
+    padding: 10,
+    backgroundColor: "transparent",
+    color: "#000",
+    top: 330,
+    left: 550,
+    zIndex: 7,
+  },
+  reviewbutton: {
+    position: "relative",
+    width: 240,
+    height: 60,
+    top: -172,
+    left: 75,
+  },
+  reviewcontainer: {
+    position: "relative",
+    width: 370,
+    height: 230,
+    top: 40,
+    left: 9,
   },
   castTitle: {
     position: "relative",
@@ -259,8 +549,8 @@ const moviestyles = StyleSheet.create({
     textShadowOffset: { width: 3, height: 3 },
   },
   castContainer: {
-    marginRight: 10,
-    marginLeft: 18,
+    marginRight: 5,
+    marginLeft: 15,
   },
   castCard: {
     position: "relative",
@@ -278,7 +568,7 @@ const moviestyles = StyleSheet.create({
     borderWidth: 1,
   },
   listcontainer: {
-    marginTop: -50,
+    marginTop: -105,
     height: "auto",
   },
   watchlist: {
@@ -292,7 +582,7 @@ const moviestyles = StyleSheet.create({
     position: "relative",
     width: 220,
     height: "auto",
-    top: -80,
+    top: -135,
     left: 15,
     fontSize: 16,
     fontFamily: "BaseFont",
@@ -308,7 +598,7 @@ const moviestyles = StyleSheet.create({
   overviewtitle: {
     position: "relative",
     width: 133,
-    top: -90,
+    top: -145,
     left: 15,
     fontSize: 19,
     fontFamily: "BoldFont",
@@ -379,6 +669,24 @@ const moviestyles = StyleSheet.create({
     left: 310,
     transform: [{ rotate: "-10deg" }],
     zIndex: 7,
+  },
+  itemTitlesub: {
+    position: "relative",
+    width: 350,
+    height: "auto",
+    top: 237,
+    left: 20,
+    fontSize: 40,
+    fontFamily: "BoldFont",
+    textDecorationLine: "underline",
+    color: "#ccbcab",
+    zIndex: 1,
+    textShadowRadius: 6,
+    textShadowColor: "#000",
+    textShadowOffset: { width: 3, height: 3 },
+    borderColor: "black",
+    lineHeight: 50,
+    borderWidth: 0,
   },
   itemTitle: {
     position: "relative",

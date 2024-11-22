@@ -38,8 +38,6 @@ interface personIdProps {
   personId: number; // personId is a number
 }
 
-
-
 // const Movies: Movie[] = [
 //   {
 //     id: 1,
@@ -71,7 +69,9 @@ export default function Home() {
   const { personId } = useLocalSearchParams<{ personId: string }>();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
-  const [primaryUrl] = useState("http://backend-rottentomatoes-please-enough.up.railway.app");
+  const [primaryUrl] = useState(
+    "http://backend-rottentomatoes-please-enough.up.railway.app"
+  );
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
   useEffect(() => {
@@ -79,10 +79,13 @@ export default function Home() {
       console.log("personId is not available yet");
       return;
     }
-  
+
     console.log("Received personId from discover:", personId); // Log the personId to verify
-  
-    // const fetchMovies = async (endpoint: string, setState: React.Dispatch<React.SetStateAction<Movie[]>>) => {
+
+    // const fetchMovies = async (
+    //   endpoint: string,
+    //   setState: React.Dispatch<React.SetStateAction<Movie[]>>
+    // ) => {
     //   try {
     //     const response = await fetch(`${backupUrl}/${endpoint}`, {
     //       method: "GET",
@@ -90,26 +93,28 @@ export default function Home() {
     //         "Content-Type": "application/json",
     //       },
     //     });
-  
+
     //     if (!response.ok) {
     //       throw new Error(`API response was not ok: ${response.statusText}`);
     //     }
-  
+
     //     const responseData = await response.json();
-    //     const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
-    //       id: movie.id,
-    //       title: movie.name || movie.original_title,
-    //       score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
-    //       date: movie.release_date || movie.first_air_date,
-    //       banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-    //     }));
+    //     const formattedMovies = responseData.results
+    //       .slice(0, 10)
+    //       .map((movie: any) => ({
+    //         id: movie.id,
+    //         title: movie.name || movie.original_title,
+    //         score: Math.floor(movie.vote_average * 10),
+    //         date: movie.release_date || movie.first_air_date,
+    //         banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+    //       }));
     //     setState(formattedMovies);
     //     console.log(`${endpoint} fetched successfully:`, formattedMovies);
     //   } catch (error) {
     //     console.error(`Fetching ${endpoint} failed:`, error);
     //   }
     // };
-  
+
     // fetchMovies("trendingMovies", setMovies);
     // fetchMovies("popularMovies", setPopularMovies);
   }, [personId, primaryUrl, backupUrl]);
@@ -152,7 +157,6 @@ export default function Home() {
       </Text>
     </View>
   );
-
 
   return (
     <View>
@@ -293,6 +297,4 @@ export default function Home() {
       </ScrollView>
     </View>
   );
-};
-
-
+}
