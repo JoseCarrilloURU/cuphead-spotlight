@@ -23,10 +23,10 @@ import {
   getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
+import formatDate from "@/components/formatDate";
 import tabstyles from "../tabstyles";
 import routerTransition from "@/components/routerTransition";
 import { usePersonId } from "@/components/PersonIdContext"; // Import the context
-
 
 interface Movie {
   id: number;
@@ -68,28 +68,33 @@ interface personIdProps {
 // ];
 
 export default function Home() {
-  const { personId: searchPersonId } = useLocalSearchParams<{ personId: string }>();
+  const { personId: searchPersonId } = useLocalSearchParams<{
+    personId: string;
+  }>();
   const { personId, setPersonId } = usePersonId(); // Use the context
   const [movies, setMovies] = useState<Movie[]>([]);
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
   const [watchlistMovies, setWatchlistMovies] = useState<Movie[]>([]);
-  const[lastSeenMovies, setLastSeenMovies] = useState<Movie[]>([]);
-  const [primaryUrl] = useState("http://backend-rottentomatoes-please-enough.up.railway.app");
+  const [lastSeenMovies, setLastSeenMovies] = useState<Movie[]>([]);
+  const [primaryUrl] = useState(
+    "http://backend-rottentomatoes-please-enough.up.railway.app"
+  );
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
   useEffect(() => {
-    
-      if (!searchPersonId) {
-        console.log("personId is not available yet");
-        return;
-      }
-  
-      console.log("Received personId from discover:", searchPersonId); // Log the personId to verify
-      setPersonId(searchPersonId); // Set the personId in the context
-      console.log("personId is set in the context:", searchPersonId);
-  
-  
-    const fetchMovies = async (endpoint: string, setState: React.Dispatch<React.SetStateAction<Movie[]>>) => {
+    if (!searchPersonId) {
+      console.log("personId is not available yet");
+      return;
+    }
+
+    console.log("Received personId from discover:", searchPersonId); // Log the personId to verify
+    setPersonId(searchPersonId); // Set the personId in the context
+    console.log("personId is set in the context:", searchPersonId);
+
+    const fetchMovies = async (
+      endpoint: string,
+      setState: React.Dispatch<React.SetStateAction<Movie[]>>
+    ) => {
       try {
         const response = await fetch(`${backupUrl}/${endpoint}`, {
           method: "GET",
@@ -97,28 +102,30 @@ export default function Home() {
             "Content-Type": "application/json",
           },
         });
-  
+
         if (!response.ok) {
           throw new Error(`API response was not ok: ${response.statusText}`);
         }
-  
+
         const responseData = await response.json();
         //console.log(`${endpoint} fetched successfully:`, responseData);
 
-        const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
-          id: movie.id,
-          title: movie.name || movie.original_title,
-          score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
-          date: movie.release_date || movie.first_air_date,
-          banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-        }));
+        const formattedMovies = responseData.results
+          .slice(0, 10)
+          .map((movie: any) => ({
+            id: movie.id,
+            title: movie.name || movie.original_title,
+            score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
+            date: formatDate(movie.release_date || movie.first_air_date),
+            banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+          }));
         setState(formattedMovies);
         console.log(`${endpoint} fetched successfully:`, formattedMovies);
       } catch (error) {
         console.error(`Fetching ${endpoint} failed:`, error);
       }
     };
-  
+
     const fetchLastSeenMovies = async () => {
       try {
         const response = await fetch(`${backupUrl}/getLastSeen/${personId}`, {
@@ -127,29 +134,34 @@ export default function Home() {
             "Content-Type": "application/json",
           },
         });
-  
+
         if (!response.ok) {
           throw new Error(`API response was not ok: ${response.statusText}`);
         }
-  
+
         const responseData = await response.json();
-       // console.log("Last seen movies response:", responseData);
-       
-  
-        const formattedMovies = responseData.lastSeenMovies.slice(0, 10).map((movie: any) => {
-          const date = new Date(movie.releaseDate);
-          const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        
-          return {
-            id: movie.movieId,
-            title: movie.title,
-            score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
-            date: formattedDate,
-            banner: movie.banner ? `https://image.tmdb.org/t/p/w500${movie.banner}` : undefined,
-          };
-        });
+        // console.log("Last seen movies response:", responseData);
+
+        const formattedMovies = responseData.lastSeenMovies
+          .slice(0, 10)
+          .map((movie: any) => {
+            const date = new Date(movie.releaseDate);
+            const formattedDate = `${date.getFullYear()}-${String(
+              date.getMonth() + 1
+            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+            return {
+              id: movie.movieId,
+              title: movie.title,
+              score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
+              date: formattedDate,
+              banner: movie.banner
+                ? `https://image.tmdb.org/t/p/w500${movie.banner}`
+                : undefined,
+            };
+          });
         setLastSeenMovies(formattedMovies);
-       // console.log(`Last seen movies fetched successfully:`, formattedMovies);
+        // console.log(`Last seen movies fetched successfully:`, formattedMovies);
       } catch (error) {
         console.error(`Fetching last seen  failed:`, error);
       }
@@ -163,40 +175,44 @@ export default function Home() {
             "Content-Type": "application/json",
           },
         });
-  
+
         if (!response.ok) {
           throw new Error(`API response was not ok: ${response.statusText}`);
         }
-  
+
         const responseData = await response.json();
-       // console.log("Last watchlist response:", responseData);
-       
-  
-        const formattedMovies = responseData.watchlist.slice(0, 10).map((movie: any) => {
-          const date = new Date(movie.releaseDate);
-          const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        
-          return {
-            id: movie.movieId,
-            title: movie.title,
-            score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
-            date: formattedDate,
-            banner: movie.banner ? `https://image.tmdb.org/t/p/w500${movie.banner}` : undefined,
-          };
-        });
+        // console.log("Last watchlist response:", responseData);
+
+        const formattedMovies = responseData.watchlist
+          .slice(0, 10)
+          .map((movie: any) => {
+            const date = new Date(movie.releaseDate);
+            const formattedDate = `${date.getFullYear()}-${String(
+              date.getMonth() + 1
+            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+            return {
+              id: movie.movieId,
+              title: movie.title,
+              score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
+              date: formattedDate,
+              banner: movie.banner
+                ? `https://image.tmdb.org/t/p/w500${movie.banner}`
+                : undefined,
+            };
+          });
         setWatchlistMovies(formattedMovies);
-       // console.log(`Watchlist fetched successfully:`, formattedMovies);
+        // console.log(`Watchlist fetched successfully:`, formattedMovies);
       } catch (error) {
         console.error(`Fetching last seen  failed:`, error);
       }
     };
-    
-  
+
     fetchMovies("trendingMovies", setMovies);
     fetchMovies("popularMovies", setPopularMovies);
     fetchLastSeenMovies();
     fetchWatchlistMovies();
-  }, [personId, primaryUrl,backupUrl]);
+  }, [personId, primaryUrl, backupUrl]);
 
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
