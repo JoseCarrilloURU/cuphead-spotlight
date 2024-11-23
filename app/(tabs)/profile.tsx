@@ -95,7 +95,7 @@ const Reviews: Review[] = [
 export default function Home() {
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
-    routerTransition("push", "/movie", {});
+    routerTransition("push", "/tvshow", {});
   };
 
   const GoToFirstPage = (/*id: number*/) => {

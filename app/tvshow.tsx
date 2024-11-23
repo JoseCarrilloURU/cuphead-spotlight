@@ -5,9 +5,6 @@ import {
   View,
   FlatList,
   TextInput,
-  StyleSheet,
-  Pressable,
-  ScrollViewBase,
 } from "react-native";
 import Animated, { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
@@ -18,13 +15,14 @@ import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import HomeHeader from "@/components/homeHeader";
 import {
+  mockPosterMap,
   getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import moviestyles from "@/app/moviestyles";
 import routerTransition from "@/components/routerTransition";
 
-interface Movie {
+interface Show {
   title: string;
   categories: string[];
   score: number;
@@ -36,6 +34,7 @@ interface Movie {
 interface Cast {
   name: string;
   role: string;
+  eps: number;
 }
 
 interface OtherReviews {
@@ -45,29 +44,45 @@ interface OtherReviews {
   review: string;
 }
 
-const MovieInfo: Movie[] = [
+interface Seasons {
+  name: string;
+  episodes: number;
+  date: string;
+  score: number;
+  desc: string;
+}
+
+const ShowInfo: Show[] = [
   {
-    title: "The Wild Robot",
-    categories: ["Animation", "Science Fiction", "Family"],
+    title: "Arcane",
+    categories: [
+      "Animation",
+      "Sci-Fi & Fantasy",
+      "Action & Adventure",
+      "Mystery",
+    ],
     score: 88,
     date: "Sep 27, 2024",
-    duration: "1h 42m",
-    desc: "After a shipwreck, an intelligent robot called Roz is stranded on an uninhabited island. To survive the harsh environment, Roz bonds with the island's animals and cares for an orphaned baby goose.",
+    duration: "18 eps",
+    desc: "Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on rival sides of a war between magic technologies and clashing convictions.",
   },
 ];
 
 const CastInfo: Cast[] = [
   {
-    name: "Lupita Nyong'o",
-    role: "Roz (Voice)",
+    name: "Hailee Steinfeld",
+    role: "Vi (Voice)",
+    eps: 18,
   },
   {
-    name: "Pedro Pascal",
-    role: "Fink (Voice)",
+    name: "Ella Purnell",
+    role: "Jinx (Voice)",
+    eps: 18,
   },
   {
-    name: "Kit Connor",
-    role: "Brightbill (Voice)",
+    name: "Kevin Alejandro",
+    role: "Jayce (Voice)",
+    eps: 15,
   },
 ];
 
@@ -102,13 +117,30 @@ const OtherReviewsInfo: OtherReviews[] = [
   },
 ];
 
+const SeasonsInfo: Seasons[] = [
+  {
+    name: "Season 1",
+    episodes: 9,
+    date: "Nov 06, 2021",
+    score: 84,
+    desc: "Two sisters. Two cities. One discovery that will change the world forever. In the cities of Piltover and Zaun, unrest stirs as inventors and thieves, politicians and crime lords chafe against the constraints of a society torn asunder.",
+  },
+  {
+    name: "Season 2",
+    episodes: 9,
+    date: "Nov 09, 2024",
+    score: 93,
+    desc: "Alliances are forged, allegiances are smashed and fresh dangers emerge as the battle between Piltover and Zaun inspires both glory and heartbreak.",
+  },
+];
+
 const Category: React.FC<{ category: string }> = ({ category }) => (
   <View style={moviestyles.categoryContainer}>
     <Text style={moviestyles.categoryItem}>{category}</Text>
   </View>
 );
 
-const Cast: React.FC<Cast> = ({ name, role }) => (
+const Cast: React.FC<Cast> = ({ name, role, eps }) => (
   <View style={moviestyles.castContainer}>
     <Image
       source={require("@/assets/images/home/itemcard.png")}
@@ -120,6 +152,7 @@ const Cast: React.FC<Cast> = ({ name, role }) => (
     />
     <Text style={moviestyles.castTitle}>{name}</Text>
     <Text style={moviestyles.castRole}>{role}</Text>
+    <Text style={moviestyles.castRole}>{eps} episodes</Text>
   </View>
 );
 
@@ -137,7 +170,7 @@ const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review }) => (
       Review by {name}
     </Text>
     <Text style={moviestyles.othersdate} numberOfLines={1} ellipsizeMode="tail">
-      Published: {date} at {MovieInfo[0].title}
+      Published: {date} at {ShowInfo[0].title}
     </Text>
     <ScrollView
       style={moviestyles.othersreviewcontainer}
@@ -159,6 +192,45 @@ const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review }) => (
         style={moviestyles.myreviewflag}
       />
     </View>
+  </View>
+);
+
+const Season: React.FC<Seasons> = ({ name, episodes, date, score, desc }) => (
+  <View style={moviestyles.seasonContainer}>
+    <Image
+      source={require("@/assets/images/home/searchcard.png")}
+      style={moviestyles.seasonCard}
+    />
+    <Image source={mockPosterMap[1]} style={moviestyles.seasonPoster} />
+    <Image
+      source={require("@/assets/images/home/scorebadge.png")}
+      style={moviestyles.seasonScoreBadge}
+    />
+    <Text style={moviestyles.seasonScore}>{score}</Text>
+    {/* <Image
+        source={getFlagImageForNumber(score)}
+        style={searchstyles.imgScoreFlag}
+      /> */}
+    <LottieView
+      source={getFlagVideoForNumber(score)}
+      loop={true}
+      speed={0.6}
+      autoPlay
+      style={moviestyles.seasonScoreFlag}
+    />
+    <Text
+      style={moviestyles.seasonTitle}
+      numberOfLines={1}
+      ellipsizeMode="tail"
+    >
+      {name}
+    </Text>
+    <Text style={moviestyles.seasonDate} numberOfLines={1} ellipsizeMode="tail">
+      {episodes} episodes - Out {date}
+    </Text>
+    <Text style={moviestyles.seasonDesc} ellipsizeMode="tail" numberOfLines={4}>
+      {desc}
+    </Text>
   </View>
 );
 
@@ -269,7 +341,7 @@ export default function Movie() {
         >
           <TextInput
             style={moviestyles.popuptext}
-            placeholder="Give your opinion about this movie..."
+            placeholder="Give your opinion about this show..."
             placeholderTextColor="#777"
             multiline={true}
             numberOfLines={12}
@@ -279,7 +351,7 @@ export default function Movie() {
         </ScrollView>
       </MotiView>
       <MotiImage
-        source={require("@/assets/images/backgrounds/bg_movies.png")}
+        source={require("@/assets/images/backgrounds/bg_tv.png")}
         style={moviestyles.background}
         // from={{
         //   transform: [{ rotateZ: "0deg" }],
@@ -308,39 +380,39 @@ export default function Movie() {
             style={moviestyles.backdropcard}
           />
           <Image
-            source={require("@/assets/images/home/mockPosters/backdropmoviehd.jpg")}
+            source={require("@/assets/images/home/mockPosters/backdrophd.jpg")}
             style={moviestyles.backdrop}
           />
           <Image
             source={require("@/assets/images/home/scorebadge.png")}
             style={moviestyles.itemScoreBadge}
           />
-          <Text style={moviestyles.itemScore}>{MovieInfo[0].score}</Text>
+          <Text style={moviestyles.itemScore}>{ShowInfo[0].score}</Text>
           {/* <Image
-          source={getFlagImageForNumber(MovieInfo[0].score)}
-          style={moviestyles.imgScoreFlag}
-        /> */}
+            source={getFlagImageForNumber(ShowInfo[0].score)}
+            style={moviestyles.imgScoreFlag}
+          /> */}
           <LottieView
-            source={getFlagVideoForNumber(MovieInfo[0].score)}
+            source={getFlagVideoForNumber(ShowInfo[0].score)}
             loop={true}
             speed={0.6}
             autoPlay
             style={moviestyles.itemScoreFlag}
           />
-          <Text style={moviestyles.itemTitle}>{MovieInfo[0].title}</Text>
+          <Text style={moviestyles.itemTitle}>{ShowInfo[0].title}</Text>
           <Text
             style={moviestyles.itemData}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            Movie - {MovieInfo[0].duration} - Released {MovieInfo[0].date}
+            TV Show - {ShowInfo[0].duration} - Released {ShowInfo[0].date}
           </Text>
           <Image
             source={require("@/assets/images/home/itemcard.png")}
             style={moviestyles.itemCard}
           />
           <Image
-            source={require("@/assets/images/home/mockPosters/2.jpg")}
+            source={require("@/assets/images/home/mockPosters/1.jpg")}
             style={moviestyles.itemPoster}
           />
           <AnimatedButton
@@ -355,7 +427,7 @@ export default function Movie() {
           />
           <View style={moviestyles.categorylistcontainer}>
             <FlatList
-              data={MovieInfo[0].categories}
+              data={ShowInfo[0].categories}
               renderItem={({ item }) => <Category category={item} />}
               keyExtractor={(item) => item}
               horizontal={true}
@@ -363,7 +435,7 @@ export default function Movie() {
             />
           </View>
           <Text style={moviestyles.overviewtitle}>Overview</Text>
-          <Text style={moviestyles.overview}>{MovieInfo[0].desc}</Text>
+          <Text style={moviestyles.overview}>{ShowInfo[0].desc}</Text>
           <View style={{ top: -335, left: 0 }}>
             <Text style={moviestyles.itemTitlesub}>Top Cast</Text>
           </View>
@@ -371,12 +443,33 @@ export default function Movie() {
             <FlatList
               data={CastInfo}
               renderItem={({ item }) => (
-                <Cast name={item.name} role={item.role} />
+                <Cast name={item.name} role={item.role} eps={item.eps} />
               )}
               keyExtractor={(index) => index.toString()}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             />
+          </View>
+          <View style={{ top: -200, left: 0 }}>
+            <Text style={moviestyles.itemTitlesub}>All Seasons</Text>
+          </View>
+          <View style={moviestyles.seasonlistcontainer}>
+            <FlatList
+              data={SeasonsInfo}
+              renderItem={({ item }) => (
+                <Season
+                  name={item.name}
+                  score={item.score}
+                  date={item.date}
+                  episodes={item.episodes}
+                  desc={item.desc}
+                />
+              )}
+              keyExtractor={(index) => index.toString()}
+              scrollEnabled={true}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            ></FlatList>
           </View>
           <View style={{ top: -200, left: 20 }}>
             <Text style={moviestyles.itemTitlesub}>Write a Review!</Text>
@@ -396,7 +489,7 @@ export default function Movie() {
             style={moviestyles.reviewcollapsed}
             numberOfLines={6}
           >
-            You haven't reviewed this movie yet.
+            You haven't reviewed this show yet.
           </Text>
           <MotiView
             from={{ opacity: 0 }}

@@ -19,7 +19,13 @@ const AnimatedButton = ({ onPress, source, style, disabled }) => {
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled}
-      style={{ zIndex: 15 }}
+      style={{
+        zIndex: 15,
+        borderColor: "black",
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      }}
     >
       <MotiImage
         source={source}
