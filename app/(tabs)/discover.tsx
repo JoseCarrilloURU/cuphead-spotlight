@@ -25,6 +25,8 @@ import {
 } from "@/components/imageMaps";
 import tabstyles from "../tabstyles";
 import routerTransition from "@/components/routerTransition";
+import { usePersonId } from "@/components/PersonIdContext"; // Import the context
+
 
 interface Movie {
   id: number;
@@ -66,7 +68,8 @@ interface personIdProps {
 // ];
 
 export default function Home() {
-  const { personId } = useLocalSearchParams<{ personId: string }>();
+  const { personId: searchPersonId } = useLocalSearchParams<{ personId: string }>();
+  const { personId, setPersonId } = usePersonId(); // Use the context
   const [movies, setMovies] = useState<Movie[]>([]);
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
   const [watchlistMovies, setWatchlistMovies] = useState<Movie[]>([]);
@@ -75,12 +78,16 @@ export default function Home() {
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
   useEffect(() => {
-    if (!personId) {
-      console.log("personId is not available yet");
-      return;
-    }
-
-    console.log("Received personId from discover:", personId); // Log the personId to verify
+    
+      if (!searchPersonId) {
+        console.log("personId is not available yet");
+        return;
+      }
+  
+      console.log("Received personId from discover:", searchPersonId); // Log the personId to verify
+      setPersonId(searchPersonId); // Set the personId in the context
+      console.log("personId is set in the context:", searchPersonId);
+  
   
     const fetchMovies = async (endpoint: string, setState: React.Dispatch<React.SetStateAction<Movie[]>>) => {
       try {
@@ -96,7 +103,7 @@ export default function Home() {
         }
   
         const responseData = await response.json();
-        console.log(`${endpoint} fetched successfully:`, responseData);
+        //console.log(`${endpoint} fetched successfully:`, responseData);
 
         const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
           id: movie.id,
@@ -142,7 +149,7 @@ export default function Home() {
           };
         });
         setLastSeenMovies(formattedMovies);
-        console.log(`Last seen movies fetched successfully:`, formattedMovies);
+       // console.log(`Last seen movies fetched successfully:`, formattedMovies);
       } catch (error) {
         console.error(`Fetching last seen  failed:`, error);
       }
@@ -162,7 +169,7 @@ export default function Home() {
         }
   
         const responseData = await response.json();
-        console.log("Last watchlist response:", responseData);
+       // console.log("Last watchlist response:", responseData);
        
   
         const formattedMovies = responseData.watchlist.slice(0, 10).map((movie: any) => {
@@ -178,7 +185,7 @@ export default function Home() {
           };
         });
         setWatchlistMovies(formattedMovies);
-        console.log(`Watchlist fetched successfully:`, formattedMovies);
+       // console.log(`Watchlist fetched successfully:`, formattedMovies);
       } catch (error) {
         console.error(`Fetching last seen  failed:`, error);
       }

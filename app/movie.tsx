@@ -162,8 +162,11 @@ const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review }) => (
 );
 
 export default function Movie() {
+
   let [watchlist, setWatchlist] = useState(false);
   const [reviewText, setReviewText] = useState("");
+
+  
 
   const handleEnterReview = () => {
     console.log("Enter Review button pressed");
