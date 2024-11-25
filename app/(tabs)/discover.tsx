@@ -122,11 +122,12 @@ export default function Home() {
             score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
             date: formatDate(movie.release_date || movie.first_air_date),
             banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+            media_type: movie.media_type,
           }));
         setState(formattedMovies);
         //console.log(`${endpoint} fetched successfully:`, formattedMovies);
       } catch (error) {
-        console.error(`Fetching ${endpoint} failed:`, error);
+       //console.error(`Fetching ${endpoint} failed:`, error);
       }
     };
 
@@ -144,7 +145,7 @@ export default function Home() {
         }
 
         const responseData = await response.json();
-        // console.log("Last seen movies response:", responseData);
+        //console.log("Last seen movies response:", responseData);
 
         const formattedMovies = responseData.lastSeenMovies
           .slice(0, 10)
@@ -155,6 +156,7 @@ export default function Home() {
             ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
             return {
+              _id: movie._id,
               id: movie.movieId,
               title: movie.title,
               score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
@@ -162,12 +164,13 @@ export default function Home() {
               banner: movie.banner
                 ? `https://image.tmdb.org/t/p/w500${movie.banner}`
                 : undefined,
+              media_type: movie.media_type,
             };
           });
         setLastSeenMovies(formattedMovies);
-        // console.log(`Last seen movies fetched successfully:`, formattedMovies);
+        //console.log(`Last seen movies fetched successfully:`, formattedMovies);
       } catch (error) {
-        console.error(`Fetching last seen  failed:`, error);
+       // console.error(`Fetching last seen  failed:`, error);
       }
     };
 
@@ -196,6 +199,7 @@ export default function Home() {
             ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
             return {
+              _id: movie._id,
               id: movie.movieId,
               title: movie.title,
               score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
@@ -208,7 +212,7 @@ export default function Home() {
         setWatchlistMovies(formattedMovies);
         // console.log(`Watchlist fetched successfully:`, formattedMovies);
       } catch (error) {
-        console.error(`Fetching last seen  failed:`, error);
+       // console.error(`Fetching last seen  failed:`, error);
       }
     };
 
@@ -230,6 +234,7 @@ export default function Home() {
         //console.log("Last seen series response:", responseData);
     
         const formattedSeries = responseData.lastSeenSeries.slice(0, 10).map((series: any) => ({
+          _id: series._id,
           id: series.seriesId,
           title: series.title,
           score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
@@ -239,7 +244,7 @@ export default function Home() {
         setLastSeenSeries(formattedSeries);
         //console.log(`Last seen series fetched successfully:`, formattedSeries);
       } catch (error) {
-        console.error(`Fetching last seen series failed:`, error);
+       // console.error(`Fetching last seen series failed:`, error);
       }
     };
     
@@ -258,9 +263,10 @@ export default function Home() {
         }
     
         const responseData = await response.json();
-       // console.log("Watchlist series response:", responseData);
+       //console.log("Watchlist series response:", responseData);
     
         const formattedSeries = responseData.watchlistSeries.slice(0, 10).map((series: any) => ({
+          _id: series._id,
           id: series.seriesId,
           title: series.title,
           score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
@@ -270,7 +276,7 @@ export default function Home() {
         setWatchlistSeries(formattedSeries);
         //console.log(`Watchlist series fetched successfully:`, formattedSeries);
       } catch (error) {
-        console.error(`Fetching watchlist series failed:`, error);
+        //console.error(`Fetching watchlist series failed:`, error);
       }
     };
 
@@ -282,14 +288,220 @@ export default function Home() {
     fetchWatchlistSeries();
   }, [personId, primaryUrl, backupUrl]);
 
-  const handleItemPress = (id: number) => {
-    console.log("Item Pressed:", id);
-    routerTransition("push", "/movie", { id });
+// Fetch movie by ID and title
+  const fetchMovieByIdAndTitle = async (movieId: string, title: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/getMovieByIdAndTitle/${movieId}/${title}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      //console.log("Movie by ID and title response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error(`Fetching movie by ID and title failed:`, error);
+      return null;
+    }
+  };
+  
+  // Fetch series by ID and title
+  const fetchSeriesByIdAndTitle = async (seriesId: string, title: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/getSeriesByIdAndTitle/${seriesId}/${title}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      //console.log("Series by ID and title response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error(`Fetching series by ID and title failed:`, error);
+      return null;
+    }
   };
 
-  const Movie: React.FC<Movie & { onPress: () => void }> = ({ id, title, score, date, banner, onPress }) => (
+  // fetch to save the movie 
+  const createMovie = async (movie: any) => {
+    try {
+      const movieData = {
+        movieId: movie.id,
+      };
+  
+      const response = await fetch(`${backupUrl}/createMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      //console.log("Movie created successfully:", responseData);
+    } catch (error) {
+      console.error("Error creating movie:", error);
+    }
+  };
+
+
+  
+  
+  // fetch to save the series
+  const createSeries = async (series: any) => {
+    try {
+      const seriesData = {
+        seriesId: series.id,
+      };
+  
+      const response = await fetch(`${backupUrl}/createSeries`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seriesData),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      //console.log("Series created successfully:", responseData);
+    } catch (error) {
+      console.error("Error creating series:", error);
+    }
+  };
+
+
+  const addLastSeenMovie = async (movie: any) => {
+    try {
+
+      const movieData = {
+        userId: personId,
+        movieId: movie.id,
+      };
+      console.log("movieData", movieData);
+      const response = await fetch(`${backupUrl}/saveOurMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Movie saved successfully:", responseData);
+    } catch (error) {
+      console.error("Error saving movie:", error);
+    }
+  };
+  
+  const addLastSeenSeries = async (series: any) => {
+
+    const seriesData = {
+      userId: personId,
+      seriesId: series.id,
+    };
+
+    console.log("seriesData", seriesData);
+    try {
+      const response = await fetch(`${backupUrl}/addLastSeenSeries`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seriesData),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Series added to last seen successfully:", responseData);
+    } catch (error) {
+      console.error("Error adding series to last seen:", error);
+    }
+  };
+
+
+
+  // Handle item press
+  const handleItemPress = async (id: number, title: string, media_type: string) => {
+    console.log("Item Pressed:", id, title, media_type);
+  
+    try {
+      // Try to fetch the movie by ID and title
+      const movie = await fetchMovieByIdAndTitle(id.toString(), title);
+      if (movie) {
+        console.log("Movie found:", movie);
+        const lastSeenMovie = { personId,  id };
+        await addLastSeenMovie(lastSeenMovie);
+        routerTransition("push", "/movie", { id, title });
+      } else {
+        // If movie is not found, try to fetch the series by ID and title
+        const series = await fetchSeriesByIdAndTitle(id.toString(), title);
+        if (series) {
+          console.log("Series found:", series);
+          const lastSeenSeries = {personId, id }; // Corrected key to seriesId
+          await addLastSeenSeries(lastSeenSeries);
+          routerTransition("push", "/tvshow", { id, title });
+        } else {
+          console.log("Neither movie nor series found with the given ID and title.");
+  
+          // If neither movie nor series is found, create a new entry based on media_type
+          if (media_type === "movie") {
+            const newMovie = { id, title, media_type };
+            const lastSeenMovie = { personId, id };
+            await createMovie(newMovie);
+            await addLastSeenMovie(lastSeenMovie);
+            console.log("New movie created:", newMovie);
+            routerTransition("push", "/movie", { id, title });
+          } else if (media_type === "tv") {
+            const newSeries = { id, title, media_type };
+            const lastSeenSeries = { personId, seriesId: id }; // Corrected key to seriesId
+            await createSeries(newSeries);
+            await addLastSeenSeries(lastSeenSeries);
+            console.log("New series created:", newSeries);
+            routerTransition("push", "/tvshow", { id, title });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching movie or series:", error);
+    }
+  };
+
+  const Movie: React.FC<Movie & { onPress: (id: number, title: string, media_type: string) => void }> = ({ id, title, score, date, banner, media_type, onPress }) => (
     <View style={tabstyles.itemContainer}>
-      <Pressable onPress={onPress}>
+      <Pressable onPress={() => onPress(id, title, media_type)}>
         <Image
           source={require("@/assets/images/home/itemcard.png")}
           style={tabstyles.itemCard}
@@ -301,25 +513,21 @@ export default function Home() {
         style={tabstyles.itemScoreBadge}
       />
       <Text style={tabstyles.itemScore}>{score}</Text>
-      {/* <Image
-        source={getFlagImageForNumber(score)}
-        style={tabstyles.imgScoreFlag}
-      /> */}
       <LottieView
-      source={getFlagVideoForNumber(score)}
-      loop={true}
-      speed={0.6}
-      autoPlay
-      style={tabstyles.itemScoreFlag}
-    />
-    <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
-      {title}
-    </Text>
-    <Text style={tabstyles.itemDate} numberOfLines={1} ellipsizeMode="tail">
-      {date}
-    </Text>
-  </View>
-);
+        source={getFlagVideoForNumber(score)}
+        loop={true}
+        speed={0.6}
+        autoPlay
+        style={tabstyles.itemScoreFlag}
+      />
+      <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
+        {title}
+      </Text>
+      <Text style={tabstyles.itemDate} numberOfLines={1} ellipsizeMode="tail">
+        {date}
+      </Text>
+    </View>
+  );
 
   return (
     <View>
@@ -377,7 +585,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id)} // Pass the id to handleItemPress
+                onPress={() => handleItemPress(item.id , item.title, item.media_type)} // Pass the id to handleItemPress
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -403,6 +611,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                onPress={() => handleItemPress(item.id , item.title, item.media_type)} // Pass the id to handleItemPress
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -428,6 +637,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                onPress={() => handleItemPress(item.id , item.title, item.media_type)} // Pass the id to handleItemPress
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -453,6 +663,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                onPress={() => handleItemPress(item.id , item.title, item.media_type)} // Pass the id to handleItemPress
               />
             )}
             keyExtractor={(item) => item.id.toString()}

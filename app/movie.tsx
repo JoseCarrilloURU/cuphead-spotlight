@@ -22,6 +22,7 @@ import {
 import moviestyles from "@/app/moviestyles";
 import FiltersModal from "@/components/filtersModal";
 import routerTransition from "@/components/routerTransition";
+import { useLocalSearchParams } from "expo-router";
 
 interface Movie {
   title: string;
@@ -109,14 +110,18 @@ const Category: React.FC<{ category: string }> = ({ category }) => (
   </View>
 );
 
-const Cast: React.FC<Cast> = ({ name, role }) => (
+const Cast: React.FC<{ name: string; role: string; profilePath: string }> = ({
+  name,
+  role,
+  profilePath,
+}) => (
   <View style={moviestyles.castContainer}>
     <Image
       source={require("@/assets/images/home/itemcard.png")}
       style={moviestyles.castCard}
     />
     <Image
-      source={require("@/assets/images/home/mockPosters/castPoster.png")}
+      source={{ uri: `https://image.tmdb.org/t/p/w500${profilePath}` }}
       style={moviestyles.castPicture}
     />
     <Text style={moviestyles.castTitle}>{name}</Text>
@@ -164,11 +169,134 @@ const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review }) => (
 );
 
 export default function Movie() {
+  const { id: searchid, title: searchTitle } = useLocalSearchParams<{
+    id: string;
+  }>();
   const [modalShown, setModalShown] = useState(false);
   let [watchlist, setWatchlist] = useState(false);
   let [reviewmade, setReviewmade] = useState(false);
   let [yourScore, setYourScore] = useState("");
   let [popupShown, setPopupShown] = useState(false);
+  const [primaryUrl] = useState(
+    "http://backend-rottentomatoes-please-enough.up.railway.app"
+  );
+  const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
+  const [MovieData, setMovieData] = useState<any>({
+    title: "",
+    categories: [],
+    score: 0,
+    userscore: 0,
+    date: "",
+    duration: "",
+    desc: "",
+    cast: [],
+    director: "",
+    createdBy: "",
+    ratings: 0,
+    releaseDate: "",
+    description: "",
+    banner: "",
+  });
+
+  useEffect(() => {
+    console.log("Movie page loaded", searchid, searchTitle);
+
+    const fetchData = async () => {
+      try {
+        // Try to fetch the movie by ID and title
+        const movie = await fetchMovieByIdAndTitle(searchid, searchTitle);
+        if (movie) {
+          console.log("Movie found:", movie);
+          movie.releaseDate = formatDate(movie.releaseDate); // Formatear la fecha
+          setMovieData(movie);
+          console.log("Movie data:", MovieData);
+        } else {
+          // If movie is not found, try to fetch the series by ID and title
+          const series = await fetchSeriesByIdAndTitle(searchid, searchTitle);
+          if (series) {
+            series.releaseDate = formatDate(series.releaseDate); // Formatear la fecha
+            console.log("Series found:", series);
+            setMovieData(series);
+            // console.log("Series data:", MovieData);
+          } else {
+            console.log(
+              "Neither movie nor series found with the given ID and title."
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching movie or series:", error);
+      }
+    };
+
+    fetchData();
+  }, [searchid, searchTitle]);
+
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const fetchMovieByIdAndTitle = async (movieId: string, title: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/getMovieByIdAndTitle/${movieId}/${title}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Movie by ID and title response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error(`Fetching movie by ID and title failed:`, error);
+      return null;
+    }
+  };
+
+  // Fetch series by ID and title
+  const fetchSeriesByIdAndTitle = async (seriesId: string, title: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/getSeriesByIdAndTitle/${seriesId}/${title}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Series by ID and title response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error(`Fetching series by ID and title failed:`, error);
+      return null;
+    }
+  };
 
   const handleEnterReview = () => {
     console.log("Enter Review button pressed");
@@ -315,7 +443,9 @@ export default function Movie() {
             style={moviestyles.backdropcard}
           />
           <Image
-            source={require("@/assets/images/home/mockPosters/backdropmoviehd.jpg")}
+            source={{
+              uri: `https://image.tmdb.org/t/p/w500${MovieData.banner}`,
+            }}
             style={moviestyles.backdrop}
           />
           <View
@@ -328,7 +458,7 @@ export default function Movie() {
               source={require("@/assets/images/home/scorebadge.png")}
               style={moviestyles.itemScoreBadge}
             />
-            <Text style={moviestyles.itemScore}>{MovieInfo[0].userscore}</Text>
+            <Text style={moviestyles.itemScore}>{MovieData.ratings}</Text>
             {/* <Image
             source={getFlagImageForNumber(ShowInfo[0].score)}
             style={moviestyles.imgScoreFlag}
@@ -353,7 +483,7 @@ export default function Movie() {
               source={require("@/assets/images/home/scorebadge.png")}
               style={moviestyles.seasonScoreBadge}
             />
-            <Text style={moviestyles.seasonScore}>{MovieInfo[0].score}</Text>
+            <Text style={moviestyles.seasonScore}>{MovieData.score}</Text>
             <LottieView
               source={getFlagVideoForNumber(MovieInfo[0].score)}
               loop={true}
@@ -362,13 +492,13 @@ export default function Movie() {
               style={moviestyles.seasonScoreFlag}
             />
           </View>
-          <Text style={moviestyles.itemTitle}>{MovieInfo[0].title}</Text>
+          <Text style={moviestyles.itemTitle}>{MovieData.title}</Text>
           <Text
             style={moviestyles.itemData}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            Movie - {MovieInfo[0].duration} - Released {MovieInfo[0].date}
+            Movie - {MovieData.duration}`min` - Released {MovieData.releaseDate}
           </Text>
           <View style={{ top: -113, left: -72 }}>
             <Text
@@ -393,7 +523,9 @@ export default function Movie() {
             style={moviestyles.itemCard}
           />
           <Image
-            source={require("@/assets/images/home/mockPosters/2.jpg")}
+            source={{
+              uri: `https://image.tmdb.org/t/p/w500${MovieData.banner}`,
+            }}
             style={moviestyles.itemPoster}
           />
           <AnimatedButton
@@ -408,7 +540,7 @@ export default function Movie() {
           />
           <View style={moviestyles.categorylistcontainer}>
             <FlatList
-              data={MovieInfo[0].categories}
+              data={MovieData.categories}
               renderItem={({ item }) => <Category category={item} />}
               keyExtractor={(item) => item}
               horizontal={true}
@@ -416,17 +548,20 @@ export default function Movie() {
             />
           </View>
           <Text style={moviestyles.overviewtitle}>Overview</Text>
-          <Text style={moviestyles.overview}>{MovieInfo[0].desc}</Text>
+          <Text style={moviestyles.overview}>{MovieData.description}</Text>
           <View style={{ top: -335, left: 0 }}>
             <Text style={moviestyles.itemTitlesub}>Top Cast</Text>
           </View>
           <View style={moviestyles.listcontainer}>
             <FlatList
-              data={CastInfo}
+              data={MovieData.cast}
               renderItem={({ item }) => (
-                <Cast name={item.name} role={item.role} />
+                <Cast
+                  name={item.name}
+                  role={item.role}
+                  profilePath={item.profile_path}
+                />
               )}
-              keyExtractor={(index) => index.toString()}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             />
