@@ -76,6 +76,8 @@ export default function Home() {
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
   const [watchlistMovies, setWatchlistMovies] = useState<Movie[]>([]);
   const [lastSeenMovies, setLastSeenMovies] = useState<Movie[]>([]);
+  const [lastSeenSeries, setLastSeenSeries] = useState<Series[]>([]);
+  const [watchlistSeries, setWatchlistSeries] = useState<Series[]>([]);
   const [primaryUrl] = useState(
     "http://backend-rottentomatoes-please-enough.up.railway.app"
   );
@@ -208,10 +210,74 @@ export default function Home() {
       }
     };
 
+    const fetchLastSeenSeries = async () => {
+      try {
+        const response = await fetch(`${backupUrl}/lastSeenSeries/${personId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+    
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        }
+    
+        const responseData = await response.json();
+        //console.log("Last seen series response:", responseData);
+    
+        const formattedSeries = responseData.lastSeenSeries.slice(0, 10).map((series: any) => ({
+          id: series.seriesId,
+          title: series.title,
+          score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
+          date: series.releaseDate,
+          banner: series.banner ? `https://image.tmdb.org/t/p/w500${series.banner}` : undefined,
+        }));
+        setLastSeenSeries(formattedSeries);
+        //console.log(`Last seen series fetched successfully:`, formattedSeries);
+      } catch (error) {
+        console.error(`Fetching last seen series failed:`, error);
+      }
+    };
+    
+    const fetchWatchlistSeries = async () => {
+      try {
+        const response = await fetch(`${backupUrl}/watchlistSeries/${personId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+    
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        }
+    
+        const responseData = await response.json();
+       // console.log("Watchlist series response:", responseData);
+    
+        const formattedSeries = responseData.watchlistSeries.slice(0, 10).map((series: any) => ({
+          id: series.seriesId,
+          title: series.title,
+          score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
+          date: series.releaseDate,
+          banner: series.banner ? `https://image.tmdb.org/t/p/w500${series.banner}` : undefined,
+        }));
+        setWatchlistSeries(formattedSeries);
+        //console.log(`Watchlist series fetched successfully:`, formattedSeries);
+      } catch (error) {
+        console.error(`Fetching watchlist series failed:`, error);
+      }
+    };
+
     fetchMovies("trendingMovies", setMovies);
     fetchMovies("trendingWeekMovies", setPopularMovies);
     fetchLastSeenMovies();
     fetchWatchlistMovies();
+    fetchLastSeenSeries();
+    fetchWatchlistSeries();
   }, [personId, primaryUrl, backupUrl]);
 
   const handleItemPress = (id: number) => {
@@ -350,7 +416,7 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
-            data={watchlistMovies}
+            data={[...watchlistMovies, ...watchlistSeries]}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
@@ -375,7 +441,7 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
-            data={lastSeenMovies}
+            data={[...lastSeenMovies, ...lastSeenSeries]}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
