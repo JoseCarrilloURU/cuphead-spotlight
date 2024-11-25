@@ -24,6 +24,7 @@ import {
 } from "@/components/imageMaps";
 import tabstyles from "../tabstyles";
 import { setTransition } from "@/components/globals";
+import FiltersModal from "@/components/filtersModal";
 import { usePersonId } from "../../components/PersonIdContext"; // Correct import path
 
 interface Movie {
@@ -64,6 +65,7 @@ const Movies: Movie[] = [
 export default function Home() {
   const { personId } = usePersonId();
   const [bestToggle, setBestToggle] = useState(false);
+  const [modalShown, setModalShown] = useState(false);
   const [moviesInTheater, setMoviesInTheater] = useState<Movie[]>([]);
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
   const [topRatedMovies, setTopRatedMovies] = useState<Movie[]>([]);
@@ -108,11 +110,12 @@ export default function Home() {
         title: movie.name || movie.original_title,
         score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
         date: movie.release_date || movie.first_air_date,
-        banner: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
+        banner: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : undefined,
       }));
       setMoviesInTheater(formattedMovies);
       //console.log(`Movies in theater fetched successfully:`, formattedMovies);
-      
     } catch (error) {
       console.error(`Fetching movies in theater failed:`, error);
     }
@@ -135,16 +138,24 @@ export default function Home() {
       //console.log("topRated response:", responseData);
 
       if (!responseData.results) {
-        throw new Error(`API response did not contain results: ${JSON.stringify(responseData)}`);
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
       }
 
-      const formattedMovies = responseData.results.slice(0, 10).map((movie: any) => ({
-        id: movie.id,
-        title: movie.name || movie.original_title,
-        score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
-        date: movie.release_date || movie.first_air_date,
-        banner: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
-      }));
+      const formattedMovies = responseData.results
+        .slice(0, 10)
+        .map((movie: any) => ({
+          id: movie.id,
+          title: movie.name || movie.original_title,
+          score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
+          date: movie.release_date || movie.first_air_date,
+          banner: movie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            : undefined,
+        }));
       setTopRatedMovies(formattedMovies);
       //console.log("Top rated movies fetched successfully:", formattedMovies);
     } catch (error) {
@@ -173,14 +184,16 @@ export default function Home() {
         title: movie.name || movie.original_title,
         score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
         date: movie.release_date || movie.first_air_date,
-        banner: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
+        banner: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : undefined,
       }));
       setActionMovies(formattedMovies);
       //console.log("actionMoviesByRating fetched successfully:", formattedMovies);
     } catch (error) {
       console.error("Fetching actionMoviesByRating failed:", error);
     }
-  }
+  };
 
   const fetchComedyMovies = async () => {
     try {
@@ -193,7 +206,9 @@ export default function Home() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
 
       const responseData = await response.json();
@@ -204,7 +219,9 @@ export default function Home() {
         title: movie.name || movie.original_title,
         score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
         date: movie.release_date || movie.first_air_date,
-        banner: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
+        banner: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : undefined,
       }));
       setComedyMovies(formattedMovies);
       //console.log("comedyMoviesByRating fetched successfully:", formattedMovies);
@@ -212,7 +229,7 @@ export default function Home() {
       console.error("Fetching comedyMoviesByRating failed:", error);
     }
   };
-  
+
   const fetchAnimatedMovies = async () => {
     try {
       const response = await fetch(`${backupUrl}/animatedMoviesByRating`, {
@@ -221,22 +238,26 @@ export default function Home() {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       //console.log("animatedMoviesByRating response:", responseData);
-  
+
       // Assuming responseData is an array of movies
       const formattedMovies = responseData.slice(0, 10).map((movie: any) => ({
         id: movie.id,
         title: movie.name || movie.original_title,
         score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
         date: movie.release_date || movie.first_air_date,
-        banner: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
+        banner: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : undefined,
       }));
       setAnimatedMovies(formattedMovies);
       //console.log("animatedMoviesByRating fetched successfully:", formattedMovies);
@@ -253,22 +274,26 @@ export default function Home() {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       //console.log("horrorMoviesByRating response:", responseData);
-  
+
       // Assuming responseData is an array of movies
       const formattedMovies = responseData.slice(0, 10).map((movie: any) => ({
         id: movie.id,
         title: movie.name || movie.original_title,
         score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
         date: movie.release_date || movie.first_air_date,
-        banner: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
+        banner: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : undefined,
       }));
       setHorrorMovies(formattedMovies);
       //console.log("horrorMoviesByRating fetched successfully:", formattedMovies);
@@ -293,7 +318,9 @@ export default function Home() {
           source={require("@/assets/images/home/itemcard.png")}
           style={tabstyles.itemCard}
         />
-        {banner && <Image source={{ uri: banner }} style={tabstyles.itemPoster} />}
+        {banner && (
+          <Image source={{ uri: banner }} style={tabstyles.itemPoster} />
+        )}
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
@@ -346,11 +373,13 @@ export default function Home() {
         //   easing: Easing.linear,
         // }}
       />
+      <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView>
         <HomeHeader
           placeholder={"Search Movies..."}
           originTab={2}
           searchValue={""}
+          setModalShown={setModalShown}
         />
         <View style={tabstyles.listcontainer}>
           <Image
@@ -389,10 +418,10 @@ export default function Home() {
             onPress={handleBestToggle}
             style={{
               borderColor: "black",
-              borderWidth: 2,
+              borderWidth: 0,
               borderStyle: "solid",
               position: "absolute",
-              top: 28,
+              top: 29,
               right: 0,
               zIndex: 14,
             }}
@@ -525,12 +554,12 @@ export default function Home() {
             data={horrorMovies}
             renderItem={({ item }) => (
               <Movie
-              id={item.id}
-              title={item.title}
-              score={item.score}
-              date={item.date}
-              banner={item.banner}
-            />
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+                banner={item.banner}
+              />
             )}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}

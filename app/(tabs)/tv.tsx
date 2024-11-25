@@ -23,8 +23,9 @@ import {
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import tabstyles from "../tabstyles";
+import FiltersModal from "@/components/filtersModal";
 import { setTransition } from "@/components/globals";
-import { usePersonId } from "../../components/PersonIdContext"; 
+import { usePersonId } from "../../components/PersonIdContext";
 
 interface Movie {
   id: number;
@@ -64,9 +65,12 @@ const Movies: Movie[] = [
 export default function Home() {
   const { personId } = usePersonId();
   const [bestToggle, setBestToggle] = useState(false);
+  const [modalShown, setModalShown] = useState(false);
   const [popularSeries, setPopularSeries] = useState<Series[]>([]);
   const [topRatedSeries, setTopRatedSeries] = useState<Series[]>([]);
-  const [actionAdventureSeries, setActionAdventureSeries] = useState<Series[]>([]);
+  const [actionAdventureSeries, setActionAdventureSeries] = useState<Series[]>(
+    []
+  );
   const [animationSeries, setAnimationSeries] = useState<Series[]>([]);
   const [dramaSeries, setDramaSeries] = useState<Series[]>([]);
   const [comedySeries, setComedySeries] = useState<Series[]>([]);
@@ -103,16 +107,24 @@ export default function Home() {
       console.log("popularSeries response:", responseData);
 
       if (!responseData.results) {
-        throw new Error(`API response did not contain results: ${JSON.stringify(responseData)}`);
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
       }
 
-      const formattedSeries = responseData.results.slice(0, 10).map((series: any) => ({
-        id: series.id,
-        title: series.name || series.original_title,
-        score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
-        date: series.release_date || series.first_air_date,
-        banner: series.poster_path ? `https://image.tmdb.org/t/p/w500${series.poster_path}` : undefined,
-      }));
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
       setPopularSeries(formattedSeries);
       console.log("popularSeries fetched successfully:", formattedSeries);
     } catch (error) {
@@ -137,16 +149,24 @@ export default function Home() {
       //console.log("topRatedSeries response:", responseData);
 
       if (!responseData.results) {
-        throw new Error(`API response did not contain results: ${JSON.stringify(responseData)}`);
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
       }
 
-      const formattedSeries = responseData.results.slice(0, 10).map((series: any) => ({
-        id: series.id,
-        title: series.name || series.original_title,
-        score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
-        date: series.release_date || series.first_air_date,
-        banner: series.poster_path ? `https://image.tmdb.org/t/p/w500${series.poster_path}` : undefined,
-      }));
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
       setTopRatedSeries(formattedSeries);
       //console.log("topRatedSeries fetched successfully:", formattedSeries);
     } catch (error) {
@@ -168,21 +188,29 @@ export default function Home() {
       }
 
       const responseData = await response.json();
-     //console.log("actionAdventureSeries response:", responseData);
+      //console.log("actionAdventureSeries response:", responseData);
 
       if (!responseData.results) {
-        throw new Error(`API response did not contain results: ${JSON.stringify(responseData)}`);
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
       }
 
-      const formattedSeries = responseData.results.slice(0, 10).map((series: any) => ({
-        id: series.id,
-        title: series.name || series.original_title,
-        score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
-        date: series.release_date || series.first_air_date,
-        banner: series.poster_path ? `https://image.tmdb.org/t/p/w500${series.poster_path}` : undefined,
-      }));
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
       setActionAdventureSeries(formattedSeries);
-     // console.log("actionAdventureSeries fetched successfully:", formattedSeries);
+      // console.log("actionAdventureSeries fetched successfully:", formattedSeries);
     } catch (error) {
       console.error("Fetching actionAdventureSeries failed:", error);
     }
@@ -205,16 +233,24 @@ export default function Home() {
       //console.log("animationSeries response:", responseData);
 
       if (!responseData.results) {
-        throw new Error(`API response did not contain results: ${JSON.stringify(responseData)}`);
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
       }
 
-      const formattedSeries = responseData.results.slice(0, 10).map((series: any) => ({
-        id: series.id,
-        title: series.name || series.original_title,
-        score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
-        date: series.release_date || series.first_air_date,
-        banner: series.poster_path ? `https://image.tmdb.org/t/p/w500${series.poster_path}` : undefined,
-      }));
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
       setAnimationSeries(formattedSeries);
       //console.log("animationSeries fetched successfully:", formattedSeries);
     } catch (error) {
@@ -239,16 +275,24 @@ export default function Home() {
       //console.log("dramaSeries response:", responseData);
 
       if (!responseData.results) {
-        throw new Error(`API response did not contain results: ${JSON.stringify(responseData)}`);
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
       }
 
-      const formattedSeries = responseData.results.slice(0, 10).map((series: any) => ({
-        id: series.id,
-        title: series.name || series.original_title,
-        score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
-        date: series.release_date || series.first_air_date,
-        banner: series.poster_path ? `https://image.tmdb.org/t/p/w500${series.poster_path}` : undefined,
-      }));
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
       setDramaSeries(formattedSeries);
       //console.log("dramaSeries fetched successfully:", formattedSeries);
     } catch (error) {
@@ -273,16 +317,24 @@ export default function Home() {
       //console.log("comedySeries response:", responseData);
 
       if (!responseData.results) {
-        throw new Error(`API response did not contain results: ${JSON.stringify(responseData)}`);
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
       }
 
-      const formattedSeries = responseData.results.slice(0, 10).map((series: any) => ({
-        id: series.id,
-        title: series.name || series.original_title,
-        score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
-        date: series.release_date || series.first_air_date,
-        banner: series.poster_path ? `https://image.tmdb.org/t/p/w500${series.poster_path}` : undefined,
-      }));
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
       setComedySeries(formattedSeries);
       //console.log("comedySeries fetched successfully:", formattedSeries);
     } catch (error) {
@@ -299,14 +351,23 @@ export default function Home() {
     setBestToggle(!bestToggle);
   };
 
-  const Movie: React.FC<Series & { onPress: () => void }> = ({ id, title, score, date, banner, onPress }) => (
+  const Movie: React.FC<Series & { onPress: () => void }> = ({
+    id,
+    title,
+    score,
+    date,
+    banner,
+    onPress,
+  }) => (
     <View style={tabstyles.itemContainer}>
       <Pressable onPress={onPress}>
         <Image
           source={require("@/assets/images/home/itemcard.png")}
           style={tabstyles.itemCard}
         />
-        {banner && <Image source={{ uri: banner }} style={tabstyles.itemPoster} />}
+        {banner && (
+          <Image source={{ uri: banner }} style={tabstyles.itemPoster} />
+        )}
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
@@ -359,11 +420,13 @@ export default function Home() {
         //   easing: Easing.linear,
         // }}
       />
+      <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView>
         <HomeHeader
           placeholder={"Search TV Shows..."}
           originTab={3}
           searchValue={""}
+          setModalShown={setModalShown}
         />
         <View style={tabstyles.listcontainer}>
           <Image
@@ -378,12 +441,12 @@ export default function Home() {
             data={popularSeries}
             renderItem={({ item }) => (
               <Movie
-              id={item.id}
-              title={item.title}
-              score={item.score}
-              date={item.date}
-              banner={item.banner}
-              onPress={() => handleItemPress(item.id)}
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -439,12 +502,12 @@ export default function Home() {
             data={topRatedSeries}
             renderItem={({ item }) => (
               <Movie
-              id={item.id}
-              title={item.title}
-              score={item.score}
-              date={item.date}
-              banner={item.banner}
-              onPress={() => handleItemPress(item.id)}
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -465,12 +528,12 @@ export default function Home() {
             data={actionAdventureSeries}
             renderItem={({ item }) => (
               <Movie
-              id={item.id}
-              title={item.title}
-              score={item.score}
-              date={item.date}
-              banner={item.banner}
-              onPress={() => handleItemPress(item.id)}
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -488,15 +551,15 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
-             data={animationSeries}
+            data={animationSeries}
             renderItem={({ item }) => (
               <Movie
-              id={item.id}
-              title={item.title}
-              score={item.score}
-              date={item.date}
-              banner={item.banner}
-              onPress={() => handleItemPress(item.id)}
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -517,12 +580,12 @@ export default function Home() {
             data={dramaSeries}
             renderItem={({ item }) => (
               <Movie
-              id={item.id}
-              title={item.title}
-              score={item.score}
-              date={item.date}
-              banner={item.banner}
-              onPress={() => handleItemPress(item.id)}
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -543,12 +606,12 @@ export default function Home() {
             data={comedySeries}
             renderItem={({ item }) => (
               <Movie
-              id={item.id}
-              title={item.title}
-              score={item.score}
-              date={item.date}
-              banner={item.banner}
-              onPress={() => handleItemPress(item.id)}
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}

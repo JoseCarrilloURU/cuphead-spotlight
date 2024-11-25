@@ -15,6 +15,8 @@ const searchBGMap: { [key: number]: any } = {
   1: require("@/assets/images/backgrounds/bg_discover.png"),
   2: require("@/assets/images/backgrounds/bg_movies.png"),
   3: require("@/assets/images/backgrounds/bg_tv.png"),
+  6: require("@/assets/images/backgrounds/bg_movies.png"),
+  7: require("@/assets/images/backgrounds/bg_tv.png"),
 };
 
 const getFlagImageForNumber = (number: number): void => {
@@ -24,7 +26,7 @@ const getFlagImageForNumber = (number: number): void => {
     return require("../assets/images/flags/70-79.png");
   } else if (number >= 40 && number <= 69) {
     return require("../assets/images/flags/69-40.png");
-  } else if (number >= 0 && number <= 39) {
+  } else if (number >= 1 && number <= 39) {
     return require("../assets/images/flags/39-0.png");
   } else {
     return;
@@ -37,10 +39,10 @@ const getFlagVideoForNumber = (number: number): void => {
     return require("../assets/images/flags/Flag3.json");
   } else if (number >= 40 && number <= 69) {
     return require("../assets/images/flags/Flag2.json");
-  } else if (number >= 0 && number <= 39) {
+  } else if (number >= 1 && number <= 39) {
     return require("../assets/images/flags/Flag1.json");
   } else {
-    return;
+    return require("../assets/images/flags/flag0.png");
   }
 };
 
