@@ -21,8 +21,6 @@ export default function RootLayout() {
       PadNCarrilloFont: require("../assets/fonts/CupheadFelix-Regular-merged.ttf"),
       BaseFont: require("../assets/fonts/CupheadVogue-Bold-merged.ttf"),
       BoldFont: require("../assets/fonts/CupheadVogue-ExtraBold.otf"),
-      BaseFont2: require("../assets/fonts/CupheadHenriette-A-merged.ttf"),
-      BaseFont3: require("../assets/fonts/CupheadMemphis-Medium-merged.ttf"),
     });
     setFontsLoaded(true);
   };
@@ -34,7 +32,16 @@ export default function RootLayout() {
     //     volume: 0.6,
     //   });
     // };
+    // const loadMusic = async () => {
+    //   await playSound(require("../assets/sound/appMusic.wav"), {
+    //     isLooping: true,
+    //     volume: 0.4,
+    //   });
+    // };
     // loadSFX();
+    // setTimeout(() => {
+    //   loadMusic();
+    // }, 500);
 
     loadFonts();
   }, []);
@@ -62,8 +69,8 @@ export default function RootLayout() {
         <Image
           source={require("../assets/images/inshade.png")}
           style={texturestyle.shade}
-        /> */}
-        {/* <LottieView
+        />
+        <LottieView
           source={require("../assets/images/scratchgrain.json")}
           loop={true}
           speed={1.0}

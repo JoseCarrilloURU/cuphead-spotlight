@@ -22,6 +22,7 @@ import {
   getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
+import FiltersModal from "@/components/filtersModal";
 import routerTransition from "@/components/routerTransition";
 
 interface Movie {
@@ -33,8 +34,6 @@ interface Movie {
   duration: string;
   desc: string;
 }
-
-
 
 const Movies: Movie[] = [
   {
@@ -83,6 +82,24 @@ export default function Search() {
   }>();
 
   const bgnum = parseInt(originTab);
+  const [modalShown, setModalShown] = useState(false);
+  const [bestToggle, setBestToggle] = useState(false);
+  const [filter, setFilter] = useState<"popularity" | "rating" | "date">(
+    "popularity"
+  );
+
+  const handleBestToggle = () => {
+    console.log("Best Toggle Pressed");
+    setBestToggle(!bestToggle);
+  };
+
+  const handleFilterToggle = () => {
+    setFilter((prevFilter) => {
+      if (prevFilter === "popularity") return "rating";
+      if (prevFilter === "rating") return "date";
+      return "popularity";
+    });
+  };
 
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
@@ -184,16 +201,113 @@ export default function Search() {
         //   easing: Easing.linear,
         // }}
       />
+      <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView>
         <HomeHeader
           placeholder={placeholder}
           originTab={5}
           searchValue={searchText}
+          setModalShown={setModalShown}
         />
         <Image
           source={require("@/assets/images/home/TheResults.png")}
           style={searchstyles.results}
         />
+        <Image
+          source={require("@/assets/images/home/sortbg.png")}
+          style={searchstyles.sortbg}
+        />
+        <Text style={searchstyles.stripTitle} numberOfLines={1}>
+          Sort By
+        </Text>
+        <View style={{ left: -137, top: -9 }}>
+          <Pressable
+            onPress={handleFilterToggle}
+            style={{
+              borderColor: "black",
+              borderWidth: 0,
+              borderStyle: "solid",
+              position: "absolute",
+              top: 29,
+              right: 0,
+              zIndex: 14,
+            }}
+          >
+            <MotiText
+              from={{
+                scale: 0.8,
+                opacity: 0.4,
+              }}
+              animate={
+                filter === "popularity" ? { scale: 1.1, opacity: 1 } : {}
+              }
+              transition={{
+                type: "timing",
+                duration: 800,
+              }}
+              style={searchstyles.toggle1}
+            >
+              Popularity
+            </MotiText>
+            <MotiText
+              from={{ scale: 0.8, opacity: 0.4 }}
+              animate={filter === "rating" ? { scale: 1.1, opacity: 1 } : {}}
+              transition={{
+                type: "timing",
+                duration: 800,
+              }}
+              style={searchstyles.toggle2}
+            >
+              Rating
+            </MotiText>
+            <MotiText
+              from={{ scale: 0.8, opacity: 0.4 }}
+              animate={filter === "date" ? { scale: 1.1, opacity: 1 } : {}}
+              transition={{
+                type: "timing",
+                duration: 800,
+              }}
+              style={searchstyles.toggle3}
+            >
+              Date
+            </MotiText>
+          </Pressable>
+        </View>
+        <Pressable
+          onPress={handleBestToggle}
+          style={{
+            borderColor: "black",
+            borderWidth: 0,
+            borderStyle: "solid",
+            position: "absolute",
+            top: 29,
+            right: 0,
+            zIndex: 14,
+          }}
+        >
+          <MotiText
+            from={{ scale: 1.1, opacity: 1 }}
+            animate={bestToggle ? { scale: 0.8, opacity: 0.4 } : {}}
+            transition={{
+              type: "timing",
+              duration: 800,
+            }}
+            style={searchstyles.toggle1}
+          >
+            Descending
+          </MotiText>
+          <MotiText
+            from={{ scale: 0.8, opacity: 0.4 }}
+            animate={bestToggle ? { scale: 1.1, opacity: 1 } : {}}
+            transition={{
+              type: "timing",
+              duration: 800,
+            }}
+            style={searchstyles.toggle2}
+          >
+            Ascending
+          </MotiText>
+        </Pressable>
         <View style={searchstyles.listcontainer}>
           <FlatList
             data={Movies}
@@ -210,7 +324,7 @@ export default function Search() {
             )}
             keyExtractor={(item) => item.id.toString()}
             scrollEnabled={false}
-          ></FlatList>
+          />
         </View>
         <AnimatedButton
           onPress={handlePreviousPage}
@@ -243,47 +357,80 @@ export default function Search() {
 }
 
 const searchstyles = StyleSheet.create({
-  firstpage: {
+  toggle1: {
     position: "absolute",
-    width: 68,
-    height: 68,
-    top: 13,
-    left: 25,
-  },
-  prevpage: {
-    position: "absolute",
-    width: 72,
-    height: 72,
-    top: 3,
-    left: 112,
-  },
-  currentpage: {
-    position: "relative",
-    width: 76,
-    height: 76,
-    top: -2,
-    left: 202,
-  },
-  nextpage: {
-    position: "absolute",
-    width: 72,
-    height: 72,
-    top: 4,
-    left: 298,
-  },
-  currentpagenum: {
-    position: "relative",
-    width: 70,
-    height: 70,
-    top: -68,
-    left: 204,
-    fontSize: 34,
-    fontFamily: "BoldFont",
-    color: "#111",
+    width: 120,
+    top: 354,
+    right: 8,
+    fontSize: 14,
+    fontFamily: "PadNCarrilloFont",
+    color: "#f8e7d5",
     zIndex: 1,
+    textShadowRadius: 6,
     textAlign: "center",
-    textShadowColor: "#fff",
-    marginBottom: -50,
+    textShadowColor: "#000",
+    textShadowOffset: { width: 3, height: 3 },
+    borderColor: "transparent",
+    borderWidth: 1,
+  },
+  toggle2: {
+    position: "absolute",
+    width: 120,
+    top: 374,
+    right: 7,
+    fontSize: 14,
+    fontFamily: "PadNCarrilloFont",
+    color: "#f8e7d5",
+    zIndex: 1,
+    textShadowRadius: 6,
+    textAlign: "center",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 3, height: 3 },
+    borderColor: "transparent",
+    borderWidth: 1,
+  },
+  toggle3: {
+    position: "absolute",
+    width: 120,
+    top: 394,
+    right: 8,
+    fontSize: 14,
+    fontFamily: "PadNCarrilloFont",
+    color: "#f8e7d5",
+    zIndex: 1,
+    textShadowRadius: 6,
+    textAlign: "center",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 3, height: 3 },
+    borderColor: "transparent",
+    borderWidth: 1,
+  },
+  stripTitle: {
+    position: "absolute",
+    width: 400,
+    top: 390,
+    left: 12,
+    fontSize: 18,
+    fontFamily: "PadNCarrilloFont",
+    color: "#f8e7d5",
+    zIndex: 10,
+    textShadowRadius: 6,
+    textShadowColor: "#000",
+    textShadowOffset: { width: 3, height: 3 },
+    borderColor: "transparent",
+    borderWidth: 0,
+  },
+  sortbg: {
+    position: "absolute",
+    width: 400,
+    height: 115,
+    opacity: 1,
+    top: 350,
+  },
+  listcontainer: {
+    marginTop: 480,
+    height: "auto",
+    // marginBottom: 80,
   },
   itemContainer: {
     marginLeft: 12,
@@ -393,17 +540,54 @@ const searchstyles = StyleSheet.create({
     left: 325,
     transform: [{ rotate: "-8deg" }],
   },
-  listcontainer: {
-    marginTop: 360,
-    height: "auto",
-    // marginBottom: 80,
-  },
   results: {
     position: "absolute",
     width: 360,
     height: 82,
-    top: 260,
+    top: 257,
     left: 14,
+  },
+  firstpage: {
+    position: "absolute",
+    width: 68,
+    height: 68,
+    top: 13,
+    left: 25,
+  },
+  prevpage: {
+    position: "absolute",
+    width: 72,
+    height: 72,
+    top: 3,
+    left: 112,
+  },
+  currentpage: {
+    position: "relative",
+    width: 76,
+    height: 76,
+    top: -2,
+    left: 202,
+  },
+  nextpage: {
+    position: "absolute",
+    width: 72,
+    height: 72,
+    top: 4,
+    left: 298,
+  },
+  currentpagenum: {
+    position: "relative",
+    width: 70,
+    height: 70,
+    top: -68,
+    left: 204,
+    fontSize: 34,
+    fontFamily: "BoldFont",
+    color: "#111",
+    zIndex: 1,
+    textAlign: "center",
+    textShadowColor: "#fff",
+    marginBottom: -50,
   },
   background: {
     position: "absolute",

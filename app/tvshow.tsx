@@ -5,6 +5,7 @@ import {
   View,
   FlatList,
   TextInput,
+  Keyboard,
 } from "react-native";
 import Animated, { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
@@ -20,12 +21,14 @@ import {
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import moviestyles from "@/app/moviestyles";
+import FiltersModal from "@/components/filtersModal";
 import routerTransition from "@/components/routerTransition";
 
 interface Show {
   title: string;
   categories: string[];
   score: number;
+  userscore: number;
   date: string;
   duration: string;
   desc: string;
@@ -62,6 +65,7 @@ const ShowInfo: Show[] = [
       "Mystery",
     ],
     score: 88,
+    userscore: 100,
     date: "Sep 27, 2024",
     duration: "18 eps",
     desc: "Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on rival sides of a war between magic technologies and clashing convictions.",
@@ -178,7 +182,7 @@ const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review }) => (
     >
       <Text style={moviestyles.othersreview}>{review}</Text>
     </ScrollView>
-    <View style={{ top: -195, left: -10, marginBottom: -300 }}>
+    <View style={{ top: -185, left: -10, marginBottom: -290 }}>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
         style={moviestyles.myreviewbadge}
@@ -207,10 +211,6 @@ const Season: React.FC<Seasons> = ({ name, episodes, date, score, desc }) => (
       style={moviestyles.seasonScoreBadge}
     />
     <Text style={moviestyles.seasonScore}>{score}</Text>
-    {/* <Image
-        source={getFlagImageForNumber(score)}
-        style={searchstyles.imgScoreFlag}
-      /> */}
     <LottieView
       source={getFlagVideoForNumber(score)}
       loop={true}
@@ -235,6 +235,7 @@ const Season: React.FC<Seasons> = ({ name, episodes, date, score, desc }) => (
 );
 
 export default function Movie() {
+  const [modalShown, setModalShown] = useState(false);
   let [watchlist, setWatchlist] = useState(false);
   let [reviewmade, setReviewmade] = useState(false);
   let [yourScore, setYourScore] = useState("");
@@ -246,15 +247,18 @@ export default function Movie() {
   };
   const handleExitReview = () => {
     console.log("Exit Review button pressed");
+    Keyboard.dismiss();
     setPopupShown(false);
   };
   const handleDelReview = () => {
     console.log("Delete Review button pressed");
+    Keyboard.dismiss();
     setReviewmade(false);
     setPopupShown(false);
   };
   const handleSendReview = () => {
     console.log("Send Review button pressed");
+    Keyboard.dismiss();
     setReviewmade(true);
     //CONVERTIR TEXT DE COLLAPSABLE AL REVIEW
     setPopupShown(false);
@@ -329,7 +333,7 @@ export default function Movie() {
           style={moviestyles.popupscoretext}
           value={yourScore}
           onChangeText={(text) => setYourScore(text)}
-          placeholder="(0-100)"
+          placeholder="(1-100)"
           placeholderTextColor="#555"
           keyboardType="number-pad"
           numberOfLines={1}
@@ -367,13 +371,14 @@ export default function Movie() {
         //   easing: Easing.linear,
         // }}
       />
+      <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView nestedScrollEnabled={true}>
         <HomeHeader
           placeholder="Search Movies & TV..."
-          originTab={6}
-          searchValue=""
+          originTab={7}
+          searchValue={""}
+          setModalShown={setModalShown}
         />
-        <View></View>
         <View>
           <Image
             source={require("@/assets/images/home/backdropcard.png")}
@@ -383,22 +388,50 @@ export default function Movie() {
             source={require("@/assets/images/home/mockPosters/backdrophd.jpg")}
             style={moviestyles.backdrop}
           />
-          <Image
-            source={require("@/assets/images/home/scorebadge.png")}
-            style={moviestyles.itemScoreBadge}
-          />
-          <Text style={moviestyles.itemScore}>{ShowInfo[0].score}</Text>
-          {/* <Image
+          <View
+            style={{
+              position: "absolute",
+              left: -285,
+            }}
+          >
+            <Image
+              source={require("@/assets/images/home/scorebadge.png")}
+              style={moviestyles.itemScoreBadge}
+            />
+            <Text style={moviestyles.itemScore}>{ShowInfo[0].userscore}</Text>
+            {/* <Image
             source={getFlagImageForNumber(ShowInfo[0].score)}
             style={moviestyles.imgScoreFlag}
           /> */}
-          <LottieView
-            source={getFlagVideoForNumber(ShowInfo[0].score)}
-            loop={true}
-            speed={0.6}
-            autoPlay
-            style={moviestyles.itemScoreFlag}
-          />
+            <LottieView
+              source={getFlagVideoForNumber(ShowInfo[0].userscore)}
+              loop={true}
+              speed={0.6}
+              autoPlay
+              style={moviestyles.itemScoreFlag}
+            />
+          </View>
+          <View
+            style={{
+              position: "absolute",
+              top: 300,
+              left: 5,
+              zIndex: 10,
+            }}
+          >
+            <Image
+              source={require("@/assets/images/home/scorebadge.png")}
+              style={moviestyles.seasonScoreBadge}
+            />
+            <Text style={moviestyles.seasonScore}>{ShowInfo[0].score}</Text>
+            <LottieView
+              source={getFlagVideoForNumber(ShowInfo[0].score)}
+              loop={true}
+              speed={0.6}
+              autoPlay
+              style={moviestyles.seasonScoreFlag}
+            />
+          </View>
           <Text style={moviestyles.itemTitle}>{ShowInfo[0].title}</Text>
           <Text
             style={moviestyles.itemData}
@@ -407,6 +440,24 @@ export default function Movie() {
           >
             TV Show - {ShowInfo[0].duration} - Released {ShowInfo[0].date}
           </Text>
+          <View style={{ top: -113, left: -72 }}>
+            <Text
+              style={moviestyles.itemData}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              User Score
+            </Text>
+          </View>
+          <View style={{ top: -113, left: 73 }}>
+            <Text
+              style={moviestyles.itemData}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Reviewer Score
+            </Text>
+          </View>
           <Image
             source={require("@/assets/images/home/itemcard.png")}
             style={moviestyles.itemCard}

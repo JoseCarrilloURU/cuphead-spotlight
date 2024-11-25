@@ -26,7 +26,8 @@ import {
 import formatDate from "@/components/formatDate";
 import tabstyles from "../tabstyles";
 import routerTransition from "@/components/routerTransition";
-import { usePersonId } from "@/components/PersonIdContext"; // Import the context
+import FiltersModal from "@/components/filtersModal";
+import { usePersonId } from "@/components/PersonIdContext";
 
 interface Movie {
   id: number;
@@ -71,6 +72,7 @@ export default function Home() {
   const { personId: searchPersonId } = useLocalSearchParams<{
     personId: string;
   }>();
+  const [modalShown, setModalShown] = useState(false);
   const { personId, setPersonId } = usePersonId(); // Use the context
   const [movies, setMovies] = useState<Movie[]>([]);
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
@@ -283,11 +285,13 @@ export default function Home() {
         //   easing: Easing.linear,
         // }}
       />
+      <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView>
         <HomeHeader
           placeholder={"Search Movies & TV..."}
           originTab={1}
           searchValue={""}
+          setModalShown={setModalShown}
         />
         <View style={tabstyles.listcontainer}>
           <Image

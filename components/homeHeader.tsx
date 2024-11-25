@@ -7,20 +7,25 @@ import {
   StyleSheet,
 } from "react-native";
 import React, { useState, useEffect } from "react";
+import { MotiView } from "moti";
+import { SelectList } from "react-native-dropdown-select-list";
 import { playSound } from "@/components/soundUtils";
 import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "./routerTransition";
+import { TabBarIcon } from "@/components/TabBarIcon";
 
 interface HomeHeaderProps {
   placeholder: string;
   originTab: number;
   searchValue: string;
+  setModalShown: (shown: boolean) => void;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
   placeholder,
   originTab,
   searchValue,
+  setModalShown,
 }) => {
   const [searchText, setSearchText] = useState(searchValue);
 
@@ -44,6 +49,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
   const handleSearchFiltersPressed = () => {
     console.log("Search Filters Pressed");
+    setModalShown(true);
   };
   const handleDeleteAccount = () => {
     console.log("Delete Account Pressed");
@@ -80,7 +86,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           disabled={false}
         />
       )}
-      {originTab === 6 && (
+      {originTab >= 6 && (
         <AnimatedButton
           onPress={handleGoBack}
           source={require("@/assets/images/home/GoBack.png")}

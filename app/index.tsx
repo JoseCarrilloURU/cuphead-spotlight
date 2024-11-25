@@ -53,7 +53,6 @@ export default function Index() {
   //     const sound = await preloadMusic();
   //     setMusic(sound);
   //   };
-
   //   loadAndPlayMusic();
   // }, []);
 
@@ -80,29 +79,29 @@ export default function Index() {
     const backupUrl = "https://backend-rottentomatoes.onrender.com/login";
 
     await playSound(require("@/assets/sound/LoginTransition.wav"));
-    // routerTransition("push", "/(tabs)/discover", {});
+    routerTransition("push", "/(tabs)/discover", {});
 
-    try {
-      const response = await fetch(backupUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataLogin),
-      });
+    // try {
+    //   const response = await fetch(backupUrl, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(dataLogin),
+    //   });
 
-      if (!response.ok) {
-        throw new Error("Primary API response was not ok");
-      }
+    //   if (!response.ok) {
+    //     throw new Error("Primary API response was not ok");
+    //   }
 
-      const data = await response.json();
-      console.log("Login successful:", data);
-      routerTransition("push", "/(tabs)/discover", {
-        personId: data.personId,
-      });
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
+    //   const data = await response.json();
+    //   console.log("Login successful:", data);
+    //   routerTransition("push", "/(tabs)/discover", {
+    //     personId: data.personId,
+    //   });
+    // } catch (error) {
+    //   console.error("Login failed:", error);
+    // }
   };
 
   const handleGoToRegister = async () => {

@@ -23,6 +23,7 @@ import {
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import tabstyles from "../tabstyles";
+import FiltersModal from "@/components/filtersModal";
 import { setTransition } from "@/components/globals";
 
 interface Movie {
@@ -61,6 +62,7 @@ const Movies: Movie[] = [
 
 export default function Home() {
   const [bestToggle, setBestToggle] = useState(false);
+  const [modalShown, setModalShown] = useState(false);
 
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
@@ -135,11 +137,13 @@ export default function Home() {
         //   easing: Easing.linear,
         // }}
       />
+      <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView>
         <HomeHeader
           placeholder={"Search TV Shows..."}
           originTab={3}
           searchValue={""}
+          setModalShown={setModalShown}
         />
         <View style={tabstyles.listcontainer}>
           <Image
