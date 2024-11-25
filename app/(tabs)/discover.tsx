@@ -113,7 +113,7 @@ export default function Home() {
         //console.log(`${endpoint} fetched successfully:`, responseData);
 
         const formattedMovies = responseData.results
-          .slice(0, 10)
+          .slice(0, 12)
           .map((movie: any) => ({
             id: movie.id,
             title: movie.name || movie.original_title,
@@ -122,7 +122,7 @@ export default function Home() {
             banner: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
           }));
         setState(formattedMovies);
-        console.log(`${endpoint} fetched successfully:`, formattedMovies);
+        //console.log(`${endpoint} fetched successfully:`, formattedMovies);
       } catch (error) {
         console.error(`Fetching ${endpoint} failed:`, error);
       }
@@ -211,24 +211,24 @@ export default function Home() {
     };
 
     fetchMovies("trendingMovies", setMovies);
-    fetchMovies("popularMovies", setPopularMovies);
+    fetchMovies("trendingWeekMovies", setPopularMovies);
     fetchLastSeenMovies();
     fetchWatchlistMovies();
   }, [personId, primaryUrl, backupUrl]);
 
-  const handleItemPress = (/*id: number*/) => {
-    console.log("Item Pressed");
-    routerTransition("push", "/movie", {});
+  const handleItemPress = (id: number) => {
+    console.log("Item Pressed:", id);
+    routerTransition("push", "/movie", { id });
   };
 
-  const Movie: React.FC<Movie> = ({ id, title, score, date, banner }) => (
+  const Movie: React.FC<Movie & { onPress: () => void }> = ({ id, title, score, date, banner, onPress }) => (
     <View style={tabstyles.itemContainer}>
-      <Pressable onPress={handleItemPress}>
+      <Pressable onPress={onPress}>
         <Image
           source={require("@/assets/images/home/itemcard.png")}
           style={tabstyles.itemCard}
         />
-        <Image source={{ uri: banner }} style={tabstyles.itemPoster} />
+        {banner && <Image source={{ uri: banner }} style={tabstyles.itemPoster} />}
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
@@ -240,20 +240,20 @@ export default function Home() {
         style={tabstyles.imgScoreFlag}
       /> */}
       <LottieView
-        source={getFlagVideoForNumber(score)}
-        loop={true}
-        speed={0.6}
-        autoPlay
-        style={tabstyles.itemScoreFlag}
-      />
-      <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
-        {title}
-      </Text>
-      <Text style={tabstyles.itemDate} numberOfLines={1} ellipsizeMode="tail">
-        {date}
-      </Text>
-    </View>
-  );
+      source={getFlagVideoForNumber(score)}
+      loop={true}
+      speed={0.6}
+      autoPlay
+      style={tabstyles.itemScoreFlag}
+    />
+    <Text style={tabstyles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
+      {title}
+    </Text>
+    <Text style={tabstyles.itemDate} numberOfLines={1} ellipsizeMode="tail">
+      {date}
+    </Text>
+  </View>
+);
 
   return (
     <View>
@@ -311,6 +311,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                onPress={() => handleItemPress(item.id)} // Pass the id to handleItemPress
               />
             )}
             keyExtractor={(item) => item.id.toString()}

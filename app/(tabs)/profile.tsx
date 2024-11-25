@@ -24,6 +24,7 @@ import {
 } from "@/components/imageMaps";
 import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "@/components/routerTransition";
+import { usePersonId } from "../../components/PersonIdContext"; 
 
 interface Movie {
   id: number;
@@ -93,6 +94,7 @@ const Reviews: Review[] = [
 ];
 
 export default function Home() {
+  const { personId } = usePersonId();
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
     routerTransition("push", "/tvshow", {});

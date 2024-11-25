@@ -25,12 +25,14 @@ import {
 import tabstyles from "../tabstyles";
 import FiltersModal from "@/components/filtersModal";
 import { setTransition } from "@/components/globals";
+import { usePersonId } from "../../components/PersonIdContext";
 
 interface Movie {
   id: number;
   title: string;
   score: number;
   date: string;
+  banner?: string;
 }
 
 const Movies: Movie[] = [
@@ -61,8 +63,284 @@ const Movies: Movie[] = [
 ];
 
 export default function Home() {
+  const { personId } = usePersonId();
   const [bestToggle, setBestToggle] = useState(false);
   const [modalShown, setModalShown] = useState(false);
+  const [popularSeries, setPopularSeries] = useState<Series[]>([]);
+  const [topRatedSeries, setTopRatedSeries] = useState<Series[]>([]);
+  const [actionAdventureSeries, setActionAdventureSeries] = useState<Series[]>(
+    []
+  );
+  const [animationSeries, setAnimationSeries] = useState<Series[]>([]);
+  const [dramaSeries, setDramaSeries] = useState<Series[]>([]);
+  const [comedySeries, setComedySeries] = useState<Series[]>([]);
+  const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
+
+  useEffect(() => {
+    if (personId) {
+      console.log("Person ID in Tv:", personId);
+      fetchPopularSeries();
+      fetchTopRatedSeries();
+      fetchActionAdventureSeries();
+      fetchAnimationSeries();
+      fetchDramaSeries();
+      fetchComedySeries();
+    } else {
+      console.log("Person ID is not available yet");
+    }
+  }, [personId]);
+
+  const fetchPopularSeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/popularSeries`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      console.log("popularSeries response:", responseData);
+
+      if (!responseData.results) {
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
+      }
+
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
+      setPopularSeries(formattedSeries);
+      console.log("popularSeries fetched successfully:", formattedSeries);
+    } catch (error) {
+      console.error("Fetching popularSeries failed:", error);
+    }
+  };
+
+  const fetchTopRatedSeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/topRatedSeries`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      //console.log("topRatedSeries response:", responseData);
+
+      if (!responseData.results) {
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
+      }
+
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
+      setTopRatedSeries(formattedSeries);
+      //console.log("topRatedSeries fetched successfully:", formattedSeries);
+    } catch (error) {
+      console.error("Fetching topRatedSeries failed:", error);
+    }
+  };
+
+  const fetchActionAdventureSeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/actionAdventureSeries`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      //console.log("actionAdventureSeries response:", responseData);
+
+      if (!responseData.results) {
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
+      }
+
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
+      setActionAdventureSeries(formattedSeries);
+      // console.log("actionAdventureSeries fetched successfully:", formattedSeries);
+    } catch (error) {
+      console.error("Fetching actionAdventureSeries failed:", error);
+    }
+  };
+
+  const fetchAnimationSeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/animationSeries`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      //console.log("animationSeries response:", responseData);
+
+      if (!responseData.results) {
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
+      }
+
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
+      setAnimationSeries(formattedSeries);
+      //console.log("animationSeries fetched successfully:", formattedSeries);
+    } catch (error) {
+      console.error("Fetching animationSeries failed:", error);
+    }
+  };
+
+  const fetchDramaSeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/dramaSeries`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      //console.log("dramaSeries response:", responseData);
+
+      if (!responseData.results) {
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
+      }
+
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
+      setDramaSeries(formattedSeries);
+      //console.log("dramaSeries fetched successfully:", formattedSeries);
+    } catch (error) {
+      console.error("Fetching dramaSeries failed:", error);
+    }
+  };
+
+  const fetchComedySeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/comedySeries`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      //console.log("comedySeries response:", responseData);
+
+      if (!responseData.results) {
+        throw new Error(
+          `API response did not contain results: ${JSON.stringify(
+            responseData
+          )}`
+        );
+      }
+
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((series: any) => ({
+          id: series.id,
+          title: series.name || series.original_title,
+          score: Math.floor(series.vote_average * 10), // Use Math.floor to remove decimals
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        }));
+      setComedySeries(formattedSeries);
+      //console.log("comedySeries fetched successfully:", formattedSeries);
+    } catch (error) {
+      console.error("Fetching comedySeries failed:", error);
+    }
+  };
 
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
@@ -73,24 +351,29 @@ export default function Home() {
     setBestToggle(!bestToggle);
   };
 
-  const Movie: React.FC<Movie> = ({ id, title, score, date }) => (
+  const Movie: React.FC<Series & { onPress: () => void }> = ({
+    id,
+    title,
+    score,
+    date,
+    banner,
+    onPress,
+  }) => (
     <View style={tabstyles.itemContainer}>
-      <Pressable onPress={handleItemPress}>
+      <Pressable onPress={onPress}>
         <Image
           source={require("@/assets/images/home/itemcard.png")}
           style={tabstyles.itemCard}
         />
-        <Image source={mockPosterMap[id]} style={tabstyles.itemPoster} />
+        {banner && (
+          <Image source={{ uri: banner }} style={tabstyles.itemPoster} />
+        )}
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
         style={tabstyles.itemScoreBadge}
       />
       <Text style={tabstyles.itemScore}>{score}</Text>
-      {/* <Image
-        source={getFlagImageForNumber(score)}
-        style={tabstyles.imgScoreFlag}
-      /> */}
       <LottieView
         source={getFlagVideoForNumber(score)}
         loop={true}
@@ -155,13 +438,15 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[1]} style={tabstyles.backdrop} />
           <FlatList
-            data={Movies}
+            data={popularSeries}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -214,13 +499,15 @@ export default function Home() {
           </Pressable>
           <Image source={backdropImageMap[2]} style={tabstyles.backdrop2} />
           <FlatList
-            data={Movies}
+            data={topRatedSeries}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -238,13 +525,15 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
-            data={Movies}
+            data={actionAdventureSeries}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -262,13 +551,15 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
-            data={Movies}
+            data={animationSeries}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -286,13 +577,15 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
-            data={Movies}
+            data={dramaSeries}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -310,13 +603,15 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
-            data={Movies}
+            data={comedySeries}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
+                onPress={() => handleItemPress(item.id)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
