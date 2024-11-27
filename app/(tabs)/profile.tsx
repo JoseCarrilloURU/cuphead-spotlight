@@ -24,7 +24,7 @@ import {
 } from "@/components/imageMaps";
 import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "@/components/routerTransition";
-import { usePersonId } from "../../components/PersonIdContext"; 
+import { usePersonId } from "../../components/PersonIdContext";
 
 interface Movie {
   id: number;
@@ -34,13 +34,18 @@ interface Movie {
 }
 
 interface Review {
-  id: number;
-  type: string;
-  title: string;
-  myscore: number;
-  date: string;
-  duration: string;
-  myreview: string;
+  _id: string;
+  content: string;
+  author: {
+    _id: string;
+    username: string;
+  };
+  movie: {
+    _id: string;
+    title: string;
+    banner: string;
+  };
+  createdAt: string;
 }
 
 const Movies: Movie[] = [
@@ -95,6 +100,48 @@ const Reviews: Review[] = [
 
 export default function Home() {
   const { personId } = usePersonId();
+  const [reviews, setReviews] = useState<Review[]>([]);
+    const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
+
+
+  useEffect(() => {
+    console.log("Person ID: ", personId);
+
+    const fetchReviews = async () => {
+      if (personId) {
+        const reviewsData = await fetchReviewsByAuthor(personId);
+        if (reviewsData) {
+          setReviews(reviewsData);
+        }
+      }
+    };
+
+    fetchReviews();
+  }, [personId]);
+
+  const fetchReviewsByAuthor = async (authorId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/reviews/author/${authorId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Reviews by author response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error fetching reviews by author:", error);
+      return null;
+    }
+  };
+
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
     routerTransition("push", "/tvshow", {});

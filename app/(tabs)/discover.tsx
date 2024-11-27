@@ -127,7 +127,7 @@ export default function Home() {
         setState(formattedMovies);
         //console.log(`${endpoint} fetched successfully:`, formattedMovies);
       } catch (error) {
-       //console.error(`Fetching ${endpoint} failed:`, error);
+        //console.error(`Fetching ${endpoint} failed:`, error);
       }
     };
 
@@ -145,7 +145,7 @@ export default function Home() {
         }
 
         const responseData = await response.json();
-        //console.log("Last seen movies response:", responseData);
+        console.log("Last seen movies response:", responseData);
 
         const formattedMovies = responseData.lastSeenMovies
           .slice(0, 10)
@@ -168,11 +168,13 @@ export default function Home() {
             };
           });
         setLastSeenMovies(formattedMovies);
-        //console.log(`Last seen movies fetched successfully:`, formattedMovies);
+        console.log(`Last seen movies fetched successfully:`, formattedMovies);
       } catch (error) {
-       // console.error(`Fetching last seen  failed:`, error);
+        // console.error(`Fetching last seen  failed:`, error);
       }
     };
+
+  
 
     const fetchWatchlistMovies = async () => {
       try {
@@ -212,67 +214,85 @@ export default function Home() {
         setWatchlistMovies(formattedMovies);
         // console.log(`Watchlist fetched successfully:`, formattedMovies);
       } catch (error) {
-       // console.error(`Fetching last seen  failed:`, error);
+        // console.error(`Fetching last seen  failed:`, error);
       }
     };
 
     const fetchLastSeenSeries = async () => {
       try {
-        const response = await fetch(`${backupUrl}/lastSeenSeries/${personId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-    
+        const response = await fetch(
+          `${backupUrl}/lastSeenSeries/${personId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+          throw new Error(
+            `API response was not ok: ${response.statusText} - ${errorText}`
+          );
         }
-    
+
         const responseData = await response.json();
         //console.log("Last seen series response:", responseData);
-    
-        const formattedSeries = responseData.lastSeenSeries.slice(0, 10).map((series: any) => ({
-          _id: series._id,
-          id: series.seriesId,
-          title: series.title,
-          score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
-          date: series.releaseDate,
-          banner: series.banner ? `https://image.tmdb.org/t/p/w500${series.banner}` : undefined,
-        }));
+
+        const formattedSeries = responseData.lastSeenSeries
+          .slice(0, 10)
+          .map((series: any) => ({
+            _id: series._id,
+            id: series.seriesId,
+            title: series.title,
+            score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
+            date: series.releaseDate,
+            banner: series.banner
+              ? `https://image.tmdb.org/t/p/w500${series.banner}`
+              : undefined,
+          }));
         setLastSeenSeries(formattedSeries);
         //console.log(`Last seen series fetched successfully:`, formattedSeries);
       } catch (error) {
-       // console.error(`Fetching last seen series failed:`, error);
+        // console.error(`Fetching last seen series failed:`, error);
       }
     };
-    
+
     const fetchWatchlistSeries = async () => {
       try {
-        const response = await fetch(`${backupUrl}/watchlistSeries/${personId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-    
+        const response = await fetch(
+          `${backupUrl}/watchlistSeries/${personId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+          throw new Error(
+            `API response was not ok: ${response.statusText} - ${errorText}`
+          );
         }
-    
+
         const responseData = await response.json();
-       //console.log("Watchlist series response:", responseData);
-    
-        const formattedSeries = responseData.watchlistSeries.slice(0, 10).map((series: any) => ({
-          _id: series._id,
-          id: series.seriesId,
-          title: series.title,
-          score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
-          date: series.releaseDate,
-          banner: series.banner ? `https://image.tmdb.org/t/p/w500${series.banner}` : undefined,
-        }));
+        //console.log("Watchlist series response:", responseData);
+
+        const formattedSeries = responseData.watchlistSeries
+          .slice(0, 10)
+          .map((series: any) => ({
+            _id: series._id,
+            id: series.seriesId,
+            title: series.title,
+            score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
+            date: series.releaseDate,
+            banner: series.banner
+              ? `https://image.tmdb.org/t/p/w500${series.banner}`
+              : undefined,
+          }));
         setWatchlistSeries(formattedSeries);
         //console.log(`Watchlist series fetched successfully:`, formattedSeries);
       } catch (error) {
@@ -282,27 +302,32 @@ export default function Home() {
 
     fetchMovies("trendingMovies", setMovies);
     fetchMovies("trendingWeekMovies", setPopularMovies);
-    fetchLastSeenMovies();
-    fetchWatchlistMovies();
-    fetchLastSeenSeries();
+    //fetchLastSeenMovies();
+    //fetchWatchlistMovies();
+    //fetchLastSeenSeries();
     fetchWatchlistSeries();
   }, [personId, primaryUrl, backupUrl]);
 
-// Fetch movie by ID and title
+  // Fetch movie by ID and title
   const fetchMovieByIdAndTitle = async (movieId: string, title: string) => {
     try {
-      const response = await fetch(`${backupUrl}/getMovieByIdAndTitle/${movieId}/${title}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-  
+      const response = await fetch(
+        `${backupUrl}/getMovieByIdAndTitle/${movieId}/${title}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       //console.log("Movie by ID and title response:", responseData);
       return responseData;
@@ -311,22 +336,27 @@ export default function Home() {
       return null;
     }
   };
-  
+
   // Fetch series by ID and title
   const fetchSeriesByIdAndTitle = async (seriesId: string, title: string) => {
     try {
-      const response = await fetch(`${backupUrl}/getSeriesByIdAndTitle/${seriesId}/${title}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-  
+      const response = await fetch(
+        `${backupUrl}/getSeriesByIdAndTitle/${seriesId}/${title}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       //console.log("Series by ID and title response:", responseData);
       return responseData;
@@ -336,13 +366,13 @@ export default function Home() {
     }
   };
 
-  // fetch to save the movie 
+  // fetch to save the movie
   const createMovie = async (movie: any) => {
     try {
       const movieData = {
         movieId: movie.id,
       };
-  
+
       const response = await fetch(`${backupUrl}/createMovie`, {
         method: "POST",
         headers: {
@@ -350,12 +380,14 @@ export default function Home() {
         },
         body: JSON.stringify(movieData),
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       //console.log("Movie created successfully:", responseData);
     } catch (error) {
@@ -363,16 +395,13 @@ export default function Home() {
     }
   };
 
-
-  
-  
   // fetch to save the series
   const createSeries = async (series: any) => {
     try {
       const seriesData = {
         seriesId: series.id,
       };
-  
+
       const response = await fetch(`${backupUrl}/createSeries`, {
         method: "POST",
         headers: {
@@ -380,12 +409,14 @@ export default function Home() {
         },
         body: JSON.stringify(seriesData),
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       //console.log("Series created successfully:", responseData);
     } catch (error) {
@@ -393,13 +424,11 @@ export default function Home() {
     }
   };
 
-
   const addLastSeenMovie = async (movie: any) => {
     try {
-
       const movieData = {
         userId: personId,
-        movieId: movie.id,
+        movieId: movie.movieId,
       };
       console.log("movieData", movieData);
       const response = await fetch(`${backupUrl}/saveOurMovie`, {
@@ -409,21 +438,22 @@ export default function Home() {
         },
         body: JSON.stringify(movieData),
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("Movie saved successfully:", responseData);
     } catch (error) {
       console.error("Error saving movie:", error);
     }
   };
-  
-  const addLastSeenSeries = async (series: any) => {
 
+  const addLastSeenSeries = async (series: any) => {
     const seriesData = {
       userId: personId,
       seriesId: series.id,
@@ -438,12 +468,14 @@ export default function Home() {
         },
         body: JSON.stringify(seriesData),
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("Series added to last seen successfully:", responseData);
     } catch (error) {
@@ -451,42 +483,176 @@ export default function Home() {
     }
   };
 
+  //updates last seen movie
+  const updateLastSeenMovie = async (movie: any) => {
+    const movieData = {
+      userId: personId,
+      movieId: movie.movieId,
+    };
+    try {
+      const response = await fetch(
+        `${backupUrl}/updateLastSeenMovie`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(movieData),
+        }
+      );
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Movie updated successfully:", responseData);
+    } catch (error) {
+      console.error("Error updating movie:", error);
+    }
+  };
+
+  //updates last seen series
+  const updateLastSeenSeries = async (series: any) => {
+
+    const seriesData = {
+      userId: personId,
+      seriesId: series.id,
+    };
+
+    try {
+      const response = await fetch(
+        `${backupUrl}/updateLastSeenSeries/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(seriesData),
+        } 
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Series updated successfully:", responseData);
+    } catch (error) {
+      console.error("Error updating series:", error);
+    }
+  };
+
+  const isMovieInLastSeen = async (userId: string, movieId: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/isMovieInLastSeen/${userId}/${movieId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Movie in last seen check response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error checking if movie is in last seen:", error);
+      return null;
+    }
+  };
+
+  const isSeriesInLastSeen = async (userId: string, seriesId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/isSeriesInLastSeen/${userId}/${seriesId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Series in last seen check response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error checking if series is in last seen:", error);
+      return null;
+    }
+  };
 
   // Handle item press
-  const handleItemPress = async (id: number, title: string, media_type: string) => {
+  const handleItemPress = async (
+    id: number,
+    title: string,
+    media_type: string
+  ) => {
     console.log("Item Pressed:", id, title, media_type);
-  
+
     try {
       // Try to fetch the movie by ID and title
       const movie = await fetchMovieByIdAndTitle(id.toString(), title);
       if (movie) {
         console.log("Movie found:", movie);
-        const lastSeenMovie = { personId,  id };
-        await addLastSeenMovie(lastSeenMovie);
+        console.log(personId, movie._id);
+        const MovieInLastSeen = await isMovieInLastSeen(personId, movie._id);
+        if (MovieInLastSeen) {
+          console.log("Movie is already in last seen");
+          const lastSeenMovie = { personId, movieId: id };
+          await updateLastSeenMovie(lastSeenMovie);
+        } else {
+          const lastSeenMovie = { personId, movieId: id };
+          console.log("lastSeenMovie", lastSeenMovie);
+          await addLastSeenMovie(lastSeenMovie);
+        }
         routerTransition("push", "/movie", { id, title });
       } else {
         // If movie is not found, try to fetch the series by ID and title
         const series = await fetchSeriesByIdAndTitle(id.toString(), title);
         if (series) {
           console.log("Series found:", series);
-          const lastSeenSeries = {personId, id }; // Corrected key to seriesId
-          await addLastSeenSeries(lastSeenSeries);
+          const SeriesInLastSeen = await isSeriesInLastSeen(personId, id.toString());
+          if (SeriesInLastSeen) {
+            console.log("Series is already in last seen");
+            await updateLastSeenSeries(series.id);
+          } else {
+            const lastSeenSeries = { personId, seriesId: id };
+            await addLastSeenSeries(lastSeenSeries);
+          }
           routerTransition("push", "/tvshow", { id, title });
         } else {
           console.log("Neither movie nor series found with the given ID and title.");
-  
+    
           // If neither movie nor series is found, create a new entry based on media_type
           if (media_type === "movie") {
             const newMovie = { id, title, media_type };
-            const lastSeenMovie = { personId, id };
+            const lastSeenMovie = { personId, movieId: id };
             await createMovie(newMovie);
             await addLastSeenMovie(lastSeenMovie);
             console.log("New movie created:", newMovie);
             routerTransition("push", "/movie", { id, title });
           } else if (media_type === "tv") {
             const newSeries = { id, title, media_type };
-            const lastSeenSeries = { personId, seriesId: id }; // Corrected key to seriesId
+            const lastSeenSeries = { personId, seriesId: id };
             await createSeries(newSeries);
             await addLastSeenSeries(lastSeenSeries);
             console.log("New series created:", newSeries);
@@ -499,14 +665,18 @@ export default function Home() {
     }
   };
 
-  const Movie: React.FC<Movie & { onPress: (id: number, title: string, media_type: string) => void }> = ({ id, title, score, date, banner, media_type, onPress }) => (
+  const Movie: React.FC<
+    Movie & { onPress: (id: number, title: string, media_type: string) => void }
+  > = ({ id, title, score, date, banner, media_type, onPress }) => (
     <View style={tabstyles.itemContainer}>
       <Pressable onPress={() => onPress(id, title, media_type)}>
         <Image
           source={require("@/assets/images/home/itemcard.png")}
           style={tabstyles.itemCard}
         />
-        {banner && <Image source={{ uri: banner }} style={tabstyles.itemPoster} />}
+        {banner && (
+          <Image source={{ uri: banner }} style={tabstyles.itemPoster} />
+        )}
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
@@ -585,7 +755,9 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id , item.title, item.media_type)} // Pass the id to handleItemPress
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                } // Pass the id to handleItemPress
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -611,7 +783,9 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id , item.title, item.media_type)} // Pass the id to handleItemPress
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                } // Pass the id to handleItemPress
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -637,7 +811,9 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id , item.title, item.media_type)} // Pass the id to handleItemPress
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                } // Pass the id to handleItemPress
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -663,7 +839,9 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id , item.title, item.media_type)} // Pass the id to handleItemPress
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                } // Pass the id to handleItemPress
               />
             )}
             keyExtractor={(item) => item.id.toString()}
