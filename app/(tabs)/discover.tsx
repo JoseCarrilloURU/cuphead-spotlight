@@ -80,6 +80,7 @@ export default function Home() {
   const [lastSeenMovies, setLastSeenMovies] = useState<Movie[]>([]);
   const [lastSeenSeries, setLastSeenSeries] = useState<Series[]>([]);
   const [watchlistSeries, setWatchlistSeries] = useState<Series[]>([]);
+  const [searchText, setSearchText] = useState("");
   const [primaryUrl] = useState(
     "http://backend-rottentomatoes-please-enough.up.railway.app"
   );
@@ -131,6 +132,29 @@ export default function Home() {
       }
     };
 
+    const fetchMovieById = async (movieId: string) => {
+      try {
+        const response = await fetch(`${backupUrl}/getMovieById/${movieId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+    
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        }
+    
+        const responseData = await response.json();
+        //console.log("Movie by ID response:", responseData);
+        return responseData;
+      } catch (error) {
+        console.error("Error fetching movie by ID:", error);
+        return null;
+      }
+    };
+
     const fetchLastSeenMovies = async () => {
       try {
         const response = await fetch(`${backupUrl}/getLastSeen/${personId}`, {
@@ -139,42 +163,76 @@ export default function Home() {
             "Content-Type": "application/json",
           },
         });
-
+    
         if (!response.ok) {
           throw new Error(`API response was not ok: ${response.statusText}`);
         }
-
+    
         const responseData = await response.json();
         console.log("Last seen movies response:", responseData);
-
-        const formattedMovies = responseData.lastSeenMovies
+    
+        if (!responseData.lastSeenMovies) {
+          throw new Error("lastSeenMovies is undefined in the response");
+        }
+    
+        const movieDetailsPromises = responseData.lastSeenMovies
           .slice(0, 10)
-          .map((movie: any) => {
-            const date = new Date(movie.releaseDate);
-            const formattedDate = `${date.getFullYear()}-${String(
-              date.getMonth() + 1
-            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-
-            return {
-              _id: movie._id,
-              id: movie.movieId,
-              title: movie.title,
-              score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
-              date: formattedDate,
-              banner: movie.banner
-                ? `https://image.tmdb.org/t/p/w500${movie.banner}`
-                : undefined,
-              media_type: movie.media_type,
-            };
+          .map(async (movie: any) => {
+            const movieDetails = await fetchMovieById(movie._id);
+            if (movieDetails) {
+              const date = new Date(movieDetails.releaseDate);
+              const formattedDate = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+              ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    
+              return {
+                _id: movieDetails._id,
+                id: movieDetails.movieId,
+                title: movieDetails.title,
+                score: Math.floor(movieDetails.ratings * 10), // Use Math.floor to remove decimals
+                date: formattedDate,
+                banner: movieDetails.banner
+                  ? `https://image.tmdb.org/t/p/w500${movieDetails.banner}`
+                  : undefined,
+                media_type: movieDetails.media_type,
+              };
+            }
+            return null;
           });
+    
+        const formattedMovies = (await Promise.all(movieDetailsPromises)).filter(
+          (movie) => movie !== null
+        );
+    
         setLastSeenMovies(formattedMovies);
         console.log(`Last seen movies fetched successfully:`, formattedMovies);
       } catch (error) {
-        // console.error(`Fetching last seen  failed:`, error);
+        console.error(`Fetching last seen movies failed:`, error);
       }
     };
 
-  
+    const fetchSeriesById = async (id: string) => {
+      try {
+        const response = await fetch(`${backupUrl}/getSeriesById/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+    
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        }
+    
+        const responseData = await response.json();
+        console.log("Series details response:", responseData);
+        return responseData;
+      } catch (error) {
+        console.error("Error fetching series details:", error);
+        return null;
+      }
+    };
 
     const fetchWatchlistMovies = async () => {
       try {
@@ -212,50 +270,68 @@ export default function Home() {
             };
           });
         setWatchlistMovies(formattedMovies);
-        // console.log(`Watchlist fetched successfully:`, formattedMovies);
+        //console.log(`Watchlist fetched successfully:`, formattedMovies);
       } catch (error) {
         // console.error(`Fetching last seen  failed:`, error);
       }
     };
 
+    
     const fetchLastSeenSeries = async () => {
       try {
-        const response = await fetch(
-          `${backupUrl}/lastSeenSeries/${personId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
+        const response = await fetch(`${backupUrl}/lastSeenSeries/${personId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+    
         if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(
-            `API response was not ok: ${response.statusText} - ${errorText}`
-          );
+          throw new Error(`API response was not ok: ${response.statusText}`);
         }
-
+    
         const responseData = await response.json();
-        //console.log("Last seen series response:", responseData);
-
-        const formattedSeries = responseData.lastSeenSeries
+        console.log("Last seen series response:", responseData);
+    
+        if (!responseData.lastSeenSeries) {
+          throw new Error("lastSeenSeries is undefined in the response");
+        }
+    
+        const seriesDetailsPromises = responseData.lastSeenSeries
           .slice(0, 10)
-          .map((series: any) => ({
-            _id: series._id,
-            id: series.seriesId,
-            title: series.title,
-            score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
-            date: series.releaseDate,
-            banner: series.banner
-              ? `https://image.tmdb.org/t/p/w500${series.banner}`
-              : undefined,
-          }));
+          .map(async (series: any) => {
+            console.log("series", series._id);
+            const seriesDetails = await fetchSeriesById(series._id);
+            console.log("seriesDetails", seriesDetails);
+            if (seriesDetails) {
+              const date = new Date(seriesDetails.releaseDate);
+              const formattedDate = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+              ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    
+              return {
+                _id: seriesDetails._id,
+                id: seriesDetails.seriesId,
+                title: seriesDetails.title,
+                score: Math.floor(seriesDetails.ratings * 10), // Use Math.floor to remove decimals
+                date: formattedDate,
+                banner: seriesDetails.banner
+                  ? `https://image.tmdb.org/t/p/w500${seriesDetails.banner}`
+                  : undefined,
+                media_type: seriesDetails.media_type,
+              };
+            }
+            return null;
+          });
+    
+        const formattedSeries = (await Promise.all(seriesDetailsPromises)).filter(
+          (series) => series !== null
+        );
+    
         setLastSeenSeries(formattedSeries);
-        //console.log(`Last seen series fetched successfully:`, formattedSeries);
+        console.log(`Last seen series fetched successfully:`, formattedSeries);
       } catch (error) {
-        // console.error(`Fetching last seen series failed:`, error);
+        console.error(`Fetching last seen series failed:`, error);
       }
     };
 
@@ -302,9 +378,9 @@ export default function Home() {
 
     fetchMovies("trendingMovies", setMovies);
     fetchMovies("trendingWeekMovies", setPopularMovies);
-    //fetchLastSeenMovies();
-    //fetchWatchlistMovies();
-    //fetchLastSeenSeries();
+    fetchLastSeenMovies();
+    fetchWatchlistMovies();
+    fetchLastSeenSeries();
     fetchWatchlistSeries();
   }, [personId, primaryUrl, backupUrl]);
 
@@ -624,7 +700,7 @@ export default function Home() {
           console.log("lastSeenMovie", lastSeenMovie);
           await addLastSeenMovie(lastSeenMovie);
         }
-        routerTransition("push", "/movie", { id, title });
+        routerTransition("push", "/movie", { id, title, personId, movieId: movie._id });
       } else {
         // If movie is not found, try to fetch the series by ID and title
         const series = await fetchSeriesByIdAndTitle(id.toString(), title);
@@ -734,7 +810,8 @@ export default function Home() {
         <HomeHeader
           placeholder={"Search Movies & TV..."}
           originTab={1}
-          searchValue={""}
+          onSearchChange={setSearchText}
+          searchValue={searchText}
           setModalShown={setModalShown}
         />
         <View style={tabstyles.listcontainer}>

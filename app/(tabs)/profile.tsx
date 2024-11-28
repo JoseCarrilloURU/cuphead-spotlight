@@ -39,6 +39,7 @@ interface Review {
   author: {
     _id: string;
     username: string;
+    email_user: string;
   };
   movie: {
     _id: string;
@@ -46,6 +47,7 @@ interface Review {
     banner: string;
   };
   createdAt: string;
+  rating: number;
 }
 
 const Movies: Movie[] = [
@@ -101,8 +103,9 @@ const Reviews: Review[] = [
 export default function Home() {
   const { personId } = usePersonId();
   const [reviews, setReviews] = useState<Review[]>([]);
-    const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
-
+  const [username, setUsername] = useState("");
+  const [emailUser, setEmailUser] = useState("");
+  const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
   useEffect(() => {
     console.log("Person ID: ", personId);
@@ -112,6 +115,12 @@ export default function Home() {
         const reviewsData = await fetchReviewsByAuthor(personId);
         if (reviewsData) {
           setReviews(reviewsData);
+          if (reviewsData.length > 0) {
+            const { username, email_user } = reviewsData[0].author;
+            setUsername(username);
+            setEmailUser(email_user);
+            console.log(username, email_user);
+          }
         }
       }
     };
@@ -127,12 +136,14 @@ export default function Home() {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("Reviews by author response:", responseData);
       return responseData;
@@ -195,32 +206,36 @@ export default function Home() {
   );
 
   const Review: React.FC<Review> = ({
-    id,
-    type,
-    title,
-    myscore,
-    date,
-    duration,
-    myreview,
+    _id,
+    content,
+    author,
+    movie,
+    createdAt,
+    rating,
   }) => (
     <View style={profilestyles.itemContainer}>
-      <Pressable onPress={handleItemPress}>
+      <Pressable onPress={() => handleItemPress(_id)}>
         <Image
           source={require("@/assets/images/home/searchcard.png")}
           style={profilestyles.itemCard}
         />
-        <Image source={mockPosterMap[id]} style={profilestyles.itemPoster} />
+        {movie.banner && (
+          <Image
+            source={{ uri: `https://image.tmdb.org/t/p/w500${movie.banner}` }}
+            style={profilestyles.itemPoster}
+          />
+        )}
         <Image
           source={require("@/assets/images/home/scorebadge.png")}
           style={profilestyles.itemScoreBadge}
         />
-        <Text style={profilestyles.itemScore}>{myscore}</Text>
+        <Text style={profilestyles.itemScore}>{rating}</Text>
         {/* <Image
           source={getFlagImageForNumber(score)}
           style={searchstyles.imgScoreFlag}
         /> */}
         <LottieView
-          source={getFlagVideoForNumber(myscore)}
+          source={getFlagVideoForNumber(2)}
           loop={true}
           speed={0.6}
           autoPlay
@@ -228,24 +243,24 @@ export default function Home() {
         />
         <Text
           style={profilestyles.itemTitle}
-          numberOfLines={1}
+          numberOfLines={2}
           ellipsizeMode="tail"
         >
-          Review: {title}
+          {movie.title}
         </Text>
         <Text
           style={profilestyles.itemData}
           numberOfLines={1}
           ellipsizeMode="tail"
         >
-          {type} - {duration} - {date}
+          {new Date(createdAt).toLocaleDateString()}
         </Text>
         <Text
           style={profilestyles.itemDesc}
           ellipsizeMode="tail"
           numberOfLines={4}
         >
-          {myreview}
+          {content}
         </Text>
         <Text style={profilestyles.yourscore}>Your Score:</Text>
       </Pressable>
@@ -283,7 +298,14 @@ export default function Home() {
         // }}
       />
       <ScrollView>
-        <HomeHeader placeholder={""} originTab={4} searchValue={""} />
+        <HomeHeader
+          placeholder="Search Movies & TV..."
+          originTab={4}
+          searchValue=""
+          setModalShown={() => {}}
+          username={username}
+          emailUser={emailUser}
+        />
         <View style={tabstyles.listcontainer}>
           <Image
             source={require("@/assets/images/home/stripbg.png")}
@@ -335,21 +357,23 @@ export default function Home() {
         <Text style={profilestyles.yourreviews}>Your Reviews</Text>
         <View style={profilestyles.listcontainer}>
           <FlatList
-            data={Reviews}
+            data={reviews.filter(
+              (item) =>
+                item._id !== undefined && item.movie && item.movie.banner
+            )}
             renderItem={({ item }) => (
               <Review
-                id={item.id}
-                type={item.type}
-                title={item.title}
-                myscore={item.myscore}
-                date={item.date}
-                duration={item.duration}
-                myreview={item.myreview}
+                _id={item._id}
+                content={item.content}
+                author={item.author}
+                movie={item.movie}
+                createdAt={item.createdAt}
+                rating={item.rating} // Pass the rating to the Review component
               />
             )}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item._id.toString()}
             scrollEnabled={false}
-          ></FlatList>
+          />
         </View>
         <AnimatedButton
           onPress={GoToFirstPage}

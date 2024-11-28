@@ -33,6 +33,7 @@ interface Movie {
   date: string;
   duration: string;
   desc: string;
+  poster: string | null;
 }
 
 const Movies: Movie[] = [
@@ -81,12 +82,63 @@ export default function Search() {
     searchText: string;
   }>();
 
+  const [movies, setMovies] = useState<Movie[]>([]);
   const bgnum = parseInt(originTab);
   const [modalShown, setModalShown] = useState(false);
   const [bestToggle, setBestToggle] = useState(false);
   const [filter, setFilter] = useState<"popularity" | "rating" | "date">(
     "popularity"
   );
+  const [query, setQuery] = useState(searchText); // Add state for query
+
+  useEffect(() => {
+    console.log("Search Page Loaded", { placeholder, originTab, searchText });
+    fetchSearchResults(query);
+  }, [query]); // Add query as a dependency
+
+  const fetchSearchResults = async (query: string) => {
+    try {
+      const response = await fetch(
+        `https://backend-rottentomatoes.onrender.com/searchMulti?query=${encodeURIComponent(
+          query
+        )}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Search results response:", responseData);
+
+      const formattedMovies = responseData.map((item: any) => ({
+        id: item.movieId,
+        type: item.media_type,
+        title: item.name,
+        score: Math.floor(item.vote_average * 10), // Use Math.floor to remove decimals
+        date: item.first_air_date,
+        duration: item.runtime ? `${item.runtime} min` : "N/A",
+        desc: item.overview,
+        poster: item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : null,
+      }));
+
+      setMovies(formattedMovies);
+      console.log(formattedMovies);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
 
   const handleBestToggle = () => {
     console.log("Best Toggle Pressed");
@@ -122,6 +174,7 @@ export default function Search() {
     date,
     duration,
     desc,
+    poster,
   }) => (
     <View style={searchstyles.itemContainer}>
       <Pressable onPress={handleItemPress}>
@@ -129,7 +182,9 @@ export default function Search() {
           source={require("@/assets/images/home/searchcard.png")}
           style={searchstyles.itemCard}
         />
-        <Image source={mockPosterMap[id]} style={searchstyles.itemPoster} />
+        {poster && (
+        <Image source={{ uri: poster }} style={searchstyles.itemPoster} />
+      )}
         <Image
           source={require("@/assets/images/home/scorebadge.png")}
           style={searchstyles.itemScoreBadge}
@@ -158,7 +213,7 @@ export default function Search() {
           numberOfLines={1}
           ellipsizeMode="tail"
         >
-          {type} - {duration} - {date}
+          {type} - {date}
         </Text>
         <Text
           style={searchstyles.itemDesc}
@@ -310,7 +365,7 @@ export default function Search() {
         </Pressable>
         <View style={searchstyles.listcontainer}>
           <FlatList
-            data={Movies}
+            data={movies}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
@@ -320,6 +375,7 @@ export default function Search() {
                 date={item.date}
                 duration={item.duration}
                 desc={item.desc}
+                poster={item.poster}
               />
             )}
             keyExtractor={(item) => item.id.toString()}

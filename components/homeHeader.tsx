@@ -13,12 +13,15 @@ import { playSound } from "@/components/soundUtils";
 import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "./routerTransition";
 import { TabBarIcon } from "@/components/TabBarIcon";
+import { useLocalSearchParams } from "expo-router";
 
 interface HomeHeaderProps {
   placeholder: string;
   originTab: number;
   searchValue: string;
   setModalShown: (shown: boolean) => void;
+  username: string;
+  emailUser: string;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -26,8 +29,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   originTab,
   searchValue,
   setModalShown,
+  username,
+  emailUser,
+   
 }) => {
   const [searchText, setSearchText] = useState(searchValue);
+
 
   const handleLogOutPressed = async () => {
     console.log("Log Out Pressed");
@@ -147,14 +154,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            Welcome, user!
+             Welcome, {username}!
           </Text>
           <Text
             style={headerstyles.email}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            yourmail@email.com
+           {emailUser}
           </Text>
         </View>
       )}
