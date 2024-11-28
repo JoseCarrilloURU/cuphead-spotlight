@@ -23,6 +23,7 @@ import {
 import moviestyles from "@/app/moviestyles";
 import FiltersModal from "@/components/filtersModal";
 import routerTransition from "@/components/routerTransition";
+import { useLocalSearchParams } from "expo-router";
 
 interface Show {
   title: string;
@@ -38,6 +39,7 @@ interface Cast {
   name: string;
   role: string;
   eps: number;
+  profile_path: string;
 }
 
 interface OtherReviews {
@@ -72,23 +74,7 @@ const ShowInfo: Show[] = [
   },
 ];
 
-const CastInfo: Cast[] = [
-  {
-    name: "Hailee Steinfeld",
-    role: "Vi (Voice)",
-    eps: 18,
-  },
-  {
-    name: "Ella Purnell",
-    role: "Jinx (Voice)",
-    eps: 18,
-  },
-  {
-    name: "Kevin Alejandro",
-    role: "Jayce (Voice)",
-    eps: 15,
-  },
-];
+
 
 const OtherReviewsInfo: OtherReviews[] = [
   {
@@ -144,16 +130,23 @@ const Category: React.FC<{ category: string }> = ({ category }) => (
   </View>
 );
 
-const Cast: React.FC<Cast> = ({ name, role, eps }) => (
+const Cast: React.FC<Cast> = ({ name, role, eps, profile_path }) => (
   <View style={moviestyles.castContainer}>
     <Image
       source={require("@/assets/images/home/itemcard.png")}
       style={moviestyles.castCard}
     />
-    <Image
-      source={require("@/assets/images/home/mockPosters/castPoster.png")}
-      style={moviestyles.castPicture}
-    />
+    {profile_path ? (
+      <Image
+        source={{ uri: `https://image.tmdb.org/t/p/w500${profile_path}` }}
+        style={moviestyles.castPicture}
+      />
+    ) : (
+      <Image
+        source={require("@/assets/images/home/mockPosters/castPoster.png")}
+        style={moviestyles.castPicture}
+      />
+    )}
     <Text style={moviestyles.castTitle}>{name}</Text>
     <Text style={moviestyles.castRole}>{role}</Text>
     <Text style={moviestyles.castRole}>{eps} episodes</Text>
@@ -235,11 +228,74 @@ const Season: React.FC<Seasons> = ({ name, episodes, date, score, desc }) => (
 );
 
 export default function Movie() {
+  const {
+    id: searchid,
+    title: searchTitle,
+    personId: searchPersonId,
+    seriesId: searhSeriesId,
+  } = useLocalSearchParams<{
+    id: string;
+  }>();
   const [modalShown, setModalShown] = useState(false);
   let [watchlist, setWatchlist] = useState(false);
   let [reviewmade, setReviewmade] = useState(false);
   let [yourScore, setYourScore] = useState("");
   let [popupShown, setPopupShown] = useState(false);
+  const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
+  const [otherReviews, setOtherReviews] = useState<OtherReviews[]>([]); 
+  const [seriesData, setSeriesData] = useState<any>({
+    title: "",
+    categories: [],
+    ratings: 0,
+    releaseDate: "",
+    description: "",
+    banner: "",
+    cast: [],
+    createdBy: "",
+    director: "",
+  });
+
+  useEffect(() => { 
+    console.log("Movie page loaded", searchid, searchTitle, searchPersonId, searhSeriesId);
+    fetchSeriesById(searhSeriesId);
+  }
+  , []);
+
+  const fetchSeriesById = async (seriesId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/getSeriesById/${seriesId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Series details response:", responseData);
+  
+      const formattedDate = new Date(responseData.releaseDate).toLocaleDateString();
+  
+      setSeriesData({
+        title: responseData.title,
+        categories: responseData.categories,
+        ratings: responseData.ratings,
+        releaseDate: formattedDate,
+        description: responseData.description,
+        banner: responseData.banner,
+        cast: responseData.cast,
+        createdBy: responseData.createdBy,
+        director: responseData.director,
+      });
+    } catch (error) {
+      console.error("Error fetching series details:", error);
+    }
+  };
+
 
   const handleEnterReview = () => {
     console.log("Enter Review button pressed");
@@ -385,7 +441,9 @@ export default function Movie() {
             style={moviestyles.backdropcard}
           />
           <Image
-            source={require("@/assets/images/home/mockPosters/backdrophd.jpg")}
+            source={{
+              uri: `https://image.tmdb.org/t/p/w500${seriesData.banner}`,
+            }}
             style={moviestyles.backdrop}
           />
           <View
@@ -398,7 +456,7 @@ export default function Movie() {
               source={require("@/assets/images/home/scorebadge.png")}
               style={moviestyles.itemScoreBadge}
             />
-            <Text style={moviestyles.itemScore}>{ShowInfo[0].userscore}</Text>
+           <Text style={moviestyles.itemScore}>{seriesData.ratings*10}</Text>
             {/* <Image
             source={getFlagImageForNumber(ShowInfo[0].score)}
             style={moviestyles.imgScoreFlag}
@@ -438,7 +496,7 @@ export default function Movie() {
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            TV Show - {ShowInfo[0].duration} - Released {ShowInfo[0].date}
+            TV Show - released {seriesData.releaseDate}
           </Text>
           <View style={{ top: -113, left: -72 }}>
             <Text
@@ -463,7 +521,9 @@ export default function Movie() {
             style={moviestyles.itemCard}
           />
           <Image
-            source={require("@/assets/images/home/mockPosters/1.jpg")}
+             source={{
+              uri: `https://image.tmdb.org/t/p/w500${seriesData.banner}`,
+            }}
             style={moviestyles.itemPoster}
           />
           <AnimatedButton
@@ -478,7 +538,7 @@ export default function Movie() {
           />
           <View style={moviestyles.categorylistcontainer}>
             <FlatList
-              data={ShowInfo[0].categories}
+              data={seriesData.categories}
               renderItem={({ item }) => <Category category={item} />}
               keyExtractor={(item) => item}
               horizontal={true}
@@ -486,26 +546,28 @@ export default function Movie() {
             />
           </View>
           <Text style={moviestyles.overviewtitle}>Overview</Text>
-          <Text style={moviestyles.overview}>{ShowInfo[0].desc}</Text>
+          <Text style={moviestyles.overview}>{seriesData.description}</Text>
           <View style={{ top: -335, left: 0 }}>
             <Text style={moviestyles.itemTitlesub}>Top Cast</Text>
           </View>
           <View style={moviestyles.listcontainer}>
-            <FlatList
-              data={CastInfo}
+          <FlatList
+              data={seriesData.cast}
               renderItem={({ item }) => (
-                <Cast name={item.name} role={item.role} eps={item.eps} />
+                <Cast
+                  name={item.name}
+                  role={item.role}
+                  eps={item.eps}
+                  profile_path={item.profile_path}
+                />
               )}
-              keyExtractor={(index) => index.toString()}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             />
           </View>
-          <View style={{ top: -200, left: 0 }}>
-            <Text style={moviestyles.itemTitlesub}>All Seasons</Text>
-          </View>
+          ?
           <View style={moviestyles.seasonlistcontainer}>
-            <FlatList
+            {/* <FlatList
               data={SeasonsInfo}
               renderItem={({ item }) => (
                 <Season
@@ -520,7 +582,7 @@ export default function Movie() {
               scrollEnabled={true}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
-            ></FlatList>
+            ></FlatList> */}
           </View>
           <View style={{ top: -200, left: 20 }}>
             <Text style={moviestyles.itemTitlesub}>Write a Review!</Text>
@@ -564,7 +626,7 @@ export default function Movie() {
           <Text style={moviestyles.itemTitlesub}>Latest Reviews</Text>
         </View>
         <View style={moviestyles.otherslistcontainer}>
-          <FlatList
+        <FlatList
             data={OtherReviewsInfo}
             renderItem={({ item }) => (
               <OtherReview

@@ -74,36 +74,7 @@ const CastInfo: Cast[] = [
   },
 ];
 
-const OtherReviewsInfo: OtherReviews[] = [
-  {
-    name: "John Doe",
-    date: "Sep 27, 2024",
-    score: 100,
-    review:
-      "This movie was amazing! I loved the animation and the story was so heartwarming. I highly recommend it to anyone who loves a good family movie.   This movie was amazing! I loved the animation and the story was so heartwarming. I highly recommend it to anyone who loves a good family movie.   This movie was amazing! I loved the animation and the story was so heartwarming. I highly recommend it to anyone who loves a good family movie.  This movie was amazing! I loved the animation and the story was so heartwarming. I highly recommend it to anyone who loves a good family movie.",
-  },
-  {
-    name: "Jane Doe",
-    date: "Sep 27, 2024",
-    score: 80,
-    review:
-      "I thought this movie was pretty good. The animation was great and the story was interesting. I would recommend it to anyone who likes animated movies.",
-  },
-  {
-    name: "John Smith",
-    date: "Sep 27, 2024",
-    score: 60,
-    review:
-      "I thought this movie was okay. The animation was good, but the story was a bit boring. I would recommend it to anyone who likes animated movies.",
-  },
-  {
-    name: "Jane Smith",
-    date: "Sep 27, 2024",
-    score: 40,
-    review:
-      "I thought this movie was bad. The animation was good, but the story was boring. I would not recommend it to anyone.",
-  },
-];
+
 
 const Category: React.FC<{ category: string }> = ({ category }) => (
   <View style={moviestyles.categoryContainer}>

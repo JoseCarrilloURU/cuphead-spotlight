@@ -175,6 +175,9 @@ export default function Home() {
           throw new Error("lastSeenMovies is undefined in the response");
         }
     
+        // Ordenar los datos por `seenAt`
+        responseData.lastSeenMovies.sort((a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt));
+    
         const movieDetailsPromises = responseData.lastSeenMovies
           .slice(0, 10)
           .map(async (movie: any) => {
@@ -195,14 +198,14 @@ export default function Home() {
                   ? `https://image.tmdb.org/t/p/w500${movieDetails.banner}`
                   : undefined,
                 media_type: movieDetails.media_type,
+                seenAt: movie.seenAt, // Include seenAt
               };
             }
             return null;
           });
     
-        const formattedMovies = (await Promise.all(movieDetailsPromises)).filter(
-          (movie) => movie !== null
-        );
+        const formattedMovies = (await Promise.all(movieDetailsPromises))
+          .filter((movie) => movie !== null);
     
         setLastSeenMovies(formattedMovies);
         console.log(`Last seen movies fetched successfully:`, formattedMovies);
@@ -210,6 +213,8 @@ export default function Home() {
         console.error(`Fetching last seen movies failed:`, error);
       }
     };
+
+
 
     const fetchSeriesById = async (id: string) => {
       try {
@@ -226,7 +231,7 @@ export default function Home() {
         }
     
         const responseData = await response.json();
-        console.log("Series details response:", responseData);
+        //console.log("Series details response:", responseData);
         return responseData;
       } catch (error) {
         console.error("Error fetching series details:", error);
@@ -593,12 +598,10 @@ export default function Home() {
 
   //updates last seen series
   const updateLastSeenSeries = async (series: any) => {
-
     const seriesData = {
       userId: personId,
-      seriesId: series.id,
+      seriesId: series.seriesId,
     };
-
     try {
       const response = await fetch(
         `${backupUrl}/updateLastSeenSeries/`,
@@ -608,16 +611,14 @@ export default function Home() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(seriesData),
-        } 
+        }
       );
-
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
           `API response was not ok: ${response.statusText} - ${errorText}`
         );
       }
-
       const responseData = await response.json();
       console.log("Series updated successfully:", responseData);
     } catch (error) {
@@ -709,13 +710,15 @@ export default function Home() {
           const SeriesInLastSeen = await isSeriesInLastSeen(personId, series._id);
           if (SeriesInLastSeen) {
             console.log("Series is already in last seen");
-            await updateLastSeenSeries(series.id);
+            console.log(personId, series._id);
+            const lastSeenSeries = { personId, seriesId: series._id };
+            await updateLastSeenSeries(lastSeenSeries);
           } else {
             const lastSeenSeries = { personId, seriesId: id };
             console.log("lastSeenSeries", lastSeenSeries);
             await addLastSeenSeries(lastSeenSeries);
           }
-          routerTransition("push", "/tvshow", { id, title });
+          routerTransition("push", "/tvshow", {id, title, personId, seriesId: series._id });
         } else {
           console.log("Neither movie nor series found with the given ID and title.");
     
@@ -905,11 +908,39 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            Last Seen By You
+            Last Add Movie By You
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
-            data={[...lastSeenMovies, ...lastSeenSeries]}
+            data={[...lastSeenMovies]}
+            renderItem={({ item }) => (
+              <Movie
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+                banner={item.banner}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                } // Pass the id to handleItemPress
+              />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+        <View style={tabstyles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tabstyles.stripbg}
+          />
+          <Text style={tabstyles.stripTitle} numberOfLines={1}>
+            Last Add Series By You
+          </Text>
+          <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
+          <FlatList
+            data={[ ...lastSeenSeries]}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
@@ -929,5 +960,7 @@ export default function Home() {
         </View>
       </ScrollView>
     </View>
+
+    
   );
 }
