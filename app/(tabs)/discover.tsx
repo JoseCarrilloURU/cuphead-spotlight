@@ -532,7 +532,7 @@ export default function Home() {
   const addLastSeenSeries = async (series: any) => {
     const seriesData = {
       userId: personId,
-      seriesId: series.id,
+      seriesId: series.seriesId,
     };
 
     console.log("seriesData", seriesData);
@@ -706,12 +706,13 @@ export default function Home() {
         const series = await fetchSeriesByIdAndTitle(id.toString(), title);
         if (series) {
           console.log("Series found:", series);
-          const SeriesInLastSeen = await isSeriesInLastSeen(personId, id.toString());
+          const SeriesInLastSeen = await isSeriesInLastSeen(personId, series._id);
           if (SeriesInLastSeen) {
             console.log("Series is already in last seen");
             await updateLastSeenSeries(series.id);
           } else {
             const lastSeenSeries = { personId, seriesId: id };
+            console.log("lastSeenSeries", lastSeenSeries);
             await addLastSeenSeries(lastSeenSeries);
           }
           routerTransition("push", "/tvshow", { id, title });
