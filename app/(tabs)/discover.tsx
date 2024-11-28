@@ -247,37 +247,53 @@ export default function Home() {
             "Content-Type": "application/json",
           },
         });
-
+    
         if (!response.ok) {
           throw new Error(`API response was not ok: ${response.statusText}`);
         }
-
+    
         const responseData = await response.json();
-        // console.log("Last watchlist response:", responseData);
-
-        const formattedMovies = responseData.watchlist
+        console.log("Last watchlist response:", responseData);
+    
+        if (!responseData.watchlist) {
+          throw new Error("watchlist is undefined in the response");
+        }
+    
+        // Ordenar los datos por `seenAt`
+        responseData.watchlist.sort((a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt));
+    
+        const movieDetailsPromises = responseData.watchlist
           .slice(0, 10)
-          .map((movie: any) => {
-            const date = new Date(movie.releaseDate);
-            const formattedDate = `${date.getFullYear()}-${String(
-              date.getMonth() + 1
-            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-
-            return {
-              _id: movie._id,
-              id: movie.movieId,
-              title: movie.title,
-              score: Math.floor(movie.ratings * 10), // Use Math.floor to remove decimals
-              date: formattedDate,
-              banner: movie.banner
-                ? `https://image.tmdb.org/t/p/w500${movie.banner}`
-                : undefined,
-            };
+          .map(async (movie: any) => {
+            const movieDetails = await fetchMovieById(movie._id);
+            if (movieDetails) {
+              const date = new Date(movieDetails.releaseDate);
+              const formattedDate = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+              ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    
+              return {
+                _id: movieDetails._id,
+                id: movieDetails.movieId,
+                title: movieDetails.title,
+                score: Math.floor(movieDetails.ratings * 10), // Use Math.floor to remove decimals
+                date: formattedDate,
+                banner: movieDetails.banner
+                  ? `https://image.tmdb.org/t/p/w500${movieDetails.banner}`
+                  : undefined,
+                seenAt: movie.seenAt, // Include seenAt
+              };
+            }
+            return null;
           });
+    
+        const formattedMovies = (await Promise.all(movieDetailsPromises))
+          .filter((movie) => movie !== null);
+    
         setWatchlistMovies(formattedMovies);
-        //console.log(`Watchlist fetched successfully:`, formattedMovies);
+        console.log(`Watchlist fetched successfully:`, formattedMovies);
       } catch (error) {
-        // console.error(`Fetching last seen  failed:`, error);
+        console.error(`Fetching watchlist failed:`, error);
       }
     };
 
@@ -342,42 +358,62 @@ export default function Home() {
 
     const fetchWatchlistSeries = async () => {
       try {
-        const response = await fetch(
-          `${backupUrl}/watchlistSeries/${personId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
+        const response = await fetch(`${backupUrl}/watchlistSeries/${personId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+    
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(
-            `API response was not ok: ${response.statusText} - ${errorText}`
-          );
+          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
         }
-
+    
         const responseData = await response.json();
-        //console.log("Watchlist series response:", responseData);
-
-        const formattedSeries = responseData.watchlistSeries
+        console.log("Last watchlist series response:", responseData);
+    
+        if (!responseData.watchlistSeries) {
+          throw new Error("watchlistSeries is undefined in the response");
+        }
+    
+        // Ordenar los datos por `seenAt`
+        responseData.watchlistSeries.sort((a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt));
+    
+        const seriesDetailsPromises = responseData.watchlistSeries
           .slice(0, 10)
-          .map((series: any) => ({
-            _id: series._id,
-            id: series.seriesId,
-            title: series.title,
-            score: Math.floor(series.ratings * 10), // Use Math.floor to remove decimals
-            date: series.releaseDate,
-            banner: series.banner
-              ? `https://image.tmdb.org/t/p/w500${series.banner}`
-              : undefined,
-          }));
+          .map(async (series: any) => {
+            const seriesDetails = await fetchSeriesById(series._id);
+            if (seriesDetails) {
+              const date = new Date(seriesDetails.releaseDate);
+              const formattedDate = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+              ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    
+              return {
+                _id: seriesDetails._id,
+                id: seriesDetails.seriesId,
+                title: seriesDetails.title,
+                score: Math.floor(seriesDetails.ratings * 10), // Use Math.floor to remove decimals
+                date: formattedDate,
+                banner: seriesDetails.banner
+                  ? `https://image.tmdb.org/t/p/w500${seriesDetails.banner}`
+                  : undefined,
+                media_type: seriesDetails.media_type,
+                seenAt: series.seenAt, // Include seenAt
+              };
+            }
+            return null;
+          });
+    
+        const formattedSeries = (await Promise.all(seriesDetailsPromises)).filter(
+          (series) => series !== null
+        );
+    
         setWatchlistSeries(formattedSeries);
-        //console.log(`Watchlist series fetched successfully:`, formattedSeries);
+        console.log(`Watchlist series fetched successfully:`, formattedSeries);
       } catch (error) {
-        //console.error(`Fetching watchlist series failed:`, error);
+        console.error(`Fetching watchlist series failed:`, error);
       }
     };
 
@@ -880,11 +916,39 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            In Your Watchlist
+            In Your Watchlist Movies
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
-            data={[...watchlistMovies, ...watchlistSeries]}
+            data={[...watchlistMovies]}
+            renderItem={({ item }) => (
+              <Movie
+                id={item.id}
+                title={item.title}
+                score={item.score}
+                date={item.date}
+                banner={item.banner}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                } // Pass the id to handleItemPress
+              />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+        <View style={tabstyles.listcontainer2}>
+          <Image
+            source={require("@/assets/images/home/stripbg.png")}
+            style={tabstyles.stripbg}
+          />
+          <Text style={tabstyles.stripTitle} numberOfLines={1}>
+            In Your Watchlist Series
+          </Text>
+          <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
+          <FlatList
+            data={[ ...watchlistSeries]}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}

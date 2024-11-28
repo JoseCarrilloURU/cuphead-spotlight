@@ -74,8 +74,6 @@ const ShowInfo: Show[] = [
   },
 ];
 
-
-
 const OtherReviewsInfo: OtherReviews[] = [
   {
     name: "John Doe",
@@ -240,9 +238,15 @@ export default function Movie() {
   let [watchlist, setWatchlist] = useState(false);
   let [reviewmade, setReviewmade] = useState(false);
   let [yourScore, setYourScore] = useState("");
+  const [isSendDisabled, setIsSendDisabled] = useState(true);
+  let [reviewId, setReviewId] = useState("");
+  let [reviewContent, setReviewContent] = useState("");
+  let [reviewRating, setReviewRating] = useState(0);
+  let [reviewEditContent, setReviewEditContent] = useState("");
+  let [reviewEditRating, setReviewEditRating] = useState(0);
   let [popupShown, setPopupShown] = useState(false);
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
-  const [otherReviews, setOtherReviews] = useState<OtherReviews[]>([]); 
+  const [otherReviews, setOtherReviews] = useState<OtherReviews[]>([]);
   const [seriesData, setSeriesData] = useState<any>({
     title: "",
     categories: [],
@@ -255,11 +259,30 @@ export default function Movie() {
     director: "",
   });
 
-  useEffect(() => { 
-    console.log("Movie page loaded", searchid, searchTitle, searchPersonId, searhSeriesId);
+  useEffect(() => {
+    console.log(
+      "TV Show page loaded",
+      searchid,
+      searchTitle,
+      searchPersonId,
+      searhSeriesId
+    );
     fetchSeriesById(searhSeriesId);
-  }
-  , []);
+    fetchReviewsBySeriesId(searhSeriesId);
+    fetchReviewByAuthorAndMovie(searchPersonId, searhSeriesId);
+  }, [searchid, searchTitle, searchPersonId, searhSeriesId]);
+
+  useEffect(() => {
+    if (
+      reviewContent.trim() === "" ||
+      reviewRating === 0 ||
+      (reviewContent === reviewEditContent && reviewRating === reviewEditRating)
+    ) {
+      setIsSendDisabled(true);
+    } else {
+      setIsSendDisabled(false);
+    }
+  }, [reviewContent, reviewRating, reviewEditContent, reviewEditRating]);
 
   const fetchSeriesById = async (seriesId: string) => {
     try {
@@ -269,17 +292,21 @@ export default function Movie() {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("Series details response:", responseData);
-  
-      const formattedDate = new Date(responseData.releaseDate).toLocaleDateString();
-  
+
+      const formattedDate = new Date(
+        responseData.releaseDate
+      ).toLocaleDateString();
+
       setSeriesData({
         title: responseData.title,
         categories: responseData.categories,
@@ -296,10 +323,50 @@ export default function Movie() {
     }
   };
 
-
   const handleEnterReview = () => {
     console.log("Enter Review button pressed");
     setPopupShown(true);
+    fetchReviewByAuthorAndMovie(searchPersonId, searhSeriesId);
+    console.log(searchPersonId, searhSeriesId);
+  };
+
+  const fetchReviewByAuthorAndMovie = async (
+    authorId: string,
+    movieId: string
+  ) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/reviews/author/${authorId}/movie/${movieId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      if (responseData.length > 0) {
+        setReviewmade(true); // Set review made to true
+        setReviewId(responseData[0]._id); // Set the review ID
+        setReviewContent(responseData[0].content);
+        setReviewEditContent(responseData[0].content);
+        setReviewRating(responseData[0].rating);
+        setReviewEditRating(responseData[0].rating);
+      }
+      console.log("Review by author and movie response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error fetching review by author and movie:", error);
+      return null;
+    }
   };
   const handleExitReview = () => {
     console.log("Exit Review button pressed");
@@ -312,17 +379,139 @@ export default function Movie() {
     setReviewmade(false);
     setPopupShown(false);
   };
-  const handleSendReview = () => {
+  const handleSendReview = async () => {
     console.log("Send Review button pressed");
     Keyboard.dismiss();
+
+    if (reviewmade) {
+      // Update existing review
+      await updateReview(
+        reviewId,
+        reviewContent,
+        searchPersonId,
+        searhSeriesId,
+        reviewRating
+      );
+    } else {
+      // Create new review
+      await createReview(
+        reviewContent,
+        searchPersonId,
+        searhSeriesId,
+        reviewRating
+      );
+    }
+
     setReviewmade(true);
-    //CONVERTIR TEXT DE COLLAPSABLE AL REVIEW
     setPopupShown(false);
   };
+  const updateReview = async (
+    reviewId: string,
+    content: string,
+    authorId: string,
+    seriesId: string,
+    rating: number
+  ) => {
+    try {
+      const response = await fetch(`${backupUrl}/reviews/${reviewId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content,
+          author: authorId,
+          movie: seriesId,
+          rating,
+        }),
+      });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Review updated successfully:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error updating review:", error);
+      return null;
+    }
+  };
+
+  const createReview = async (
+    content: string,
+    authorId: string,
+    seriesId: string,
+    rating: number
+  ) => {
+    try {
+      const response = await fetch(`${backupUrl}/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content,
+          author: authorId,
+          movie: seriesId,
+          rating,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Review created successfully:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error creating review:", error);
+      return null;
+    }
+  };
   const handleWatchlist = () => {
     console.log("Watchlist button pressed");
     setWatchlist(!watchlist);
+  };
+
+  const fetchReviewsBySeriesId = async (seriesId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/reviews/movie/${seriesId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Reviews by series ID response:", responseData);
+
+      const formattedReviews = responseData.map((review: any) => ({
+        name: review.author.username,
+        date: new Date(review.createdAt).toLocaleDateString(),
+        score: review.rating,
+        review: review.content,
+      }));
+
+      setOtherReviews(formattedReviews);
+    } catch (error) {
+      console.error("Error fetching reviews by series ID:", error);
+    }
   };
 
   return (
@@ -376,7 +565,7 @@ export default function Movie() {
           onPress={handleSendReview}
           source={require("@/assets/images/index/send.png")}
           style={moviestyles.popupsend}
-          disabled={false}
+          disabled={isSendDisabled}
         />
         <AnimatedButton
           onPress={handleDelReview}
@@ -387,8 +576,8 @@ export default function Movie() {
         <Text style={moviestyles.popupscore}>Your Score:</Text>
         <TextInput
           style={moviestyles.popupscoretext}
-          value={yourScore}
-          onChangeText={(text) => setYourScore(text)}
+          value={reviewRating.toString()}
+          onChangeText={(text) => setReviewRating(Number(text))}
           placeholder="(1-100)"
           placeholderTextColor="#555"
           keyboardType="number-pad"
@@ -407,6 +596,8 @@ export default function Movie() {
             numberOfLines={12}
             keyboardType="email-address"
             maxLength={250}
+            value={reviewContent}
+            onChangeText={(text) => setReviewContent(text)}
           />
         </ScrollView>
       </MotiView>
@@ -456,7 +647,7 @@ export default function Movie() {
               source={require("@/assets/images/home/scorebadge.png")}
               style={moviestyles.itemScoreBadge}
             />
-           <Text style={moviestyles.itemScore}>{seriesData.ratings*10}</Text>
+            <Text style={moviestyles.itemScore}>{seriesData.ratings * 10}</Text>
             {/* <Image
             source={getFlagImageForNumber(ShowInfo[0].score)}
             style={moviestyles.imgScoreFlag}
@@ -521,7 +712,7 @@ export default function Movie() {
             style={moviestyles.itemCard}
           />
           <Image
-             source={{
+            source={{
               uri: `https://image.tmdb.org/t/p/w500${seriesData.banner}`,
             }}
             style={moviestyles.itemPoster}
@@ -551,7 +742,7 @@ export default function Movie() {
             <Text style={moviestyles.itemTitlesub}>Top Cast</Text>
           </View>
           <View style={moviestyles.listcontainer}>
-          <FlatList
+            <FlatList
               data={seriesData.cast}
               renderItem={({ item }) => (
                 <Cast
@@ -602,7 +793,7 @@ export default function Movie() {
             style={moviestyles.reviewcollapsed}
             numberOfLines={6}
           >
-            You haven't reviewed this show yet.
+            {reviewmade ? reviewContent : "Click here to write a review!"}
           </Text>
           <MotiView
             from={{ opacity: 0 }}
@@ -626,8 +817,8 @@ export default function Movie() {
           <Text style={moviestyles.itemTitlesub}>Latest Reviews</Text>
         </View>
         <View style={moviestyles.otherslistcontainer}>
-        <FlatList
-            data={OtherReviewsInfo}
+          <FlatList
+            data={otherReviews}
             renderItem={({ item }) => (
               <OtherReview
                 name={item.name}
@@ -636,7 +827,7 @@ export default function Movie() {
                 review={item.review}
               />
             )}
-            keyExtractor={(index) => index.toString()}
+            keyExtractor={(item, index) => index.toString()}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
           />
