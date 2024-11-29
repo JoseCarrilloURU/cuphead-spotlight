@@ -11,4 +11,13 @@ const formatDate = (dateString: string): string => {
   return date.toLocaleDateString("en-US", options);
 };
 
-export default formatDate;
+const formatType = (type: string): string => {
+  if (type === "movie") {
+    return "Movie";
+  } else if (type === "tv") {
+    return "TV Show";
+  }
+  return type;
+};
+
+export { formatDate, formatType };

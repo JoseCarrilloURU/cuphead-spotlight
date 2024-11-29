@@ -15,6 +15,7 @@ const searchBGMap: { [key: number]: any } = {
   1: require("@/assets/images/backgrounds/bg_discover.png"),
   2: require("@/assets/images/backgrounds/bg_movies.png"),
   3: require("@/assets/images/backgrounds/bg_tv.png"),
+  5: require("@/assets/images/backgrounds/bg_profile.png"),
   6: require("@/assets/images/backgrounds/bg_movies.png"),
   7: require("@/assets/images/backgrounds/bg_tv.png"),
 };

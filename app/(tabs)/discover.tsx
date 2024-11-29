@@ -23,7 +23,7 @@ import {
   getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
-import formatDate from "@/components/formatDate";
+import { formatDate } from "@/components/formatDate";
 import tabstyles from "../tabstyles";
 import routerTransition from "@/components/routerTransition";
 import FiltersModal from "@/components/filtersModal";
@@ -40,33 +40,6 @@ interface Movie {
 interface personIdProps {
   personId: number; // personId is a number
 }
-
-// const Movies: Movie[] = [
-//   {
-//     id: 1,
-//     title: "Arcane",
-//     score: 88,
-//     date: "Nov 06, 2021",
-//   },
-//   {
-//     id: 2,
-//     title: "The Wild Robot",
-//     score: 84,
-//     date: "Sep 12, 2024",
-//   },
-//   {
-//     id: 3,
-//     title: "Venom: The Last Dance",
-//     score: 64,
-//     date: "Oct 24, 2024",
-//   },
-//   {
-//     id: 4,
-//     title: "Sharknado",
-//     score: 33,
-//     date: "July 11, 2013",
-//   },
-// ];
 
 export default function Home() {
   const { personId: searchPersonId } = useLocalSearchParams<{
@@ -140,12 +113,14 @@ export default function Home() {
             "Content-Type": "application/json",
           },
         });
-    
+
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+          throw new Error(
+            `API response was not ok: ${response.statusText} - ${errorText}`
+          );
         }
-    
+
         const responseData = await response.json();
         //console.log("Movie by ID response:", responseData);
         return responseData;
@@ -163,21 +138,23 @@ export default function Home() {
             "Content-Type": "application/json",
           },
         });
-    
+
         if (!response.ok) {
           throw new Error(`API response was not ok: ${response.statusText}`);
         }
-    
+
         const responseData = await response.json();
         console.log("Last seen movies response:", responseData);
-    
+
         if (!responseData.lastSeenMovies) {
           throw new Error("lastSeenMovies is undefined in the response");
         }
-    
+
         // Ordenar los datos por `seenAt`
-        responseData.lastSeenMovies.sort((a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt));
-    
+        responseData.lastSeenMovies.sort(
+          (a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt)
+        );
+
         const movieDetailsPromises = responseData.lastSeenMovies
           .slice(0, 10)
           .map(async (movie: any) => {
@@ -187,7 +164,7 @@ export default function Home() {
               const formattedDate = `${date.getFullYear()}-${String(
                 date.getMonth() + 1
               ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    
+
               return {
                 _id: movieDetails._id,
                 id: movieDetails.movieId,
@@ -203,18 +180,17 @@ export default function Home() {
             }
             return null;
           });
-    
-        const formattedMovies = (await Promise.all(movieDetailsPromises))
-          .filter((movie) => movie !== null);
-    
+
+        const formattedMovies = (
+          await Promise.all(movieDetailsPromises)
+        ).filter((movie) => movie !== null);
+
         setLastSeenMovies(formattedMovies);
         console.log(`Last seen movies fetched successfully:`, formattedMovies);
       } catch (error) {
         console.error(`Fetching last seen movies failed:`, error);
       }
     };
-
-
 
     const fetchSeriesById = async (id: string) => {
       try {
@@ -224,12 +200,14 @@ export default function Home() {
             "Content-Type": "application/json",
           },
         });
-    
+
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+          throw new Error(
+            `API response was not ok: ${response.statusText} - ${errorText}`
+          );
         }
-    
+
         const responseData = await response.json();
         //console.log("Series details response:", responseData);
         return responseData;
@@ -247,21 +225,23 @@ export default function Home() {
             "Content-Type": "application/json",
           },
         });
-    
+
         if (!response.ok) {
           throw new Error(`API response was not ok: ${response.statusText}`);
         }
-    
+
         const responseData = await response.json();
         console.log("Last watchlist response:", responseData);
-    
+
         if (!responseData.watchlist) {
           throw new Error("watchlist is undefined in the response");
         }
-    
+
         // Ordenar los datos por `seenAt`
-        responseData.watchlist.sort((a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt));
-    
+        responseData.watchlist.sort(
+          (a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt)
+        );
+
         const movieDetailsPromises = responseData.watchlist
           .slice(0, 10)
           .map(async (movie: any) => {
@@ -271,7 +251,7 @@ export default function Home() {
               const formattedDate = `${date.getFullYear()}-${String(
                 date.getMonth() + 1
               ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    
+
               return {
                 _id: movieDetails._id,
                 id: movieDetails.movieId,
@@ -286,10 +266,11 @@ export default function Home() {
             }
             return null;
           });
-    
-        const formattedMovies = (await Promise.all(movieDetailsPromises))
-          .filter((movie) => movie !== null);
-    
+
+        const formattedMovies = (
+          await Promise.all(movieDetailsPromises)
+        ).filter((movie) => movie !== null);
+
         setWatchlistMovies(formattedMovies);
         console.log(`Watchlist fetched successfully:`, formattedMovies);
       } catch (error) {
@@ -297,27 +278,29 @@ export default function Home() {
       }
     };
 
-    
     const fetchLastSeenSeries = async () => {
       try {
-        const response = await fetch(`${backupUrl}/lastSeenSeries/${personId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-    
+        const response = await fetch(
+          `${backupUrl}/lastSeenSeries/${personId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         if (!response.ok) {
           throw new Error(`API response was not ok: ${response.statusText}`);
         }
-    
+
         const responseData = await response.json();
         console.log("Last seen series response:", responseData);
-    
+
         if (!responseData.lastSeenSeries) {
           throw new Error("lastSeenSeries is undefined in the response");
         }
-    
+
         const seriesDetailsPromises = responseData.lastSeenSeries
           .slice(0, 10)
           .map(async (series: any) => {
@@ -329,7 +312,7 @@ export default function Home() {
               const formattedDate = `${date.getFullYear()}-${String(
                 date.getMonth() + 1
               ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    
+
               return {
                 _id: seriesDetails._id,
                 id: seriesDetails.seriesId,
@@ -344,11 +327,11 @@ export default function Home() {
             }
             return null;
           });
-    
-        const formattedSeries = (await Promise.all(seriesDetailsPromises)).filter(
-          (series) => series !== null
-        );
-    
+
+        const formattedSeries = (
+          await Promise.all(seriesDetailsPromises)
+        ).filter((series) => series !== null);
+
         setLastSeenSeries(formattedSeries);
         console.log(`Last seen series fetched successfully:`, formattedSeries);
       } catch (error) {
@@ -358,28 +341,35 @@ export default function Home() {
 
     const fetchWatchlistSeries = async () => {
       try {
-        const response = await fetch(`${backupUrl}/watchlistSeries/${personId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-    
+        const response = await fetch(
+          `${backupUrl}/watchlistSeries/${personId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+          throw new Error(
+            `API response was not ok: ${response.statusText} - ${errorText}`
+          );
         }
-    
+
         const responseData = await response.json();
         console.log("Last watchlist series response:", responseData);
-    
+
         if (!responseData.watchlistSeries) {
           throw new Error("watchlistSeries is undefined in the response");
         }
-    
+
         // Ordenar los datos por `seenAt`
-        responseData.watchlistSeries.sort((a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt));
-    
+        responseData.watchlistSeries.sort(
+          (a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt)
+        );
+
         const seriesDetailsPromises = responseData.watchlistSeries
           .slice(0, 10)
           .map(async (series: any) => {
@@ -389,7 +379,7 @@ export default function Home() {
               const formattedDate = `${date.getFullYear()}-${String(
                 date.getMonth() + 1
               ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    
+
               return {
                 _id: seriesDetails._id,
                 id: seriesDetails.seriesId,
@@ -405,11 +395,11 @@ export default function Home() {
             }
             return null;
           });
-    
-        const formattedSeries = (await Promise.all(seriesDetailsPromises)).filter(
-          (series) => series !== null
-        );
-    
+
+        const formattedSeries = (
+          await Promise.all(seriesDetailsPromises)
+        ).filter((series) => series !== null);
+
         setWatchlistSeries(formattedSeries);
         console.log(`Watchlist series fetched successfully:`, formattedSeries);
       } catch (error) {
@@ -607,16 +597,13 @@ export default function Home() {
       movieId: movie.movieId,
     };
     try {
-      const response = await fetch(
-        `${backupUrl}/updateLastSeenMovie`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(movieData),
-        }
-      );
+      const response = await fetch(`${backupUrl}/updateLastSeenMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -639,16 +626,13 @@ export default function Home() {
       seriesId: series.seriesId,
     };
     try {
-      const response = await fetch(
-        `${backupUrl}/updateLastSeenSeries/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(seriesData),
-        }
-      );
+      const response = await fetch(`${backupUrl}/updateLastSeenSeries/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seriesData),
+      });
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
@@ -692,18 +676,23 @@ export default function Home() {
 
   const isSeriesInLastSeen = async (userId: string, seriesId: string) => {
     try {
-      const response = await fetch(`${backupUrl}/isSeriesInLastSeen/${userId}/${seriesId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-  
+      const response = await fetch(
+        `${backupUrl}/isSeriesInLastSeen/${userId}/${seriesId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("Series in last seen check response:", responseData);
       return responseData;
@@ -737,13 +726,21 @@ export default function Home() {
           console.log("lastSeenMovie", lastSeenMovie);
           await addLastSeenMovie(lastSeenMovie);
         }
-        routerTransition("push", "/movie", { id, title, personId, movieId: movie._id });
+        routerTransition("push", "/movie", {
+          id,
+          title,
+          personId,
+          movieId: movie._id,
+        });
       } else {
         // If movie is not found, try to fetch the series by ID and title
         const series = await fetchSeriesByIdAndTitle(id.toString(), title);
         if (series) {
           console.log("Series found:", series);
-          const SeriesInLastSeen = await isSeriesInLastSeen(personId, series._id);
+          const SeriesInLastSeen = await isSeriesInLastSeen(
+            personId,
+            series._id
+          );
           if (SeriesInLastSeen) {
             console.log("Series is already in last seen");
             console.log(personId, series._id);
@@ -754,10 +751,17 @@ export default function Home() {
             console.log("lastSeenSeries", lastSeenSeries);
             await addLastSeenSeries(lastSeenSeries);
           }
-          routerTransition("push", "/tvshow", {id, title, personId, seriesId: series._id });
+          routerTransition("push", "/tvshow", {
+            id,
+            title,
+            personId,
+            seriesId: series._id,
+          });
         } else {
-          console.log("Neither movie nor series found with the given ID and title.");
-    
+          console.log(
+            "Neither movie nor series found with the given ID and title."
+          );
+
           // If neither movie nor series is found, create a new entry based on media_type
           if (media_type === "movie") {
             const newMovie = { id, title, media_type };
@@ -948,7 +952,7 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
-            data={[ ...watchlistSeries]}
+            data={[...watchlistSeries]}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
@@ -1004,7 +1008,7 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
-            data={[ ...lastSeenSeries]}
+            data={[...lastSeenSeries]}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
@@ -1024,7 +1028,5 @@ export default function Home() {
         </View>
       </ScrollView>
     </View>
-
-    
   );
 }

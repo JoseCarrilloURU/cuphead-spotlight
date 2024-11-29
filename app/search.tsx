@@ -15,6 +15,7 @@ import { playSound } from "@/components/soundUtils";
 import LottieView from "lottie-react-native";
 import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
+import { formatDate, formatType } from "@/components/formatDate";
 import HomeHeader from "@/components/homeHeader";
 import {
   mockPosterMap,
@@ -23,7 +24,6 @@ import {
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import FiltersModal from "@/components/filtersModal";
-import routerTransition from "@/components/routerTransition";
 
 interface Movie {
   id: number;
@@ -35,45 +35,6 @@ interface Movie {
   desc: string;
   poster: string | null;
 }
-
-const Movies: Movie[] = [
-  {
-    id: 1,
-    type: "TV Show",
-    title: "Arcane",
-    score: 88,
-    date: "Nov 06, 2021",
-    duration: "18 eps",
-    desc: "Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on rival sides of a war between magic technologies and clashing convictions.",
-  },
-  {
-    id: 2,
-    type: "Movie",
-    title: "The Wild Robot",
-    score: 84,
-    date: "Sep 12, 2024",
-    duration: "1h 42m",
-    desc: "After a shipwreck, an intelligent robot called Roz is stranded on an uninhabited island. To survive the harsh environment, Roz bonds with the island's animals and cares for an orphaned baby goose.",
-  },
-  {
-    id: 3,
-    type: "Movie",
-    title: "Venom: The Last Dance",
-    score: 64,
-    date: "Oct 24, 2024",
-    duration: "1h 49m",
-    desc: "Eddie and Venom are on the run. Hunted by both of their worlds and with the net closing in, the duo are forced into a devastating decision that will bring the curtains down on Venom and Eddie's last dance.",
-  },
-  // {
-  //   id: 4,
-  //   type: "Movie",
-  //   title: "Sharknado",
-  //   score: 33,
-  //   date: "July 11, 2013",
-  //   duration: "1h 26m",
-  //   desc: "A freak hurricane hits Los Angeles, causing man-eating sharks to be scooped up in tornadoes and flooding the city with shark-infested seawater. Surfer and bar-owner Fin sets out with his friends Baz and Nova to rescue his estranged wife April and teenage daughter Claudia.",
-  // },
-];
 
 export default function Search() {
   const { placeholder, originTab, searchText } = useLocalSearchParams<{
@@ -122,14 +83,14 @@ export default function Search() {
 
       const formattedMovies = responseData.map((item: any) => ({
         id: item.movieId,
-        type: item.media_type,
+        type: formatType(item.media_type),
         title: item.name,
         score: Math.floor(item.vote_average * 10), // Use Math.floor to remove decimals
-        date: item.first_air_date,
+        date: formatDate(item.first_air_date),
         duration: item.runtime ? `${item.runtime} min` : "N/A",
         desc: item.overview,
         poster: item.poster_path
-          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          ? "https://image.tmdb.org/t/p/w500${item.poster_path}"
           : null,
       }));
 
@@ -183,8 +144,8 @@ export default function Search() {
           style={searchstyles.itemCard}
         />
         {poster && (
-        <Image source={{ uri: poster }} style={searchstyles.itemPoster} />
-      )}
+          <Image source={{ uri: poster }} style={searchstyles.itemPoster} />
+        )}
         <Image
           source={require("@/assets/images/home/scorebadge.png")}
           style={searchstyles.itemScoreBadge}
@@ -263,6 +224,8 @@ export default function Search() {
           originTab={5}
           searchValue={searchText}
           setModalShown={setModalShown}
+          username=""
+          emailUser=""
         />
         <Image
           source={require("@/assets/images/home/TheResults.png")}

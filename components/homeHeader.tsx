@@ -31,10 +31,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   setModalShown,
   username,
   emailUser,
-   
 }) => {
   const [searchText, setSearchText] = useState(searchValue);
-
 
   const handleLogOutPressed = async () => {
     console.log("Log Out Pressed");
@@ -65,7 +63,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const handleSearchGo = async () => {
     console.log("Search Go Pressed");
     await playSound(require("@/assets/sound/Go.wav"));
-    routerTransition("push", "/search", {
+    routerTransition("replace", "/search", {
       placeholder: placeholder,
       originTab: originTab,
       searchText: searchText,
@@ -154,14 +152,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-             Welcome, {username}!
+            Welcome, {username}!
           </Text>
           <Text
             style={headerstyles.email}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-           {emailUser}
+            {emailUser}
           </Text>
         </View>
       )}
