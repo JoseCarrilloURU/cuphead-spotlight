@@ -143,7 +143,7 @@ const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review, movieT
 export default function Movie() {
   const {
     id: searchid,
-    title: searchTitle,
+    title : searchTitle,
     personId: searchPersonId,
     movieId: searhMovieId,
   } = useLocalSearchParams<{
@@ -195,36 +195,35 @@ export default function Movie() {
 
     const fetchData = async () => {
       try {
-        // Try to fetch the movie by ID and title
         const movie = await fetchMovieByIdAndTitle(searchid, searchTitle);
         if (movie) {
-          //console.log("Movie found:", movie);
-          movie.releaseDate = formatDate(movie.releaseDate); // Formatear la fecha
+          movie.releaseDate = formatDate(movie.releaseDate); 
           setMovieData(movie);
-          //console.log("Movie data:", MovieData);
         } else {
-          // If movie is not found, try to fetch the series by ID and title
           const series = await fetchSeriesByIdAndTitle(searchid, searchTitle);
           if (series) {
-            series.releaseDate = formatDate(series.releaseDate); // Formatear la fecha
-            //console.log("Series found:", series);
+            series.releaseDate = formatDate(series.releaseDate); 
             setMovieData(series);
-            // console.log("Series data:", MovieData);
           } else {
-            console.log(
-              "Neither movie nor series found with the given ID and title."
-            );
+            console.log("Neither movie nor series found with the given ID and title.");
           }
         }
+  
+        const watchlist = await fetchUserWatchlist(searchPersonId);
+        console.log("User watchlist:", watchlist);
+        const isInWatchlist = watchlist.some((item: any) => item._id === searhMovieId);
+        setWatchlist(isInWatchlist);
+        console.log("Is in watchlist:", isInWatchlist);
       } catch (error) {
         console.error("Error fetching movie or series:", error);
       }
     };
-
+  
     fetchData();
     fetchReviewByAuthorAndMovie(searchPersonId, searhMovieId);
     fetchReviewsByMovieId(searhMovieId);
   }, [searchid, searchTitle]);
+
 
   useEffect(() => {
     if (reviewContent.trim() === "" || reviewContent === reviewEditContent) {
@@ -233,6 +232,41 @@ export default function Movie() {
       setIsSendDisabled(false);
     }
   }, [reviewContent, reviewEditContent]);
+
+  useEffect(() => {
+    if (!watchlist) {
+      removeFromWatchlist(searchPersonId, searhMovieId);
+    }
+  }, [watchlist]);
+
+
+  const fetchUserWatchlist = async (userId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/getWatchlist/${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("User watchlist response:", responseData);
+  
+      if (!responseData.watchlist) {
+        throw new Error("watchlist is undefined in the response");
+      }
+  
+      return responseData.watchlist;
+    } catch (error) {
+      console.error("Error fetching user watchlist:", error);
+      return [];
+    }
+  };
 
   
 
@@ -456,6 +490,33 @@ export default function Movie() {
       return responseData;
     } catch (error) {
       console.error("Error creating review:", error);
+      return null;
+    }
+  };
+
+  const removeFromWatchlist = async (userId: string, movieId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/removeFromWatchlist`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          movieId,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Movie removed from watchlist successfully:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error removing movie from watchlist:", error);
       return null;
     }
   };
