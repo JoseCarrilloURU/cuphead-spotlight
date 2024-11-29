@@ -31,6 +31,8 @@ interface Movie {
   title: string;
   score: number;
   date: string;
+  banner?: string;
+  media_type: string;
 }
 
 interface Review {
@@ -50,61 +52,38 @@ interface Review {
   rating: number;
 }
 
-const Movies: Movie[] = [
-  {
-    id: 1,
-    title: "Arcane",
-    score: 88,
-    date: "Nov 06, 2021",
-  },
-  {
-    id: 2,
-    title: "The Wild Robot",
-    score: 84,
-    date: "Sep 12, 2024",
-  },
-  {
-    id: 3,
-    title: "Venom: The Last Dance",
-    score: 64,
-    date: "Oct 24, 2024",
-  },
-  {
-    id: 4,
-    title: "Sharknado",
-    score: 33,
-    date: "July 11, 2013",
-  },
-];
-
-const Reviews: Review[] = [
-  {
-    id: 1,
-    type: "TV Show",
-    title: "Arcane",
-    myscore: 100,
-    date: "Nov 06, 2021",
-    duration: "18 eps",
-    myreview:
-      "This might easily the best peace of science fiction ever created. Everything from the animation to the characters is just perfect.",
-  },
-  {
-    id: 2,
-    type: "Movie",
-    title: "The Wild Robot",
-    myscore: 80,
-    date: "Sep 12, 2024",
-    duration: "1h 42m",
-    myreview:
-      "The Wild Robot is one of the most bawling-prone movies ever, delightful with its incredible animation and score.",
-  },
-];
+// const Reviews: Review[] = [
+//   {
+//     id: 1,
+//     type: "TV Show",
+//     title: "Arcane",
+//     myscore: 100,
+//     date: "Nov 06, 2021",
+//     duration: "18 eps",
+//     myreview:
+//       "This might easily the best peace of science fiction ever created. Everything from the animation to the characters is just perfect.",
+//   },
+//   {
+//     id: 2,
+//     type: "Movie",
+//     title: "The Wild Robot",
+//     myscore: 80,
+//     date: "Sep 12, 2024",
+//     duration: "1h 42m",
+//     myreview:
+//       "The Wild Robot is one of the most bawling-prone movies ever, delightful with its incredible animation and score.",
+//   },
+// ];
 
 export default function Home() {
   const { personId } = usePersonId();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [username, setUsername] = useState("");
   const [emailUser, setEmailUser] = useState("");
+  const [lastSeenMovies, setLastSeenMovies] = useState<any[]>([]);
+  const [watchlistMovies, setWatchlistMovies] = useState<any[]>([]);
+  const [lastSeenSeries, setLastSeenSeries] = useState<any[]>([]);
+  const [watchlistSeries, setWatchlistSeries] = useState<any[]>([]);
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
   useEffect(() => {
@@ -126,7 +105,295 @@ export default function Home() {
     };
 
     fetchReviews();
+    fetchLastSeenMovies();
+    fetchWatchlistMovies();
+    fetchLastSeenSeries();
+    fetchWatchlistSeries();
   }, [personId]);
+
+  const fetchLastSeenMovies = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/getLastSeen/${personId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      console.log("Last seen movies response:", responseData);
+
+      if (!responseData.lastSeenMovies) {
+        throw new Error("lastSeenMovies is undefined in the response");
+      }
+
+      // Ordenar los datos por `seenAt`
+      responseData.lastSeenMovies.sort((a: any, b: any) => {
+        const dateA = new Date(a.seenAt).getTime();
+        const dateB = new Date(b.seenAt).getTime();
+        return dateB - dateA;
+      });
+
+      const movieDetailsPromises = responseData.lastSeenMovies
+        .slice(0, 10)
+        .map(async (movie: any) => {
+          const movieDetails = await fetchMovieById(movie._id);
+          if (movieDetails) {
+            const date = new Date(movieDetails.releaseDate);
+            const formattedDate = `${date.getFullYear()}-${String(
+              date.getMonth() + 1
+            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+            return {
+              _id: movieDetails._id,
+              id: movieDetails.movieId,
+              title: movieDetails.title,
+              score: Math.floor(movieDetails.ratings * 10), // Use Math.floor to remove decimals
+              date: formattedDate,
+              banner: movieDetails.banner
+                ? `https://image.tmdb.org/t/p/w500${movieDetails.banner}`
+                : undefined,
+              media_type: movieDetails.media_type,
+              seenAt: movie.seenAt, // Include seenAt
+            };
+          }
+          return null;
+        });
+
+      const formattedMovies = (await Promise.all(movieDetailsPromises)).filter(
+        (movie) => movie !== null && movie.id !== undefined
+      );
+
+      setLastSeenMovies(formattedMovies);
+      console.log(`Last seen movies fetched successfully:`, formattedMovies);
+    } catch (error) {
+      console.error(`Fetching last seen movies failed:`, error);
+    }
+  };
+
+  const fetchWatchlistMovies = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/getWatchlist/${personId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Last watchlist response:", responseData);
+  
+      if (!responseData.watchlist) {
+        throw new Error("watchlist is undefined in the response");
+      }
+  
+      // Obtener los detalles de cada película en la lista de seguimiento
+      const movieDetailsPromises = responseData.watchlist.map(async (movie: any) => {
+        const movieDetails = await fetchMovieById(movie._id);
+        if (movieDetails) {
+          const date = new Date(movieDetails.releaseDate);
+          const formattedDate = `${date.getFullYear()}-${String(
+            date.getMonth() + 1
+          ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  
+          return {
+            _id: movieDetails._id,
+            id: movieDetails.movieId,
+            title: movieDetails.title,
+            score: Math.floor(movieDetails.ratings * 10), // Use Math.floor to remove decimals
+            date: formattedDate,
+            banner: movieDetails.banner
+              ? `https://image.tmdb.org/t/p/w500${movieDetails.banner}`
+              : undefined,
+            seenAt: movie.addedAt, // Include addedAt as seenAt
+          };
+        }
+        return null;
+      });
+  
+      const formattedMovies = (await Promise.all(movieDetailsPromises))
+        .filter((movie) => movie !== null);
+  
+      setWatchlistMovies(formattedMovies);
+      console.log(`Watchlist fetched successfully:`, formattedMovies);
+    } catch (error) {
+      console.error(`Fetching watchlist failed:`, error);
+    }
+  };
+
+  const fetchLastSeenSeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/lastSeenSeries/${personId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      console.log("Last seen series response:", responseData);
+
+      if (!responseData.lastSeenSeries) {
+        throw new Error("lastSeenSeries is undefined in the response");
+      }
+
+      const seriesDetailsPromises = responseData.lastSeenSeries
+        .slice(0, 10)
+        .map(async (series: any) => {
+          console.log("series", series._id);
+          const seriesDetails = await fetchSeriesById(series._id);
+          console.log("seriesDetails", seriesDetails);
+          if (seriesDetails) {
+            const date = new Date(seriesDetails.releaseDate);
+            const formattedDate = `${date.getFullYear()}-${String(
+              date.getMonth() + 1
+            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+            return {
+              _id: seriesDetails._id,
+              id: seriesDetails.seriesId,
+              title: seriesDetails.title,
+              score: Math.floor(seriesDetails.ratings * 10), // Use Math.floor to remove decimals
+              date: formattedDate,
+              banner: seriesDetails.banner
+                ? `https://image.tmdb.org/t/p/w500${seriesDetails.banner}`
+                : undefined,
+              media_type: seriesDetails.media_type,
+            };
+          }
+          return null;
+        });
+
+      const formattedSeries = (await Promise.all(seriesDetailsPromises)).filter(
+        (series) => series !== null && series.id !== undefined
+      );
+
+      setLastSeenSeries(formattedSeries);
+      console.log(`Last seen series fetched successfully:`, formattedSeries);
+    } catch (error) {
+      console.error(`Fetching last seen series failed:`, error);
+    }
+  };
+
+  const fetchWatchlistSeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/getWatchlistSeries/${personId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      console.log("Last watchlist series response:", responseData);
+
+      if (!responseData.watchlistSeries) {
+        throw new Error("watchlistSeries is undefined in the response");
+      }
+
+      const seriesDetailsPromises = responseData.watchlistSeries
+        .slice(0, 10)
+        .map(async (series: any) => {
+          console.log("series", series._id);
+          const seriesDetails = await fetchSeriesById(series._id);
+          console.log("seriesDetails", seriesDetails);
+          if (seriesDetails) {
+            const date = new Date(seriesDetails.releaseDate);
+            const formattedDate = `${date.getFullYear()}-${String(
+              date.getMonth() + 1
+            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+            return {
+              _id: seriesDetails._id,
+              id: seriesDetails.seriesId,
+              title: seriesDetails.title,
+              score: Math.floor(seriesDetails.ratings * 10), // Use Math.floor to remove decimals
+              date: formattedDate,
+              banner: seriesDetails.banner
+                ? `https://image.tmdb.org/t/p/w500${seriesDetails.banner}`
+                : undefined,
+              media_type: seriesDetails.media_type,
+            };
+          }
+          return null;
+        });
+
+      const formattedSeries = (await Promise.all(seriesDetailsPromises)).filter(
+        (series) => series !== null && series.id !== undefined
+      );
+
+      setWatchlistSeries(formattedSeries);
+      console.log(`Watchlist series fetched successfully:`, formattedSeries);
+    } catch (error) {
+      console.error(`Fetching watchlist series failed:`, error);
+    }
+  };
+
+  const fetchMovieById = async (movieId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/getMovieById/${movieId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Movie details response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error fetching movie details:", error);
+      return null;
+    }
+  };
+
+  const fetchSeriesById = async (id: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/getSeriesById/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Series details response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error fetching series details:", error);
+      return null;
+    }
+  };
 
   const fetchReviewsByAuthor = async (authorId: string) => {
     try {
@@ -153,9 +420,442 @@ export default function Home() {
     }
   };
 
-  const handleItemPress = (/*id: number*/) => {
-    console.log("Item Pressed");
-    routerTransition("push", "/tvshow", {});
+  // Fetch movie by ID and title
+  const fetchMovieByIdAndTitle = async (movieId: string, title: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/getMovieByIdAndTitle/${movieId}/${title}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Movie by ID and title response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error(`Fetching movie by ID and title failed:`, error);
+      return null;
+    }
+  };
+
+  // Fetch series by ID and title
+  const fetchSeriesByIdAndTitle = async (seriesId: string, title: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/getSeriesByIdAndTitle/${seriesId}/${title}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Series by ID and title response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error(`Fetching series by ID and title failed:`, error);
+      return null;
+    }
+  };
+
+  // fetch to save the movie
+  const createMovie = async (movie: any) => {
+    try {
+      const movieData = {
+        movieId: movie.id,
+      };
+
+      const response = await fetch(`${backupUrl}/createMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Movie created successfully:", responseData);
+    } catch (error) {
+      console.error("Error creating movie:", error);
+    }
+  };
+
+  // fetch to save the series
+  const createSeries = async (series: any) => {
+    try {
+      const seriesData = {
+        seriesId: series.id,
+      };
+
+      const response = await fetch(`${backupUrl}/createSeries`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seriesData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Series created successfully:", responseData);
+    } catch (error) {
+      console.error("Error creating series:", error);
+    }
+  };
+
+  const addLastSeenMovie = async (movie: any) => {
+    try {
+      const movieData = {
+        userId: personId,
+        movieId: movie.movieId,
+      };
+      console.log("movieData", movieData);
+      const response = await fetch(`${backupUrl}/saveOurMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Movie saved successfully:", responseData);
+    } catch (error) {
+      console.error("Error saving movie:", error);
+    }
+  };
+
+  const addLastSeenSeries = async (series: any) => {
+    const seriesData = {
+      userId: personId,
+      seriesId: series.seriesId,
+    };
+
+    console.log("seriesData", seriesData);
+    try {
+      const response = await fetch(`${backupUrl}/addLastSeenSeries`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seriesData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Series added to last seen successfully:", responseData);
+    } catch (error) {
+      console.error("Error adding series to last seen:", error);
+    }
+  };
+
+  //updates last seen movie
+  const updateLastSeenMovie = async (movie: any) => {
+    const movieData = {
+      userId: personId,
+      movieId: movie.movieId,
+    };
+    try {
+      const response = await fetch(`${backupUrl}/updateLastSeenMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Movie updated successfully:", responseData);
+    } catch (error) {
+      console.error("Error updating movie:", error);
+    }
+  };
+
+  //updates last seen series
+  const updateLastSeenSeries = async (series: any) => {
+    const seriesData = {
+      userId: personId,
+      seriesId: series.seriesId,
+    };
+    try {
+      const response = await fetch(`${backupUrl}/updateLastSeenSeries/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seriesData),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+      const responseData = await response.json();
+      console.log("Series updated successfully:", responseData);
+    } catch (error) {
+      console.error("Error updating series:", error);
+    }
+  };
+
+  const isMovieInLastSeen = async (userId: any, movieId: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/isMovieInLastSeen/${userId}/${movieId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Movie in last seen check response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error checking if movie is in last seen:", error);
+      return null;
+    }
+  };
+
+  const isSeriesInLastSeen = async (userId: any, seriesId: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/isSeriesInLastSeen/${userId}/${seriesId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Series in last seen check response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error checking if series is in last seen:", error);
+      return null;
+    }
+  };
+
+    const handleItemPressViewOnly = async (
+    id: string,
+    title: string,
+    
+  ) => {
+    console.log("Item Pressed (View Only):", id, title);
+  
+    try {
+      // Try to fetch the movie by ID and title
+      const movie = await fetchMovieByIdAndTitle(id, title);
+      if (movie) {
+        console.log("Movie found:", movie);
+        // Realizar la transición de enrutamiento
+        routerTransition("push", "/movie", {
+          id,
+          title,
+          movieId: movie._id,
+        });
+      } else {
+        // If movie is not found, try to fetch the series by ID and title
+        const series = await fetchSeriesByIdAndTitle(id, title);
+        if (series) {
+          console.log("Series found:", series);
+          // Realizar la transición de enrutamiento
+          routerTransition("push", "/tvshow", {
+            id,
+            title,
+            seriesId: series._id,
+          });
+        } else {
+          console.log("Neither movie nor series found with the given ID and title.");
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching movie or series:", error);
+    }
+  };
+
+  const handleItemPress = async (
+    id: number,
+    title: string,
+    media_type: string,
+  ) => {
+    console.log("Item Pressed:", id, title, media_type);
+
+    try {
+      // Try to fetch the movie by ID and title
+      const movie = await fetchMovieByIdAndTitle(id.toString(), title);
+      if (movie) {
+        console.log("Movie found:", movie);
+        //console.log("p",personId, movie._id);
+        const MovieInLastSeen = await isMovieInLastSeen(personId, movie._id);
+        if (MovieInLastSeen) {
+          console.log("Movie is already in last seen");
+          const lastSeenMovie = { personId, movieId: id };
+          await updateLastSeenMovie(lastSeenMovie);
+        } else {
+          const lastSeenMovie = { personId, movieId: id };
+          console.log("lastSeenMovie", lastSeenMovie);
+          await addLastSeenMovie(lastSeenMovie);
+        }
+                const handleItemPressViewOnly = async (
+          id: string,
+          title: string,
+          media_type: string,
+        ) => {
+          console.log("Item Pressed (View Only):", id, title, media_type);
+        
+          try {
+            // Try to fetch the movie by ID and title
+            const movie = await fetchMovieByIdAndTitle(id, title);
+            if (movie) {
+              console.log("Movie found:", movie);
+              // Realizar la transición de enrutamiento
+              routerTransition("push", "/movie", {
+                id,
+                title,
+                movieId: movie._id,
+              });
+            } else {
+              // If movie is not found, try to fetch the series by ID and title
+              const series = await fetchSeriesByIdAndTitle(id, title);
+              if (series) {
+                console.log("Series found:", series);
+                // Realizar la transición de enrutamiento
+                routerTransition("push", "/tvshow", {
+                  id,
+                  title,
+                  seriesId: series._id,
+                });
+              } else {
+                console.log("Neither movie nor series found with the given ID and title.");
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching movie or series:", error);
+          }
+        };
+      } else {
+        // If movie is not found, try to fetch the series by ID and title
+        const series = await fetchSeriesByIdAndTitle(id.toString(), title);
+        if (series) {
+          console.log("Series found:", series);
+          const SeriesInLastSeen = await isSeriesInLastSeen(
+            personId,
+            series._id
+          );
+          if (SeriesInLastSeen) {
+            console.log("Series is already in last seen");
+            console.log(personId, series._id);
+            const lastSeenSeries = { personId, seriesId: series._id };
+            await updateLastSeenSeries(lastSeenSeries);
+          } else {
+            const lastSeenSeries = { personId, seriesId: id };
+            console.log("lastSeenSeries", lastSeenSeries);
+            await addLastSeenSeries(lastSeenSeries);
+          }
+          routerTransition("push", "/tvshow", {
+            id,
+            title,
+            personId,
+            seriesId: series._id,
+          });
+        } else {
+          console.log(
+            "Neither movie nor series found with the given ID and title."
+          );
+
+          // If neither movie nor series is found, create a new entry based on media_type
+          if (media_type === "movie") {
+            const newMovie = { id, title, media_type };
+            const lastSeenMovie = { personId, movieId: id };
+            await createMovie(newMovie);
+            await addLastSeenMovie(lastSeenMovie);
+            console.log("New movie created:", newMovie);
+            routerTransition("push", "/movie", { id, title });
+          } else if (media_type === "tv") {
+            const newSeries = { id, title, media_type };
+            const lastSeenSeries = { personId, seriesId: id };
+            await createSeries(newSeries);
+            await addLastSeenSeries(lastSeenSeries);
+            console.log("New series created:", newSeries);
+            routerTransition("push", "/tvshow", { id, title });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching movie or series:", error);
+    }
   };
 
   const GoToFirstPage = (/*id: number*/) => {
@@ -171,24 +871,29 @@ export default function Home() {
     console.log("Next Page Pressed");
   };
 
-  const Movie: React.FC<Movie> = ({ id, title, score, date }) => (
+  const Movie: React.FC<{
+    id: string;
+    title: string;
+    score: number;
+    date: string;
+    banner: string | undefined;
+    onPress: () => void;
+  }> = ({ id, title, score, date, banner, onPress }) => (
     <View style={tabstyles.itemContainer}>
-      <Pressable onPress={handleItemPress}>
+      <Pressable onPress={onPress}>
         <Image
           source={require("@/assets/images/home/itemcard.png")}
           style={tabstyles.itemCard}
         />
-        <Image source={mockPosterMap[id]} style={tabstyles.itemPoster} />
+        {banner && (
+          <Image source={{ uri: banner }} style={tabstyles.itemPoster} />
+        )}
       </Pressable>
       <Image
         source={require("@/assets/images/home/scorebadge.png")}
         style={tabstyles.itemScoreBadge}
       />
       <Text style={tabstyles.itemScore}>{score}</Text>
-      {/* <Image
-        source={getFlagImageForNumber(score)}
-        style={tabstyles.imgScoreFlag}
-      /> */}
       <LottieView
         source={getFlagVideoForNumber(score)}
         loop={true}
@@ -214,7 +919,7 @@ export default function Home() {
     rating,
   }) => (
     <View style={profilestyles.itemContainer}>
-      <Pressable onPress={() => handleItemPress(_id)}>
+      <Pressable onPress={() => handleItemPressViewOnly(movie._id , movie.title )}>
         <Image
           source={require("@/assets/images/home/searchcard.png")}
           style={profilestyles.itemCard}
@@ -316,13 +1021,17 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[1]} style={tabstyles.backdrop} />
           <FlatList
-            data={Movies}
+            data={[...watchlistMovies, ...watchlistSeries]}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                }
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -340,19 +1049,24 @@ export default function Home() {
           </Text>
           <Image source={backdropImageMap[2]} style={tabstyles.backdrop2} />
           <FlatList
-            data={Movies}
+            data={[...lastSeenMovies, ...lastSeenSeries]}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
                 title={item.title}
                 score={item.score}
                 date={item.date}
+                banner={item.banner}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                }
               />
             )}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
           />
+
         </View>
         <Text style={profilestyles.yourreviews}>Your Reviews</Text>
         <View style={profilestyles.listcontainer}>

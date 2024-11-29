@@ -148,6 +148,9 @@ export default function Movie() {
     movieId: searhMovieId,
   } = useLocalSearchParams<{
     id: string;
+    title: string;
+    personId: string;
+    movieId: string;
   }>();
   const [modalShown, setModalShown] = useState(false);
   const [isSendDisabled, setIsSendDisabled] = useState(true);
@@ -233,11 +236,11 @@ export default function Movie() {
     }
   }, [reviewContent, reviewEditContent]);
 
-  useEffect(() => {
-    if (!watchlist) {
-      removeFromWatchlist(searchPersonId, searhMovieId);
-    }
-  }, [watchlist]);
+  // useEffect(() => {
+  //   if (!watchlist) {
+  //     removeFromWatchlist(searchPersonId, searhMovieId);
+  //   }
+  // }, [watchlist]);
 
 
   const fetchUserWatchlist = async (userId: string) => {
@@ -436,7 +439,7 @@ export default function Movie() {
     setReviewmade(true);
     setPopupShown(false);
   };
-  const updateReview = async (reviewId: string, content: string, authorId: string, movieId: string, rating: number) => {
+  const updateReview = async (reviewId: any, content: string, authorId: string, movieId: string, rating: number) => {
     try {
       const response = await fetch(`${backupUrl}/review/${reviewId}`, {
         method: "PUT",
@@ -494,9 +497,37 @@ export default function Movie() {
     }
   };
 
+  const addToWatchlist = async (userId: string, movieId: string) => {
+    try {
+      console.log("Adding movie to watchlist:", userId, movieId);
+      const response = await fetch(`${backupUrl}/yourWatchlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          movieId,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Movie added to watchlist successfully:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error adding movie to watchlist:", error);
+      return null;
+    }
+  };
+  
   const removeFromWatchlist = async (userId: string, movieId: string) => {
     try {
-      const response = await fetch(`${backupUrl}/removeFromWatchlist`, {
+      const response = await fetch(`${backupUrl}/removeFromWatchlistSeries`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -522,8 +553,14 @@ export default function Movie() {
   };
   
 
-  const handleWatchlist = () => {
+  const handleWatchlist = async () => {
     console.log("Watchlist button pressed");
+    if (watchlist) {
+      await removeFromWatchlist(searchPersonId, searhMovieId);
+      console.log("Movie removed from watchlist", searchPersonId, searhMovieId);
+    } else {
+      await addToWatchlist(searchPersonId, searhMovieId);
+    }
     setWatchlist(!watchlist);
   };
 
@@ -590,7 +627,7 @@ export default function Movie() {
         <TextInput
           style={moviestyles.popupscoretext}
           value={reviewRating.toString()}
-          onChangeText={(text) => setReviewRating(text)}
+          onChangeText={(text:any) => setReviewRating(text)}
           placeholder="(1-100)"
           placeholderTextColor="#555"
           keyboardType="number-pad"
@@ -638,6 +675,8 @@ export default function Movie() {
           originTab={6}
           searchValue={""}
           setModalShown={setModalShown}
+          username=""
+          emailUser=""
         />
         <View></View>
         <View>
@@ -799,7 +838,7 @@ export default function Movie() {
             />
             <Text style={moviestyles.myreviewscore}>{reviewRating}</Text>
             <LottieView
-              source={getFlagVideoForNumber({reviewRating})}
+              source={getFlagVideoForNumber(reviewRating)}
               loop={true}
               speed={0.6}
               autoPlay

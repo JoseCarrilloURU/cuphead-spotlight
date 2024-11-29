@@ -35,10 +35,11 @@ interface Movie {
   score: number;
   date: string;
   banner?: string;
+  media_type: string;
 }
 
 interface personIdProps {
-  personId: number; // personId is a number
+  personId: number; 
 }
 
 export default function Home() {
@@ -51,8 +52,8 @@ export default function Home() {
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
   const [watchlistMovies, setWatchlistMovies] = useState<Movie[]>([]);
   const [lastSeenMovies, setLastSeenMovies] = useState<Movie[]>([]);
-  const [lastSeenSeries, setLastSeenSeries] = useState<Series[]>([]);
-  const [watchlistSeries, setWatchlistSeries] = useState<Series[]>([]);
+  const [lastSeenSeries, setLastSeenSeries] = useState<Movie[]>([]);
+  const [watchlistSeries, setWatchlistSeries] = useState<Movie[]>([]);
   const [searchText, setSearchText] = useState("");
   const [primaryUrl] = useState(
     "http://backend-rottentomatoes-please-enough.up.railway.app"
@@ -62,7 +63,6 @@ export default function Home() {
   useEffect(() => {
     if (!searchPersonId) {
       console.log("personId is not available yet");
-      console.log("hello");
       return;
     }
 
@@ -152,9 +152,11 @@ export default function Home() {
         }
 
         // Ordenar los datos por `seenAt`
-        responseData.lastSeenMovies.sort(
-          (a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt)
-        );
+        responseData.lastSeenMovies.sort((a: any, b: any) => {
+          const dateA = new Date(a.seenAt).getTime();
+          const dateB = new Date(b.seenAt).getTime();
+          return dateB - dateA;
+        });
 
         const movieDetailsPromises = responseData.lastSeenMovies
           .slice(0, 10)
@@ -239,9 +241,11 @@ export default function Home() {
         }
 
         // Ordenar los datos por `seenAt`
-        responseData.watchlist.sort(
-          (a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt)
-        );
+        responseData.watchlist.sort((a: any, b: any) => {
+          const dateA = new Date(a.seenAt).getTime();
+          const dateB = new Date(b.seenAt).getTime();
+          return dateB - dateA;
+        });
 
         const movieDetailsPromises = responseData.watchlist
           .slice(0, 10)
@@ -367,10 +371,11 @@ export default function Home() {
         }
 
         // Ordenar los datos por `seenAt`
-        responseData.watchlistSeries.sort(
-          (a: any, b: any) => new Date(b.seenAt) - new Date(a.seenAt)
-        );
-
+        responseData.watchlistSeries.sort((a: any, b: any) => {
+          const dateA = new Date(a.seenAt).getTime();
+          const dateB = new Date(b.seenAt).getTime();
+          return dateB - dateA;
+        });
         const seriesDetailsPromises = responseData.watchlistSeries
           .slice(0, 10)
           .map(async (series: any) => {
@@ -647,7 +652,7 @@ export default function Home() {
     }
   };
 
-  const isMovieInLastSeen = async (userId: string, movieId: string) => {
+  const isMovieInLastSeen = async (userId: any, movieId: string) => {
     try {
       const response = await fetch(
         `${backupUrl}/isMovieInLastSeen/${userId}/${movieId}`,
@@ -675,7 +680,7 @@ export default function Home() {
     }
   };
 
-  const isSeriesInLastSeen = async (userId: string, seriesId: string) => {
+  const isSeriesInLastSeen = async (userId: any, seriesId: string) => {
     try {
       const response = await fetch(
         `${backupUrl}/isSeriesInLastSeen/${userId}/${seriesId}`,
@@ -707,7 +712,7 @@ export default function Home() {
   const handleItemPress = async (
     id: number,
     title: string,
-    media_type: string
+    media_type: string,
   ) => {
     console.log("Item Pressed:", id, title, media_type);
 
@@ -716,7 +721,7 @@ export default function Home() {
       const movie = await fetchMovieByIdAndTitle(id.toString(), title);
       if (movie) {
         console.log("Movie found:", movie);
-        console.log(personId, movie._id);
+        //console.log("p",personId, movie._id);
         const MovieInLastSeen = await isMovieInLastSeen(personId, movie._id);
         if (MovieInLastSeen) {
           console.log("Movie is already in last seen");
@@ -855,9 +860,10 @@ export default function Home() {
         <HomeHeader
           placeholder={"Search Movies & TV..."}
           originTab={1}
-          onSearchChange={setSearchText}
           searchValue={searchText}
           setModalShown={setModalShown}
+          username=""
+          emailUser=""
         />
         <View style={tabstyles.listcontainer}>
           <Image
@@ -877,6 +883,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                media_type={item.media_type}
                 onPress={() =>
                   handleItemPress(item.id, item.title, item.media_type)
                 } // Pass the id to handleItemPress
@@ -905,6 +912,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                media_type={item.media_type}
                 onPress={() =>
                   handleItemPress(item.id, item.title, item.media_type)
                 } // Pass the id to handleItemPress
@@ -933,6 +941,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                media_type={item.media_type}
                 onPress={() =>
                   handleItemPress(item.id, item.title, item.media_type)
                 } // Pass the id to handleItemPress
@@ -961,6 +970,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                media_type={item.media_type}
                 onPress={() =>
                   handleItemPress(item.id, item.title, item.media_type)
                 } // Pass the id to handleItemPress
@@ -989,6 +999,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                media_type={item.media_type}
                 onPress={() =>
                   handleItemPress(item.id, item.title, item.media_type)
                 } // Pass the id to handleItemPress
@@ -1017,6 +1028,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
+                media_type={item.media_type}
                 onPress={() =>
                   handleItemPress(item.id, item.title, item.media_type)
                 } // Pass the id to handleItemPress

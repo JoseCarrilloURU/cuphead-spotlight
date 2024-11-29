@@ -26,6 +26,8 @@ import tabstyles from "../tabstyles";
 import FiltersModal from "@/components/filtersModal";
 import { setTransition } from "@/components/globals";
 import { usePersonId } from "../../components/PersonIdContext";
+import routerTransition from "@/components/routerTransition";
+
 
 interface Movie {
   id: number;
@@ -33,53 +35,56 @@ interface Movie {
   score: number;
   date: string;
   banner?: string;
+  media_type: string;
 }
 
-const Movies: Movie[] = [
-  {
-    id: 1,
-    title: "Arcane",
-    score: 88,
-    date: "Nov 06, 2021",
-  },
-  {
-    id: 2,
-    title: "The Wild Robot",
-    score: 84,
-    date: "Sep 12, 2024",
-  },
-  {
-    id: 3,
-    title: "Venom: The Last Dance",
-    score: 64,
-    date: "Oct 24, 2024",
-  },
-  {
-    id: 4,
-    title: "Sharknado",
-    score: 33,
-    date: "July 11, 2013",
-  },
-];
+// const Movies: Movie[] = [
+//   {
+//     id: 1,
+//     title: "Arcane",
+//     score: 88,
+//     date: "Nov 06, 2021",
+//   },
+//   {
+//     id: 2,
+//     title: "The Wild Robot",
+//     score: 84,
+//     date: "Sep 12, 2024",
+//   },
+//   {
+//     id: 3,
+//     title: "Venom: The Last Dance",
+//     score: 64,
+//     date: "Oct 24, 2024",
+//   },
+//   {
+//     id: 4,
+//     title: "Sharknado",
+//     score: 33,
+//     date: "July 11, 2013",
+//   },
+// ];
 
 export default function Home() {
   const { personId } = usePersonId();
   const [bestToggle, setBestToggle] = useState(false);
   const [modalShown, setModalShown] = useState(false);
-  const [popularSeries, setPopularSeries] = useState<Series[]>([]);
-  const [topRatedSeries, setTopRatedSeries] = useState<Series[]>([]);
-  const [actionAdventureSeries, setActionAdventureSeries] = useState<Series[]>(
+  const [popularSeries, setPopularSeries] = useState<Movie[]>([]);
+  const [upcomingPopularSeries, setUpcomingPopularSeries] = useState<any[]>([]);
+  const [topRatedSeries, setTopRatedSeries] = useState<Movie[]>([]);
+  const [actionAdventureSeries, setActionAdventureSeries] = useState<Movie[]>(
     []
   );
-  const [animationSeries, setAnimationSeries] = useState<Series[]>([]);
-  const [dramaSeries, setDramaSeries] = useState<Series[]>([]);
-  const [comedySeries, setComedySeries] = useState<Series[]>([]);
+  const [animationSeries, setAnimationSeries] = useState<Movie[]>([]);
+  const [dramaSeries, setDramaSeries] = useState<Movie[]>([]);
+  const [comedySeries, setComedySeries] = useState<Movie[]>([]);
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
   useEffect(() => {
     if (personId) {
       console.log("Person ID in Tv:", personId);
       fetchPopularSeries();
+      fetchUpcomingPopularSeries();
       fetchTopRatedSeries();
       fetchActionAdventureSeries();
       fetchAnimationSeries();
@@ -171,6 +176,50 @@ export default function Home() {
       //console.log("topRatedSeries fetched successfully:", formattedSeries);
     } catch (error) {
       console.error("Fetching topRatedSeries failed:", error);
+    }
+  };
+
+  const fetchUpcomingPopularSeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/getUpcomingPopularSeries`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Upcoming popular series response:", responseData);
+  
+      if (!Array.isArray(responseData)) {
+        throw new Error(`API response is not an array: ${JSON.stringify(responseData)}`);
+      }
+  
+      let initialScore = 95; // Valor inicial para el score
+  
+      const formattedSeries = responseData.slice(0, 10).map((series: any) => {
+        const score = initialScore; // Asignar el valor actual de initialScore
+        initialScore -= 2; // Decrementar initialScore en 5 en cada iteración
+  
+        return {
+          id: series.id,
+          title: series.name || series.original_title,
+          score: score, // Usar el valor de score
+          date: series.release_date || series.first_air_date,
+          banner: series.poster_path
+            ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+            : undefined,
+        };
+      });
+  
+      setUpcomingPopularSeries(formattedSeries);
+      console.log("Upcoming popular series fetched successfully:", formattedSeries);
+    } catch (error) {
+      console.error("Fetching upcoming popular series failed:", error);
     }
   };
 
@@ -342,8 +391,374 @@ export default function Home() {
     }
   };
 
-  const handleItemPress = (/*id: number*/) => {
-    console.log("Item Pressed");
+  // Fetch movie by ID and title
+  const fetchMovieByIdAndTitle = async (movieId: string, title: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/getMovieByIdAndTitle/${movieId}/${title}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Movie by ID and title response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error(`Fetching movie by ID and title failed:`, error);
+      return null;
+    }
+  };
+
+  // Fetch series by ID and title
+  const fetchSeriesByIdAndTitle = async (seriesId: string, title: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/getSeriesByIdAndTitle/${seriesId}/${title}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Series by ID and title response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error(`Fetching series by ID and title failed:`, error);
+      return null;
+    }
+  };
+
+  // fetch to save the movie
+  const createMovie = async (movie: any) => {
+    try {
+      const movieData = {
+        movieId: movie.id,
+      };
+
+      const response = await fetch(`${backupUrl}/createMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Movie created successfully:", responseData);
+    } catch (error) {
+      console.error("Error creating movie:", error);
+    }
+  };
+
+  // fetch to save the series
+  const createSeries = async (series: any) => {
+    try {
+      const seriesData = {
+        seriesId: series.id,
+      };
+
+      const response = await fetch(`${backupUrl}/createSeries`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seriesData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      //console.log("Series created successfully:", responseData);
+    } catch (error) {
+      console.error("Error creating series:", error);
+    }
+  };
+
+  const addLastSeenMovie = async (movie: any) => {
+    try {
+      const movieData = {
+        userId: personId,
+        movieId: movie.movieId,
+      };
+      console.log("movieData", movieData);
+      const response = await fetch(`${backupUrl}/saveOurMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Movie saved successfully:", responseData);
+    } catch (error) {
+      console.error("Error saving movie:", error);
+    }
+  };
+
+  const addLastSeenSeries = async (series: any) => {
+    const seriesData = {
+      userId: personId,
+      seriesId: series.seriesId,
+    };
+
+    console.log("seriesData", seriesData);
+    try {
+      const response = await fetch(`${backupUrl}/addLastSeenSeries`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seriesData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Series added to last seen successfully:", responseData);
+    } catch (error) {
+      console.error("Error adding series to last seen:", error);
+    }
+  };
+
+  //updates last seen movie
+  const updateLastSeenMovie = async (movie: any) => {
+    const movieData = {
+      userId: personId,
+      movieId: movie.movieId,
+    };
+    try {
+      const response = await fetch(`${backupUrl}/updateLastSeenMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Movie updated successfully:", responseData);
+    } catch (error) {
+      console.error("Error updating movie:", error);
+    }
+  };
+
+  //updates last seen series
+  const updateLastSeenSeries = async (series: any) => {
+    const seriesData = {
+      userId: personId,
+      seriesId: series.seriesId,
+    };
+    try {
+      const response = await fetch(`${backupUrl}/updateLastSeenSeries/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seriesData),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+      const responseData = await response.json();
+      console.log("Series updated successfully:", responseData);
+    } catch (error) {
+      console.error("Error updating series:", error);
+    }
+  };
+
+  const isMovieInLastSeen = async (userId: any, movieId: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/isMovieInLastSeen/${userId}/${movieId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Movie in last seen check response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error checking if movie is in last seen:", error);
+      return null;
+    }
+  };
+
+  const isSeriesInLastSeen = async (userId: any, seriesId: string) => {
+    try {
+      const response = await fetch(
+        `${backupUrl}/isSeriesInLastSeen/${userId}/${seriesId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Series in last seen check response:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error checking if series is in last seen:", error);
+      return null;
+    }
+  };
+
+  // Handle item press
+  const handleItemPress = async (
+    id: number,
+    title: string,
+    media_type: string,
+  ) => {
+    console.log("Item Pressed:", id, title, media_type);
+
+    try {
+      // Try to fetch the movie by ID and title
+      const movie = await fetchMovieByIdAndTitle(id.toString(), title);
+      if (movie) {
+        console.log("Movie found:", movie);
+        //console.log("p",personId, movie._id);
+        const MovieInLastSeen = await isMovieInLastSeen(personId, movie._id);
+        if (MovieInLastSeen) {
+          console.log("Movie is already in last seen");
+          const lastSeenMovie = { personId, movieId: id };
+          await updateLastSeenMovie(lastSeenMovie);
+        } else {
+          const lastSeenMovie = { personId, movieId: id };
+          console.log("lastSeenMovie", lastSeenMovie);
+          await addLastSeenMovie(lastSeenMovie);
+        }
+        routerTransition("push", "/movie", {
+          id,
+          title,
+          personId,
+          movieId: movie._id,
+        });
+      } else {
+        // If movie is not found, try to fetch the series by ID and title
+        const series = await fetchSeriesByIdAndTitle(id.toString(), title);
+        if (series) {
+          console.log("Series found:", series);
+          const SeriesInLastSeen = await isSeriesInLastSeen(
+            personId,
+            series._id
+          );
+          if (SeriesInLastSeen) {
+            console.log("Series is already in last seen");
+            console.log(personId, series._id);
+            const lastSeenSeries = { personId, seriesId: series._id };
+            await updateLastSeenSeries(lastSeenSeries);
+          } else {
+            const lastSeenSeries = { personId, seriesId: id };
+            console.log("lastSeenSeries", lastSeenSeries);
+            await addLastSeenSeries(lastSeenSeries);
+          }
+          routerTransition("push", "/tvshow", {
+            id,
+            title,
+            personId,
+            seriesId: series._id,
+          });
+        } else {
+          console.log(
+            "Neither movie nor series found with the given ID and title."
+          );
+
+          // If neither movie nor series is found, create a new entry based on media_type
+          if (media_type === "movie") {
+            const newMovie = { id, title, media_type };
+            const lastSeenMovie = { personId, movieId: id };
+            await createMovie(newMovie);
+            await addLastSeenMovie(lastSeenMovie);
+            console.log("New movie created:", newMovie);
+            routerTransition("push", "/movie", { id, title });
+          } else if (media_type === "tv") {
+            const newSeries = { id, title, media_type };
+            const lastSeenSeries = { personId, seriesId: id };
+            await createSeries(newSeries);
+            await addLastSeenSeries(lastSeenSeries);
+            console.log("New series created:", newSeries);
+            routerTransition("push", "/tvshow", { id, title });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching movie or series:", error);
+    }
   };
 
   const handleBestToggle = () => {
@@ -351,7 +766,7 @@ export default function Home() {
     setBestToggle(!bestToggle);
   };
 
-  const Movie: React.FC<Series & { onPress: () => void }> = ({
+  const Movie: React.FC<Movie & { onPress: () => void }> = ({
     id,
     title,
     score,
@@ -427,6 +842,8 @@ export default function Home() {
           originTab={3}
           searchValue={""}
           setModalShown={setModalShown}
+          username=""
+          emailUser=""
         />
         <View style={tabstyles.listcontainer}>
           <Image
@@ -446,7 +863,8 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id)}
+                media_type={'tv'}
+                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -499,7 +917,7 @@ export default function Home() {
           </Pressable>
           <Image source={backdropImageMap[2]} style={tabstyles.backdrop2} />
           <FlatList
-            data={topRatedSeries}
+            data={bestToggle ? topRatedSeries : upcomingPopularSeries}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
@@ -507,10 +925,11 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id)}
+                media_type={'tv'}
+                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
               />
             )}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
           />
@@ -533,7 +952,8 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id)}
+                media_type={'tv'}
+                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -559,7 +979,8 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id)}
+                media_type={'tv'}
+                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -585,7 +1006,8 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id)}
+                media_type={'tv'}
+                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -611,7 +1033,8 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                onPress={() => handleItemPress(item.id)}
+                media_type={'tv'}
+                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
               />
             )}
             keyExtractor={(item) => item.id.toString()}

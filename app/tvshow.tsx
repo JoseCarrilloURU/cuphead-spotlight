@@ -59,7 +59,7 @@ interface Seasons {
 
 const ShowInfo: Show[] = [
   {
-    title: "Arcane",
+    title: "prison break",
     categories: [
       "Animation",
       "Sci-Fi & Fantasy",
@@ -165,7 +165,7 @@ const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review }) => (
       Review by {name}
     </Text>
     <Text style={moviestyles.othersdate} numberOfLines={1} ellipsizeMode="tail">
-      Published: {date} at {ShowInfo[0].title}
+      Published: {date} at {name}
     </Text>
     <ScrollView
       style={moviestyles.othersreviewcontainer}
@@ -233,6 +233,9 @@ export default function Movie() {
     seriesId: searhSeriesId,
   } = useLocalSearchParams<{
     id: string;
+    title: string;
+    personId: string;
+    seriesId: string;
   }>();
   const [modalShown, setModalShown] = useState(false);
   let [watchlist, setWatchlist] = useState(false);
@@ -247,10 +250,12 @@ export default function Movie() {
   let [popupShown, setPopupShown] = useState(false);
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
   const [otherReviews, setOtherReviews] = useState<OtherReviews[]>([]);
+  const [averageRating, setAverageRating] = useState(0);
   const [seriesData, setSeriesData] = useState<any>({
     title: "",
     categories: [],
     ratings: 0,
+    myScore: 0,
     releaseDate: "",
     description: "",
     banner: "",
@@ -270,6 +275,8 @@ export default function Movie() {
     fetchSeriesById(searhSeriesId);
     fetchReviewsBySeriesId(searhSeriesId);
     fetchReviewByAuthorAndMovie(searchPersonId, searhSeriesId);
+    fetchUserWatchlistSeries(searchPersonId);
+    checkIfSeriesInWatchlist(searchPersonId, searhSeriesId);
   }, [searchid, searchTitle, searchPersonId, searhSeriesId]);
 
   useEffect(() => {
@@ -283,6 +290,40 @@ export default function Movie() {
       setIsSendDisabled(false);
     }
   }, [reviewContent, reviewRating, reviewEditContent, reviewEditRating]);
+
+  useEffect(() => {
+    const avgRating = calculateAverageRating(otherReviews);
+    setAverageRating(avgRating);
+  }, [otherReviews]);
+  
+  // const calculateAverageRating = (reviews: OtherReviews[]) => {
+  //   if (reviews.length === 0) return 0;
+  //   const totalScore = reviews.reduce((sum, review) => sum + review.rating, 0);
+  //   return Math.round(totalScore / reviews.length);
+  // };
+
+  const fetchUserWatchlistSeries = async (userId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/lastSeenSeries/${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("User watchlist series response:", responseData);
+      return responseData.lastSeenSeries || [];
+    } catch (error) {
+      console.error("Error fetching user watchlist series:", error);
+      return [];
+    }
+  };
 
   const fetchSeriesById = async (seriesId: string) => {
     try {
@@ -330,28 +371,20 @@ export default function Movie() {
     console.log(searchPersonId, searhSeriesId);
   };
 
-  const fetchReviewByAuthorAndMovie = async (
-    authorId: string,
-    movieId: string
-  ) => {
+  const fetchReviewByAuthorAndMovie = async (authorId: string, seriesId: string) => {
     try {
-      const response = await fetch(
-        `${backupUrl}/reviews/author/${authorId}/movie/${movieId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      const response = await fetch(`${backupUrl}/reviews/author/${authorId}/series/${seriesId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(
-          `API response was not ok: ${response.statusText} - ${errorText}`
-        );
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
       }
-
+  
       const responseData = await response.json();
       if (responseData.length > 0) {
         setReviewmade(true); // Set review made to true
@@ -361,13 +394,71 @@ export default function Movie() {
         setReviewRating(responseData[0].rating);
         setReviewEditRating(responseData[0].rating);
       }
-      console.log("Review by author and movie response:", responseData);
+      console.log("Review by author and series response:", responseData);
+      setOtherReviews(responseData); // Store the reviews in the state
       return responseData;
     } catch (error) {
-      console.error("Error fetching review by author and movie:", error);
+      console.error("Error fetching review by author and series:", error);
       return null;
     }
   };
+
+  const addSeriesToWatchlist = async (userId: string, seriesId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/addToWatchlistSeries`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, seriesId }),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Series added to watchlist successfully:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error adding series to watchlist:", error);
+      return null;
+    }
+  };
+  
+  const removeSeriesFromWatchlist = async (userId: string, seriesId: string) => {
+    try {
+      const response = await fetch(`${backupUrl}/removeSeriesFromWatchlist`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, seriesId }),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("Series removed from watchlist successfully:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("Error removing series from watchlist:", error);
+      return null;
+    }
+  };
+
+  const checkIfSeriesInWatchlist = async (userId: string, seriesId: string) => {
+    const watchlistSeries = await fetchUserWatchlistSeries(userId);
+    console.log("Watchlist series:", watchlistSeries);
+    const isInWatchlist = watchlistSeries.some((item: any) => item._id === seriesId);
+    setWatchlist(isInWatchlist);
+    console.log("Is in watchlist:", isInWatchlist);
+  };
+
   const handleExitReview = () => {
     console.log("Exit Review button pressed");
     Keyboard.dismiss();
@@ -477,9 +568,19 @@ export default function Movie() {
       return null;
     }
   };
-  const handleWatchlist = () => {
+  const handleWatchlist = async () => {
     console.log("Watchlist button pressed");
-    setWatchlist(!watchlist);
+    if (watchlist) {
+      const result = await removeSeriesFromWatchlist(searchPersonId, searchid);
+      if (result) {
+        setWatchlist(false);
+      }
+    } else {
+      const result = await addSeriesToWatchlist(searchPersonId, searhSeriesId);
+      if (result) {
+        setWatchlist(true);
+      }
+    }
   };
 
   const fetchReviewsBySeriesId = async (seriesId: string) => {
@@ -625,6 +726,8 @@ export default function Movie() {
           originTab={7}
           searchValue={""}
           setModalShown={setModalShown}
+          username=""
+          emailUser=""
         />
         <View>
           <Image
@@ -647,7 +750,7 @@ export default function Movie() {
               source={require("@/assets/images/home/scorebadge.png")}
               style={moviestyles.itemScoreBadge}
             />
-            <Text style={moviestyles.itemScore}>{seriesData.ratings * 10}</Text>
+            <Text style={moviestyles.itemScore}>{Math.floor(seriesData.ratings * 10)}</Text>
             {/* <Image
             source={getFlagImageForNumber(ShowInfo[0].score)}
             style={moviestyles.imgScoreFlag}
@@ -681,7 +784,7 @@ export default function Movie() {
               style={moviestyles.seasonScoreFlag}
             />
           </View>
-          <Text style={moviestyles.itemTitle}>{ShowInfo[0].title}</Text>
+          <Text style={moviestyles.itemTitle}>{seriesData.title}</Text>
           <Text
             style={moviestyles.itemData}
             numberOfLines={1}
