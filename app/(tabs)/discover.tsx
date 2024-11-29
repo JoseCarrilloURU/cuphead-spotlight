@@ -62,6 +62,7 @@ export default function Home() {
   useEffect(() => {
     if (!searchPersonId) {
       console.log("personId is not available yet");
+      console.log("hello");
       return;
     }
 
