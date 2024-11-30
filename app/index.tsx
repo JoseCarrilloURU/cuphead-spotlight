@@ -54,14 +54,6 @@ export default function Index() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
-  // useEffect(() => {
-  //   const loadAndPlayMusic = async () => {
-  //     const sound = await preloadMusic();
-  //     setMusic(sound);
-  //   };
-  //   loadAndPlayMusic();
-  // }, []);
-
   const handlePress = async () => {
     console.log("Tap To Begin Pressed");
     setPressableDisabled(true);
@@ -83,9 +75,7 @@ export default function Index() {
     const primaryUrl =
       "http://backend-rottentomatoes-please-enough.up.railway.app/login";
     const backupUrl = "https://backend-rottentomatoes.onrender.com/login";
-
     await playSound(require("@/assets/sound/LoginTransition.wav"));
-    //routerTransition("push", "/(tabs)/discover", {});
 
     try {
       const response = await fetch(backupUrl, {
@@ -101,14 +91,12 @@ export default function Index() {
       }
 
       const data = await response.json();
-      //console.log("Login successful:", data);
       showToast("login success");
       routerTransition("push", "/(tabs)/discover", {
         personId: data.personId,
       });
     } catch (error) {
       showToast("username or password are wrong");
-      //console.error("Login failed:", error);
     }
   };
 

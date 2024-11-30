@@ -4,7 +4,6 @@ import {
   Text,
   View,
   FlatList,
-  TextInput,
   StyleSheet,
   Pressable,
 } from "react-native";
@@ -13,7 +12,7 @@ import React, { useState, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { playSound } from "@/components/soundUtils";
 import LottieView from "lottie-react-native";
-import { MotiView, MotiImage, MotiText } from "moti";
+import { MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import { formatDate, formatType } from "@/components/formatDate";
 import HomeHeader from "@/components/homeHeader";
@@ -56,6 +55,9 @@ export default function Search() {
   const [ratingDec, setRatingDec] = useState(false);
   const [dateAsc, setDateAsc] = useState(false);
   const [dateDec, setDateDec] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const [filter, setFilter] = useState<"popularity" | "rating" | "date">(
     "popularity"
   );
@@ -133,6 +135,11 @@ export default function Search() {
     }
   };
 
+  const paginatedResults = movies.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   useEffect(() => {
     fetchSearchResults(query, filter, bestToggle);
   }, [query, filter, bestToggle]);
@@ -157,17 +164,22 @@ export default function Search() {
       return newFilter;
     });
   };
-  const handleItemPress = (/*id: number*/) => {
-    console.log("Item Pressed");
-  };
-  const GoToFirstPage = (/*id: number*/) => {
+
+  const totalPages = Math.ceil(movies.length / itemsPerPage);
+
+  const GoToFirstPage = () => {
     console.log("First Page Pressed");
+    setCurrentPage(1);
   };
-  const handlePreviousPage = (/*id: number*/) => {
+
+  const handlePreviousPage = () => {
     console.log("Previous Page Pressed");
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
-  const handleNextPage = (/*id: number*/) => {
+
+  const handleNextPage = () => {
     console.log("Next Page Pressed");
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
   };
 
   const Movie: React.FC<Movie> = ({
@@ -390,29 +402,29 @@ export default function Search() {
           />
         </View>
         <AnimatedButton
-          onPress={handlePreviousPage}
+          onPress={GoToFirstPage}
           source={require("@/assets/images/home/First.png")}
           style={searchstyles.firstpage}
-          disabled={true}
+          disabled={currentPage === 1}
         />
         <AnimatedButton
           onPress={handlePreviousPage}
           source={require("@/assets/images/home/Previous.png")}
           style={searchstyles.prevpage}
-          disabled={true}
+          disabled={currentPage === 1}
         />
         <AnimatedButton
           onPress={handleNextPage}
           source={require("@/assets/images/home/Next.png")}
           style={searchstyles.nextpage}
-          disabled={false}
+          disabled={currentPage === totalPages}
         />
         <Image
           source={require("@/assets/images/home/page.png")}
           style={searchstyles.currentpage}
         />
         <Text style={searchstyles.currentpagenum} numberOfLines={1}>
-          1
+          {currentPage}
         </Text>
       </ScrollView>
     </View>

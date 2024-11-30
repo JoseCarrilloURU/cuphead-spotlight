@@ -1,20 +1,8 @@
-import {
-  ScrollView,
-  Image,
-  Text,
-  View,
-  TextInput,
-  StyleSheet,
-  Modal,
-} from "react-native";
-import React, { useState, useEffect } from "react";
-import { MotiView } from "moti";
-import { SelectList } from "react-native-dropdown-select-list";
+import { Image, Text, View, TextInput, StyleSheet } from "react-native";
+import React, { useState } from "react";
 import { playSound } from "@/components/soundUtils";
 import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "./routerTransition";
-import { TabBarIcon } from "@/components/TabBarIcon";
-import { useLocalSearchParams } from "expo-router";
 
 interface HomeHeaderProps {
   placeholder: string;
@@ -63,15 +51,37 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     setModalShown(true);
   };
 
-  const confirmDeleteAccount = () => {
-    console.log("Account Deleted");
-    setDeleteModalShown(false);
-    // Aquí puedes agregar la lógica para eliminar la cuenta
-  };
-
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async (personid: string) => {
     console.log("Delete Account Pressed");
-    setDeleteModalShown(true);
+    try {
+      const response = await fetch(
+        "https://backend-rottentomatoes.onrender.com/deleteAccount",
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            personid,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+
+      const responseData = await response.json();
+      console.log("Account deleted successfully:", responseData);
+      routerTransition("navigate", "/", {});
+      return responseData;
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      return null;
+    }
   };
 
   const handleSearchGo = async () => {

@@ -3,23 +3,18 @@ import {
   Image,
   Text,
   View,
-  TextInput,
   StyleSheet,
   Pressable,
   FlatList,
 } from "react-native";
-import Animated, { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
-import { router, SplashScreen } from "expo-router";
 import { playSound } from "@/components/soundUtils";
 import LottieView from "lottie-react-native";
 import { MotiView, MotiImage, MotiText } from "moti";
 import HomeHeader from "@/components/homeHeader";
 import tabstyles from "../tabstyles";
 import {
-  mockPosterMap,
   backdropImageMap,
-  getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import AnimatedButton from "@/components/AnimatedButton";
@@ -52,29 +47,6 @@ interface Review {
   rating: number;
 }
 
-// const Reviews: Review[] = [
-//   {
-//     id: 1,
-//     type: "TV Show",
-//     title: "Arcane",
-//     myscore: 100,
-//     date: "Nov 06, 2021",
-//     duration: "18 eps",
-//     myreview:
-//       "This might easily the best peace of science fiction ever created. Everything from the animation to the characters is just perfect.",
-//   },
-//   {
-//     id: 2,
-//     type: "Movie",
-//     title: "The Wild Robot",
-//     myscore: 80,
-//     date: "Sep 12, 2024",
-//     duration: "1h 42m",
-//     myreview:
-//       "The Wild Robot is one of the most bawling-prone movies ever, delightful with its incredible animation and score.",
-//   },
-// ];
-
 export default function Home() {
   const { personId } = usePersonId();
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -84,7 +56,15 @@ export default function Home() {
   const [watchlistMovies, setWatchlistMovies] = useState<any[]>([]);
   const [lastSeenSeries, setLastSeenSeries] = useState<any[]>([]);
   const [watchlistSeries, setWatchlistSeries] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(reviews.length / itemsPerPage);
   const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
+
+  const paginatedReviews = reviews.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   useEffect(() => {
     console.log("Person ID: ", personId);
@@ -183,45 +163,48 @@ export default function Home() {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`API response was not ok: ${response.statusText}`);
       }
-  
+
       const responseData = await response.json();
       console.log("Last watchlist response:", responseData);
-  
+
       if (!responseData.watchlist) {
         throw new Error("watchlist is undefined in the response");
       }
-  
+
       // Obtener los detalles de cada película en la lista de seguimiento
-      const movieDetailsPromises = responseData.watchlist.map(async (movie: any) => {
-        const movieDetails = await fetchMovieById(movie._id);
-        if (movieDetails) {
-          const date = new Date(movieDetails.releaseDate);
-          const formattedDate = `${date.getFullYear()}-${String(
-            date.getMonth() + 1
-          ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  
-          return {
-            _id: movieDetails._id,
-            id: movieDetails.movieId,
-            title: movieDetails.title,
-            score: Math.floor(movieDetails.ratings * 10), // Use Math.floor to remove decimals
-            date: formattedDate,
-            banner: movieDetails.banner
-              ? `https://image.tmdb.org/t/p/w500${movieDetails.banner}`
-              : undefined,
-            seenAt: movie.addedAt, // Include addedAt as seenAt
-          };
+      const movieDetailsPromises = responseData.watchlist.map(
+        async (movie: any) => {
+          const movieDetails = await fetchMovieById(movie._id);
+          if (movieDetails) {
+            const date = new Date(movieDetails.releaseDate);
+            const formattedDate = `${date.getFullYear()}-${String(
+              date.getMonth() + 1
+            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+            return {
+              _id: movieDetails._id,
+              id: movieDetails.movieId,
+              title: movieDetails.title,
+              score: Math.floor(movieDetails.ratings * 10), // Use Math.floor to remove decimals
+              date: formattedDate,
+              banner: movieDetails.banner
+                ? `https://image.tmdb.org/t/p/w500${movieDetails.banner}`
+                : undefined,
+              seenAt: movie.addedAt, // Include addedAt as seenAt
+            };
+          }
+          return null;
         }
-        return null;
-      });
-  
-      const formattedMovies = (await Promise.all(movieDetailsPromises))
-        .filter((movie) => movie !== null);
-  
+      );
+
+      const formattedMovies = (await Promise.all(movieDetailsPromises)).filter(
+        (movie) => movie !== null
+      );
+
       setWatchlistMovies(formattedMovies);
       console.log(`Watchlist fetched successfully:`, formattedMovies);
     } catch (error) {
@@ -289,12 +272,15 @@ export default function Home() {
 
   const fetchWatchlistSeries = async () => {
     try {
-      const response = await fetch(`${backupUrl}/getWatchlistSeries/${personId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${backupUrl}/getWatchlistSeries/${personId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`API response was not ok: ${response.statusText}`);
@@ -707,13 +693,9 @@ export default function Home() {
     }
   };
 
-    const handleItemPressViewOnly = async (
-    id: string,
-    title: string,
-    
-  ) => {
+  const handleItemPressViewOnly = async (id: string, title: string) => {
     console.log("Item Pressed (View Only):", id, title);
-  
+
     try {
       // Try to fetch the movie by ID and title
       const movie = await fetchMovieByIdAndTitle(id, title);
@@ -737,7 +719,9 @@ export default function Home() {
             seriesId: series._id,
           });
         } else {
-          console.log("Neither movie nor series found with the given ID and title.");
+          console.log(
+            "Neither movie nor series found with the given ID and title."
+          );
         }
       }
     } catch (error) {
@@ -748,7 +732,7 @@ export default function Home() {
   const handleItemPress = async (
     id: number,
     title: string,
-    media_type: string,
+    media_type: string
   ) => {
     console.log("Item Pressed:", id, title, media_type);
 
@@ -768,13 +752,13 @@ export default function Home() {
           console.log("lastSeenMovie", lastSeenMovie);
           await addLastSeenMovie(lastSeenMovie);
         }
-                const handleItemPressViewOnly = async (
+        const handleItemPressViewOnly = async (
           id: string,
           title: string,
-          media_type: string,
+          media_type: string
         ) => {
           console.log("Item Pressed (View Only):", id, title, media_type);
-        
+
           try {
             // Try to fetch the movie by ID and title
             const movie = await fetchMovieByIdAndTitle(id, title);
@@ -798,7 +782,9 @@ export default function Home() {
                   seriesId: series._id,
                 });
               } else {
-                console.log("Neither movie nor series found with the given ID and title.");
+                console.log(
+                  "Neither movie nor series found with the given ID and title."
+                );
               }
             }
           } catch (error) {
@@ -858,17 +844,20 @@ export default function Home() {
     }
   };
 
-  const GoToFirstPage = (/*id: number*/) => {
-    console.log("Previous Page Pressed");
+  const GoToFirstPage = () => {
+    setCurrentPage(1);
   };
-  const handlePreviousPage = (/*id: number*/) => {
-    console.log("Previous Page Pressed");
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
-  const handleNextPage = (/*id: number*/) => {
-    console.log("Next Page Pressed");
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
   };
-  const GoToLastPage = (/*id: number*/) => {
-    console.log("Next Page Pressed");
+
+  const GoToLastPage = () => {
+    setCurrentPage(totalPages);
   };
 
   const Movie: React.FC<{
@@ -919,7 +908,9 @@ export default function Home() {
     rating,
   }) => (
     <View style={profilestyles.itemContainer}>
-      <Pressable onPress={() => handleItemPressViewOnly(movie._id , movie.title )}>
+      <Pressable
+        onPress={() => handleItemPressViewOnly(movie._id, movie.title)}
+      >
         <Image
           source={require("@/assets/images/home/searchcard.png")}
           style={profilestyles.itemCard}
@@ -1066,12 +1057,11 @@ export default function Home() {
             horizontal={true}
             showsHorizontalScrollIndicator={false}
           />
-
         </View>
         <Text style={profilestyles.yourreviews}>Your Reviews</Text>
         <View style={profilestyles.listcontainer}>
           <FlatList
-            data={reviews.filter(
+            data={paginatedReviews.filter(
               (item) =>
                 item._id !== undefined && item.movie && item.movie.banner
             )}
@@ -1093,32 +1083,32 @@ export default function Home() {
           onPress={GoToFirstPage}
           source={require("@/assets/images/home/First.png")}
           style={profilestyles.firstpage}
-          disabled={true}
+          disabled={currentPage === 1}
         />
         <AnimatedButton
           onPress={handlePreviousPage}
           source={require("@/assets/images/home/Previous.png")}
           style={profilestyles.prevpage}
-          disabled={true}
+          disabled={currentPage === 1}
         />
         <AnimatedButton
           onPress={handleNextPage}
           source={require("@/assets/images/home/Next.png")}
           style={profilestyles.nextpage}
-          disabled={false}
+          disabled={currentPage === totalPages}
         />
         <AnimatedButton
           onPress={GoToLastPage}
           source={require("@/assets/images/home/Last.png")}
           style={profilestyles.lastpage}
-          disabled={false}
+          disabled={currentPage === totalPages}
         />
         <Image
           source={require("@/assets/images/home/page.png")}
           style={profilestyles.currentpage}
         />
         <Text style={profilestyles.currentpagenum} numberOfLines={1}>
-          1
+          {currentPage}
         </Text>
       </ScrollView>
     </View>

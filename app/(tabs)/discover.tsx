@@ -4,23 +4,18 @@ import {
   Text,
   View,
   FlatList,
-  TextInput,
-  StyleSheet,
   Pressable,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import Animated, { Easing } from "react-native-reanimated";
 import React, { useState, useEffect } from "react";
-import { router, SplashScreen } from "expo-router";
 import { playSound } from "@/components/soundUtils";
 import LottieView from "lottie-react-native";
 import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import HomeHeader from "@/components/homeHeader";
 import {
-  mockPosterMap,
   backdropImageMap,
-  getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import { formatDate } from "@/components/formatDate";

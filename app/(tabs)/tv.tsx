@@ -17,14 +17,11 @@ import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import HomeHeader from "@/components/homeHeader";
 import {
-  mockPosterMap,
   backdropImageMap,
-  getFlagImageForNumber,
   getFlagVideoForNumber,
 } from "@/components/imageMaps";
 import tabstyles from "../tabstyles";
 import FiltersModal from "@/components/filtersModal";
-import { setTransition } from "@/components/globals";
 import { usePersonId } from "../../components/PersonIdContext";
 import routerTransition from "@/components/routerTransition";
 
@@ -36,33 +33,6 @@ interface Movie {
   banner?: string;
   media_type: string;
 }
-
-// const Movies: Movie[] = [
-//   {
-//     id: 1,
-//     title: "Arcane",
-//     score: 88,
-//     date: "Nov 06, 2021",
-//   },
-//   {
-//     id: 2,
-//     title: "The Wild Robot",
-//     score: 84,
-//     date: "Sep 12, 2024",
-//   },
-//   {
-//     id: 3,
-//     title: "Venom: The Last Dance",
-//     score: 64,
-//     date: "Oct 24, 2024",
-//   },
-//   {
-//     id: 4,
-//     title: "Sharknado",
-//     score: 33,
-//     date: "July 11, 2013",
-//   },
-// ];
 
 export default function Home() {
   const { personId } = usePersonId();
