@@ -17,6 +17,7 @@ import { MotiView, MotiImage, MotiText } from "moti";
 import AnimatedButton from "@/components/AnimatedButton";
 import { formatDate, formatType } from "@/components/formatDate";
 import HomeHeader from "@/components/homeHeader";
+
 import {
   mockPosterMap,
   searchBGMap,
@@ -37,11 +38,13 @@ interface Movie {
 }
 
 export default function Search() {
-  const { placeholder, originTab, searchText } = useLocalSearchParams<{
-    placeholder: string;
-    originTab: string;
-    searchText: string;
-  }>();
+  const { placeholder, originTab, searchText, personId } =
+    useLocalSearchParams<{
+      placeholder: string;
+      originTab: string;
+      searchText: string;
+      personId: string;
+    }>();
 
   const [movies, setMovies] = useState<Movie[]>([]);
   const bgnum = parseInt(originTab);
@@ -63,10 +66,16 @@ export default function Search() {
     fetchSearchResults(query);
   }, [query]); // Add query as a dependency
 
-  const fetchSearchResults = async (query: string, filter: string, bestToggle: boolean) => {
+  const fetchSearchResults = async (
+    query: string,
+    filter: string,
+    bestToggle: boolean
+  ) => {
     try {
       const response = await fetch(
-        `https://backend-rottentomatoes.onrender.com/searchMulti?query=${encodeURIComponent(query)}`,
+        `https://backend-rottentomatoes.onrender.com/searchMulti?query=${encodeURIComponent(
+          query
+        )}`,
         {
           method: "GET",
           headers: {
@@ -95,25 +104,28 @@ export default function Search() {
           ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
           : null,
       }));
-  
+
       // Ordenar los resultados según el valor del toggle
       if (filter === "popularity") {
-        formattedMovies = formattedMovies.sort((a: any, b: any) =>
-          a.popularity - b.popularity
+        formattedMovies = formattedMovies.sort(
+          (a: any, b: any) => a.popularity - b.popularity
         );
       } else if (filter === "rating") {
-        formattedMovies = formattedMovies.sort((a: any, b: any) => b.score - a.score);
+        formattedMovies = formattedMovies.sort(
+          (a: any, b: any) => b.score - a.score
+        );
       } else if (filter === "date") {
-        formattedMovies = formattedMovies.sort((a: any, b: any) =>
-          new Date(b.date).getTime() - new Date(a.date).getTime()
+        formattedMovies = formattedMovies.sort(
+          (a: any, b: any) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
         );
       }
-  
+
       // Invertir el orden si bestToggle está activo
       if (bestToggle) {
         formattedMovies.reverse();
       }
-  
+
       setMovies(formattedMovies);
       console.log(formattedMovies);
     } catch (error) {
@@ -124,17 +136,17 @@ export default function Search() {
   useEffect(() => {
     fetchSearchResults(query, filter, bestToggle);
   }, [query, filter, bestToggle]);
-  
+
   const handleBestToggle = () => {
     console.log("Best Toggle Pressed");
     setBestToggle((prevBestToggle) => {
-      console.log(bestToggle)
+      console.log(bestToggle);
       const newBestToggle = !prevBestToggle;
       fetchSearchResults(query, filter); // Recargar los datos después de actualizar el toggle
       return newBestToggle;
     });
   };
-  
+
   const handleFilterToggle = () => {
     setFilter((prevFilter) => {
       let newFilter;
@@ -234,19 +246,19 @@ export default function Search() {
       <MotiImage
         source={searchBGMap[bgnum]}
         style={searchstyles.background}
-        // from={{
-        //   transform: [{ rotateZ: "0deg" }],
-        // }}
-        // animate={{
-        //   transform: [{ rotateZ: "-360deg" }],
-        // }}
-        // transition={{
-        //   type: "timing",
-        //   duration: 45000,
-        //   loop: true,
-        //   repeatReverse: false,
-        //   easing: Easing.linear,
-        // }}
+        from={{
+          transform: [{ rotateZ: "0deg" }],
+        }}
+        animate={{
+          transform: [{ rotateZ: "-360deg" }],
+        }}
+        transition={{
+          type: "timing",
+          duration: 45000,
+          loop: true,
+          repeatReverse: false,
+          easing: Easing.linear,
+        }}
       />
       <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView>
@@ -257,6 +269,7 @@ export default function Search() {
           setModalShown={setModalShown}
           username=""
           emailUser=""
+          personid={personId}
         />
         <Image
           source={require("@/assets/images/home/TheResults.png")}

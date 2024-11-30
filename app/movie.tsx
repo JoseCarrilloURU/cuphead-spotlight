@@ -74,8 +74,6 @@ const CastInfo: Cast[] = [
   },
 ];
 
-
-
 const Category: React.FC<{ category: string }> = ({ category }) => (
   <View style={moviestyles.categoryContainer}>
     <Text style={moviestyles.categoryItem}>{category}</Text>
@@ -101,7 +99,13 @@ const Cast: React.FC<{ name: string; role: string; profilePath: string }> = ({
   </View>
 );
 
-const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review, movieTitle }) => (
+const OtherReview: React.FC<OtherReviews> = ({
+  name,
+  date,
+  score,
+  review,
+  movieTitle,
+}) => (
   <View style={moviestyles.othersitemcontainer}>
     <Image
       source={require("@/assets/images/home/reviewscard.png")}
@@ -143,7 +147,7 @@ const OtherReview: React.FC<OtherReviews> = ({ name, date, score, review, movieT
 export default function Movie() {
   const {
     id: searchid,
-    title : searchTitle,
+    title: searchTitle,
     personId: searchPersonId,
     movieId: searhMovieId,
   } = useLocalSearchParams<{
@@ -200,33 +204,36 @@ export default function Movie() {
       try {
         const movie = await fetchMovieByIdAndTitle(searchid, searchTitle);
         if (movie) {
-          movie.releaseDate = formatDate(movie.releaseDate); 
+          movie.releaseDate = formatDate(movie.releaseDate);
           setMovieData(movie);
         } else {
           const series = await fetchSeriesByIdAndTitle(searchid, searchTitle);
           if (series) {
-            series.releaseDate = formatDate(series.releaseDate); 
+            series.releaseDate = formatDate(series.releaseDate);
             setMovieData(series);
           } else {
-            console.log("Neither movie nor series found with the given ID and title.");
+            console.log(
+              "Neither movie nor series found with the given ID and title."
+            );
           }
         }
-  
+
         const watchlist = await fetchUserWatchlist(searchPersonId);
         console.log("User watchlist:", watchlist);
-        const isInWatchlist = watchlist.some((item: any) => item._id === searhMovieId);
+        const isInWatchlist = watchlist.some(
+          (item: any) => item._id === searhMovieId
+        );
         setWatchlist(isInWatchlist);
         console.log("Is in watchlist:", isInWatchlist);
       } catch (error) {
         console.error("Error fetching movie or series:", error);
       }
     };
-  
+
     fetchData();
     fetchReviewByAuthorAndMovie(searchPersonId, searhMovieId);
     fetchReviewsByMovieId(searhMovieId);
   }, [searchid, searchTitle]);
-
 
   useEffect(() => {
     if (reviewContent.trim() === "" || reviewContent === reviewEditContent) {
@@ -242,7 +249,6 @@ export default function Movie() {
   //   }
   // }, [watchlist]);
 
-
   const fetchUserWatchlist = async (userId: string) => {
     try {
       const response = await fetch(`${backupUrl}/getWatchlist/${userId}`, {
@@ -251,27 +257,27 @@ export default function Movie() {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("User watchlist response:", responseData);
-  
+
       if (!responseData.watchlist) {
         throw new Error("watchlist is undefined in the response");
       }
-  
+
       return responseData.watchlist;
     } catch (error) {
       console.error("Error fetching user watchlist:", error);
       return [];
     }
   };
-
-  
 
   const fetchReviewsByMovieId = async (movieId: string) => {
     try {
@@ -381,20 +387,28 @@ export default function Movie() {
     console.log(searchPersonId, searhMovieId);
   };
 
-  const fetchReviewByAuthorAndMovie = async (authorId: string, movieId: string) => {
+  const fetchReviewByAuthorAndMovie = async (
+    authorId: string,
+    movieId: string
+  ) => {
     try {
-      const response = await fetch(`${backupUrl}/reviews/author/${authorId}/movie/${movieId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-  
+      const response = await fetch(
+        `${backupUrl}/reviews/author/${authorId}/movie/${movieId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       if (responseData.length > 0) {
         setReviewmade(true); // Set review made to true
@@ -412,7 +426,6 @@ export default function Movie() {
     }
   };
 
-  
   const handleExitReview = () => {
     console.log("Exit Review button pressed");
     Keyboard.dismiss();
@@ -427,19 +440,36 @@ export default function Movie() {
   const handleSendReview = async () => {
     console.log("Send Review button pressed");
     Keyboard.dismiss();
-  
+
     if (reviewmade) {
       // Update existing review
-      await updateReview(reviewId, reviewContent, searchPersonId, searhMovieId, reviewRating);
+      await updateReview(
+        reviewId,
+        reviewContent,
+        searchPersonId,
+        searhMovieId,
+        reviewRating
+      );
     } else {
       // Create new review
-      await createReview(reviewContent, searchPersonId, searhMovieId, reviewRating);
+      await createReview(
+        reviewContent,
+        searchPersonId,
+        searhMovieId,
+        reviewRating
+      );
     }
-  
+
     setReviewmade(true);
     setPopupShown(false);
   };
-  const updateReview = async (reviewId: any, content: string, authorId: string, movieId: string, rating: number) => {
+  const updateReview = async (
+    reviewId: any,
+    content: string,
+    authorId: string,
+    movieId: string,
+    rating: number
+  ) => {
     try {
       const response = await fetch(`${backupUrl}/review/${reviewId}`, {
         method: "PUT",
@@ -453,12 +483,14 @@ export default function Movie() {
           rating,
         }),
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("Review updated successfully:", responseData);
       return responseData;
@@ -468,7 +500,12 @@ export default function Movie() {
     }
   };
 
-  const createReview = async (content: string, authorId: string, movieId: string, rating: number) => {
+  const createReview = async (
+    content: string,
+    authorId: string,
+    movieId: string,
+    rating: number
+  ) => {
     try {
       const response = await fetch(`${backupUrl}/review`, {
         method: "POST",
@@ -482,12 +519,14 @@ export default function Movie() {
           rating,
         }),
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("Review created successfully:", responseData);
       return responseData;
@@ -510,12 +549,14 @@ export default function Movie() {
           movieId,
         }),
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("Movie added to watchlist successfully:", responseData);
       return responseData;
@@ -524,7 +565,7 @@ export default function Movie() {
       return null;
     }
   };
-  
+
   const removeFromWatchlist = async (userId: string, movieId: string) => {
     try {
       const response = await fetch(`${backupUrl}/removeFromWatchlistSeries`, {
@@ -537,12 +578,14 @@ export default function Movie() {
           movieId,
         }),
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API response was not ok: ${response.statusText} - ${errorText}`);
+        throw new Error(
+          `API response was not ok: ${response.statusText} - ${errorText}`
+        );
       }
-  
+
       const responseData = await response.json();
       console.log("Movie removed from watchlist successfully:", responseData);
       return responseData;
@@ -551,7 +594,6 @@ export default function Movie() {
       return null;
     }
   };
-  
 
   const handleWatchlist = async () => {
     console.log("Watchlist button pressed");
@@ -627,7 +669,7 @@ export default function Movie() {
         <TextInput
           style={moviestyles.popupscoretext}
           value={reviewRating.toString()}
-          onChangeText={(text:any) => setReviewRating(text)}
+          onChangeText={(text: any) => setReviewRating(text)}
           placeholder="(1-100)"
           placeholderTextColor="#555"
           keyboardType="number-pad"
@@ -654,19 +696,19 @@ export default function Movie() {
       <MotiImage
         source={require("@/assets/images/backgrounds/bg_movies.png")}
         style={moviestyles.background}
-        // from={{
-        //   transform: [{ rotateZ: "0deg" }],
-        // }}
-        // animate={{
-        //   transform: [{ rotateZ: "-360deg" }],
-        // }}
-        // transition={{
-        //   type: "timing",
-        //   duration: 45000,
-        //   loop: true,
-        //   repeatReverse: false,
-        //   easing: Easing.linear,
-        // }}
+        from={{
+          transform: [{ rotateZ: "0deg" }],
+        }}
+        animate={{
+          transform: [{ rotateZ: "-360deg" }],
+        }}
+        transition={{
+          type: "timing",
+          duration: 45000,
+          loop: true,
+          repeatReverse: false,
+          easing: Easing.linear,
+        }}
       />
       <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView nestedScrollEnabled={true}>
@@ -677,6 +719,7 @@ export default function Movie() {
           setModalShown={setModalShown}
           username=""
           emailUser=""
+          personid={""}
         />
         <View></View>
         <View>
@@ -846,6 +889,7 @@ export default function Movie() {
             />
           </MotiView>
         </View>
+        <View style={{ marginBottom: otherReviews.length === 0 ? 180 : 0 }} />
         <View style={{ top: -590, left: 31 }}>
           <Text style={moviestyles.itemTitlesub}>Latest Reviews</Text>
         </View>

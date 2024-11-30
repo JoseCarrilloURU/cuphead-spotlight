@@ -23,6 +23,7 @@ interface HomeHeaderProps {
   setModalShown: (shown: boolean) => void;
   username: string;
   emailUser: string;
+  personid: string;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -32,11 +33,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   setModalShown,
   username,
   emailUser,
+  personid,
 }) => {
   const [searchText, setSearchText] = useState(searchValue);
   const [deleteModalShown, setDeleteModalShown] = useState(false);
-  
-  
 
   const handleLogOutPressed = async () => {
     console.log("Log Out Pressed");
@@ -47,7 +47,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const handleBackToHome = async () => {
     console.log("Back To Home Pressed");
     await playSound(require("@/assets/sound/Back.wav"));
-    routerTransition("navigate", "/(tabs)/discover", {});
+    routerTransition("replace", "/(tabs)/discover", {
+      personId: personid,
+    });
   };
 
   const handleGoBack = async () => {
@@ -66,12 +68,11 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     setDeleteModalShown(false);
     // Aquí puedes agregar la lógica para eliminar la cuenta
   };
-  
+
   const handleDeleteAccount = () => {
     console.log("Delete Account Pressed");
     setDeleteModalShown(true);
   };
-
 
   const handleSearchGo = async () => {
     console.log("Search Go Pressed");
@@ -80,6 +81,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
       placeholder: placeholder,
       originTab: originTab,
       searchText: searchText,
+      personId: personid,
     });
   };
 
@@ -119,7 +121,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           style={headerstyles.logoutbutton}
           disabled={false}
         />
-  
       )}
       {
         originTab !== 4 && (
@@ -151,12 +152,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               disabled={false}
             />
           </View>
-
-          
         ) /* isProfile && BOTON DE ELIMINAR CUENTA, NOMBRE DE USUARIO Y E-MAIL */
       }
 
-      
       {originTab === 4 && (
         <View>
           <AnimatedButton
@@ -184,7 +182,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     </View>
   );
 };
-
 
 const headerstyles = StyleSheet.create({
   logoutbutton: {

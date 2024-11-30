@@ -28,7 +28,6 @@ import { setTransition } from "@/components/globals";
 import { usePersonId } from "../../components/PersonIdContext";
 import routerTransition from "@/components/routerTransition";
 
-
 interface Movie {
   id: number;
   title: string;
@@ -187,24 +186,26 @@ export default function Home() {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`API response was not ok: ${response.statusText}`);
       }
-  
+
       const responseData = await response.json();
       console.log("Upcoming popular series response:", responseData);
-  
+
       if (!Array.isArray(responseData)) {
-        throw new Error(`API response is not an array: ${JSON.stringify(responseData)}`);
+        throw new Error(
+          `API response is not an array: ${JSON.stringify(responseData)}`
+        );
       }
-  
+
       let initialScore = 95; // Valor inicial para el score
-  
+
       const formattedSeries = responseData.slice(0, 10).map((series: any) => {
         const score = initialScore; // Asignar el valor actual de initialScore
         initialScore -= 2; // Decrementar initialScore en 5 en cada iteración
-  
+
         return {
           id: series.id,
           title: series.name || series.original_title,
@@ -215,9 +216,12 @@ export default function Home() {
             : undefined,
         };
       });
-  
+
       setUpcomingPopularSeries(formattedSeries);
-      console.log("Upcoming popular series fetched successfully:", formattedSeries);
+      console.log(
+        "Upcoming popular series fetched successfully:",
+        formattedSeries
+      );
     } catch (error) {
       console.error("Fetching upcoming popular series failed:", error);
     }
@@ -682,7 +686,7 @@ export default function Home() {
   const handleItemPress = async (
     id: number,
     title: string,
-    media_type: string,
+    media_type: string
   ) => {
     console.log("Item Pressed:", id, title, media_type);
 
@@ -821,29 +825,30 @@ export default function Home() {
       <MotiImage
         source={require("@/assets/images/backgrounds/bg_tv.png")}
         style={tabstyles.background}
-        // from={{
-        //   transform: [{ rotateZ: "0deg" }],
-        // }}
-        // animate={{
-        //   transform: [{ rotateZ: "-360deg" }],
-        // }}
-        // transition={{
-        //   type: "timing",
-        //   duration: 45000,
-        //   loop: true,
-        //   repeatReverse: false,
-        //   easing: Easing.linear,
-        // }}
+        from={{
+          transform: [{ rotateZ: "0deg" }],
+        }}
+        animate={{
+          transform: [{ rotateZ: "-360deg" }],
+        }}
+        transition={{
+          type: "timing",
+          duration: 45000,
+          loop: true,
+          repeatReverse: false,
+          easing: Easing.linear,
+        }}
       />
       <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView>
         <HomeHeader
-          placeholder={"Search TV Shows..."}
+          placeholder={"Search Movies & TV..."}
           originTab={3}
           searchValue={""}
           setModalShown={setModalShown}
           username=""
           emailUser=""
+          personid={""}
         />
         <View style={tabstyles.listcontainer}>
           <Image
@@ -863,8 +868,10 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'tv'}
-                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
+                media_type={"tv"}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                }
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -925,8 +932,10 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'tv'}
-                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
+                media_type={"tv"}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                }
               />
             )}
             keyExtractor={(item) => item.id}
@@ -952,8 +961,10 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'tv'}
-                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
+                media_type={"tv"}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                }
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -979,8 +990,10 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'tv'}
-                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
+                media_type={"tv"}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                }
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -1006,8 +1019,10 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'tv'}
-                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
+                media_type={"tv"}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                }
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -1033,8 +1048,10 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'tv'}
-                onPress={() => handleItemPress(item.id, item.title, item.media_type)}
+                media_type={"tv"}
+                onPress={() =>
+                  handleItemPress(item.id, item.title, item.media_type)
+                }
               />
             )}
             keyExtractor={(item) => item.id.toString()}

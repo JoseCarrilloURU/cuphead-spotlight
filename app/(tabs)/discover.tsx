@@ -38,10 +38,6 @@ interface Movie {
   media_type: string;
 }
 
-interface personIdProps {
-  personId: number; 
-}
-
 export default function Home() {
   const { personId: searchPersonId } = useLocalSearchParams<{
     personId: string;
@@ -592,7 +588,7 @@ export default function Home() {
       const responseData = await response.json();
       console.log("Series added to last seen successfully:", responseData);
     } catch (error) {
-     // console.error("Error adding series to last seen:", error);
+      // console.error("Error adding series to last seen:", error);
     }
   };
 
@@ -712,7 +708,7 @@ export default function Home() {
   const handleItemPress = async (
     id: number,
     title: string,
-    media_type: string,
+    media_type: string
   ) => {
     console.log("Item Pressed:", id, title, media_type);
 
@@ -841,19 +837,19 @@ export default function Home() {
       <MotiImage
         source={require("@/assets/images/backgrounds/bg_discover.png")}
         style={tabstyles.background}
-        // from={{
-        //   transform: [{ rotateZ: "0deg" }],
-        // }}
-        // animate={{
-        //   transform: [{ rotateZ: "-360deg" }],
-        // }}
-        // transition={{
-        //   type: "timing",
-        //   duration: 45000,
-        //   loop: true,
-        //   repeatReverse: false,
-        //   easing: Easing.linear,
-        // }}
+        from={{
+          transform: [{ rotateZ: "0deg" }],
+        }}
+        animate={{
+          transform: [{ rotateZ: "-360deg" }],
+        }}
+        transition={{
+          type: "timing",
+          duration: 45000,
+          loop: true,
+          repeatReverse: false,
+          easing: Easing.linear,
+        }}
       />
       <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView>
@@ -864,6 +860,7 @@ export default function Home() {
           setModalShown={setModalShown}
           username=""
           emailUser=""
+          personid={personId ?? ""}
         />
         <View style={tabstyles.listcontainer}>
           <Image
@@ -900,7 +897,7 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            Top rated This Year
+            Popular This Month
           </Text>
           <Image source={backdropImageMap[2]} style={tabstyles.backdrop2} />
           <FlatList
@@ -929,7 +926,7 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            In Your Watchlist Movies
+            Movies In Your Watchlist
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
@@ -958,7 +955,7 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            In Your Watchlist Series
+            TV In Your Watchlist
           </Text>
           <Image source={backdropImageMap[3]} style={tabstyles.backdrop} />
           <FlatList
@@ -987,7 +984,7 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            Last Add Movie By You
+            Your Last Seen Movies
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList
@@ -1016,7 +1013,7 @@ export default function Home() {
             style={tabstyles.stripbg}
           />
           <Text style={tabstyles.stripTitle} numberOfLines={1}>
-            Last Add Series By You
+            Your Last Seen TV
           </Text>
           <Image source={backdropImageMap[4]} style={tabstyles.backdrop} />
           <FlatList

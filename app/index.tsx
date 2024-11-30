@@ -233,9 +233,8 @@ export default function Index() {
   const handleVerifyPressed = async () => {
     console.log("Verify Button Pressed");
 
-    setNewPassword("")
-    setConfirmPassword("")
-    
+    setNewPassword("");
+    setConfirmPassword("");
 
     const dataCheckReset = {
       email_user: email,
@@ -278,7 +277,7 @@ export default function Index() {
 
   const handleConfirmPressed = async () => {
     console.log("Confirm Button Pressed");
-    
+
     const dataNewPassword = {
       email_user: email,
       new_password: newPassword,
@@ -302,12 +301,14 @@ export default function Index() {
       }
 
       const data = await response.json();
-      showToast("Password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter, one number, and one special character");
+      showToast(
+        "Password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter, one number, and one special character"
+      );
       setTimeout(async () => {
-      await playSound(require("@/assets/sound/ToggleCard.wav"));
-    }, 650);
-    setLoginEnabled(true);
-    setConfirmEnabled(false);
+        await playSound(require("@/assets/sound/ToggleCard.wav"));
+      }, 650);
+      setLoginEnabled(true);
+      setConfirmEnabled(false);
 
       console.log("Password reset successful:", data);
     } catch (error) {
@@ -448,19 +449,19 @@ export default function Index() {
           <MotiImage
             source={require("@/assets/images/backgrounds/bg_start.png")}
             style={styles.background}
-            // from={{
-            //   transform: [{ rotateZ: "0deg" }],
-            // }}
-            // animate={{
-            //   transform: [{ rotateZ: "-360deg" }],
-            // }}
-            // transition={{
-            //   type: "timing",
-            //   duration: 45000,
-            //   loop: true,
-            //   repeatReverse: false,
-            //   easing: Easing.linear,
-            // }}
+            from={{
+              transform: [{ rotateZ: "0deg" }],
+            }}
+            animate={{
+              transform: [{ rotateZ: "-360deg" }],
+            }}
+            transition={{
+              type: "timing",
+              duration: 45000,
+              loop: true,
+              repeatReverse: false,
+              easing: Easing.linear,
+            }}
           />
         </MotiView>
 

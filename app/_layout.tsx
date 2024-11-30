@@ -26,22 +26,22 @@ export default function RootLayout() {
   };
 
   useEffect(() => {
-    // const loadSFX = async () => {
-    //   await playSound(require("../assets/sound/OldFilmLoop.wav"), {
-    //     isLooping: true,
-    //     volume: 0.6,
-    //   });
-    // };
-    // const loadMusic = async () => {
-    //   await playSound(require("../assets/sound/appMusic.wav"), {
-    //     isLooping: true,
-    //     volume: 0.4,
-    //   });
-    // };
-    // loadSFX();
-    // setTimeout(() => {
-    //   loadMusic();
-    // }, 500);
+    const loadSFX = async () => {
+      await playSound(require("../assets/sound/OldFilmLoop.wav"), {
+        isLooping: true,
+        volume: 0.6,
+      });
+    };
+    const loadMusic = async () => {
+      await playSound(require("../assets/sound/appMusic.wav"), {
+        isLooping: true,
+        volume: 0.4,
+      });
+    };
+    loadSFX();
+    setTimeout(() => {
+      loadMusic();
+    }, 500);
 
     loadFonts();
   }, []);
@@ -62,7 +62,7 @@ export default function RootLayout() {
           zIndex: 80,
         }}
       >
-        {/* <Image
+        <Image
           source={require("../assets/images/graintexture.png")}
           style={texturestyle.texture}
         />
@@ -76,7 +76,7 @@ export default function RootLayout() {
           speed={1.0}
           autoPlay
           style={texturestyle.scratch}
-        /> */}
+        />
         <MotiView
           from={{ opacity: 1 }}
           animate={{ opacity: 0 }}

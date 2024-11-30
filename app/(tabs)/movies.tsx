@@ -92,8 +92,6 @@ export default function Home() {
     }
   }, [personId]);
 
-  
-
   const fetchMoviesInTheater = async () => {
     try {
       const response = await fetch(`${backupUrl}/moviesInTheater`, {
@@ -127,27 +125,33 @@ export default function Home() {
     }
   };
 
-    const fetchUpcomingPopularSeries = async () => {
-      try {
-        const response = await fetch(`${backupUrl}/discoverMovies`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-    
-        if (!response.ok) {
-          throw new Error(`API response was not ok: ${response.statusText}`);
-        }
-    
-        const responseData = await response.json();
-        console.log("popular new movies response:", responseData);
-    
-        if (!Array.isArray(responseData.results)) {
-          throw new Error(`API response results is not an array: ${JSON.stringify(responseData)}`);
-        }
-    
-        const formattedSeries = responseData.results.slice(0, 10).map((movie: any) => ({
+  const fetchUpcomingPopularSeries = async () => {
+    try {
+      const response = await fetch(`${backupUrl}/discoverMovies`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API response was not ok: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      console.log("popular new movies response:", responseData);
+
+      if (!Array.isArray(responseData.results)) {
+        throw new Error(
+          `API response results is not an array: ${JSON.stringify(
+            responseData
+          )}`
+        );
+      }
+
+      const formattedSeries = responseData.results
+        .slice(0, 10)
+        .map((movie: any) => ({
           id: movie.id,
           title: movie.name || movie.original_title,
           score: Math.floor(movie.vote_average * 10), // Use Math.floor to remove decimals
@@ -156,13 +160,16 @@ export default function Home() {
             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
             : undefined,
         }));
-    
-        setDiscover(formattedSeries);
-        console.log("Upcoming popular series fetched successfully:", formattedSeries);
-      } catch (error) {
-        console.error("Fetching upcoming popular series failed:", error);
-      }
-    };
+
+      setDiscover(formattedSeries);
+      console.log(
+        "Upcoming popular series fetched successfully:",
+        formattedSeries
+      );
+    } catch (error) {
+      console.error("Fetching upcoming popular series failed:", error);
+    }
+  };
 
   const fetchTopRatedMovies = async () => {
     try {
@@ -636,7 +643,7 @@ export default function Home() {
   const handleItemPress = async (
     id: number,
     title: string,
-    media_type: string,
+    media_type: string
   ) => {
     console.log("Item Pressed:", id, title, media_type);
 
@@ -720,7 +727,14 @@ export default function Home() {
     setBestToggle(!bestToggle);
   };
 
-  const Movie: React.FC<Movie> = ({ id, title, score, date, banner, media_type }) => (
+  const Movie: React.FC<Movie> = ({
+    id,
+    title,
+    score,
+    date,
+    banner,
+    media_type,
+  }) => (
     <View style={tabstyles.itemContainer}>
       <Pressable onPress={() => handleItemPress(id, title, media_type)}>
         <Image
@@ -768,29 +782,30 @@ export default function Home() {
       <MotiImage
         source={require("@/assets/images/backgrounds/bg_movies.png")}
         style={tabstyles.background}
-        // from={{
-        //   transform: [{ rotateZ: "0deg" }],
-        // }}
-        // animate={{
-        //   transform: [{ rotateZ: "-360deg" }],
-        // }}
-        // transition={{
-        //   type: "timing",
-        //   duration: 45000,
-        //   loop: true,
-        //   repeatReverse: false,
-        //   easing: Easing.linear,
-        // }}
+        from={{
+          transform: [{ rotateZ: "0deg" }],
+        }}
+        animate={{
+          transform: [{ rotateZ: "-360deg" }],
+        }}
+        transition={{
+          type: "timing",
+          duration: 45000,
+          loop: true,
+          repeatReverse: false,
+          easing: Easing.linear,
+        }}
       />
       <FiltersModal modalShown={modalShown} setModalShown={setModalShown} />
       <ScrollView>
         <HomeHeader
-          placeholder={"Search Movies..."}
+          placeholder={"Search Movies & TV..."}
           originTab={2}
           searchValue={""}
           setModalShown={setModalShown}
           username=""
           emailUser=""
+          personid={""}
         />
         <View style={tabstyles.listcontainer}>
           <Image
@@ -810,7 +825,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'movie'}
+                media_type={"movie"}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -863,7 +878,7 @@ export default function Home() {
           </Pressable>
           <Image source={backdropImageMap[2]} style={tabstyles.backdrop2} />
           <FlatList
-            data={bestToggle ? topRatedMovies : discover }
+            data={bestToggle ? topRatedMovies : discover}
             renderItem={({ item }) => (
               <Movie
                 id={item.id}
@@ -871,7 +886,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'movie'}
+                media_type={"movie"}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -897,7 +912,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'movie'}
+                media_type={"movie"}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -923,7 +938,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'movie'}
+                media_type={"movie"}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -949,7 +964,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'movie'}
+                media_type={"movie"}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -975,7 +990,7 @@ export default function Home() {
                 score={item.score}
                 date={item.date}
                 banner={item.banner}
-                media_type={'movie'}
+                media_type={"movie"}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
