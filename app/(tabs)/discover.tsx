@@ -126,7 +126,7 @@ export default function Home() {
         //console.log("Movie by ID response:", responseData);
         return responseData;
       } catch (error) {
-        console.error("Error fetching movie by ID:", error);
+        //console.error("Error fetching movie by ID:", error);
         return null;
       }
     };
@@ -191,7 +191,7 @@ export default function Home() {
         setLastSeenMovies(formattedMovies);
         console.log(`Last seen movies fetched successfully:`, formattedMovies);
       } catch (error) {
-        console.error(`Fetching last seen movies failed:`, error);
+        //console.error(`Fetching last seen movies failed:`, error);
       }
     };
 
@@ -215,7 +215,7 @@ export default function Home() {
         //console.log("Series details response:", responseData);
         return responseData;
       } catch (error) {
-        console.error("Error fetching series details:", error);
+        //console.error("Error fetching series details:", error);
         return null;
       }
     };
@@ -279,7 +279,7 @@ export default function Home() {
         setWatchlistMovies(formattedMovies);
         console.log(`Watchlist fetched successfully:`, formattedMovies);
       } catch (error) {
-        console.error(`Fetching watchlist failed:`, error);
+        //console.error(`Fetching watchlist failed:`, error);
       }
     };
 
@@ -340,7 +340,7 @@ export default function Home() {
         setLastSeenSeries(formattedSeries);
         console.log(`Last seen series fetched successfully:`, formattedSeries);
       } catch (error) {
-        console.error(`Fetching last seen series failed:`, error);
+        //console.error(`Fetching last seen series failed:`, error);
       }
     };
 
@@ -409,7 +409,7 @@ export default function Home() {
         setWatchlistSeries(formattedSeries);
         console.log(`Watchlist series fetched successfully:`, formattedSeries);
       } catch (error) {
-        console.error(`Fetching watchlist series failed:`, error);
+        //console.error(`Fetching watchlist series failed:`, error);
       }
     };
 
@@ -445,7 +445,7 @@ export default function Home() {
       //console.log("Movie by ID and title response:", responseData);
       return responseData;
     } catch (error) {
-      console.error(`Fetching movie by ID and title failed:`, error);
+      //console.error(`Fetching movie by ID and title failed:`, error);
       return null;
     }
   };
@@ -474,7 +474,7 @@ export default function Home() {
       //console.log("Series by ID and title response:", responseData);
       return responseData;
     } catch (error) {
-      console.error(`Fetching series by ID and title failed:`, error);
+      //console.error(`Fetching series by ID and title failed:`, error);
       return null;
     }
   };
@@ -504,7 +504,7 @@ export default function Home() {
       const responseData = await response.json();
       //console.log("Movie created successfully:", responseData);
     } catch (error) {
-      console.error("Error creating movie:", error);
+      //console.error("Error creating movie:", error);
     }
   };
 
@@ -533,7 +533,7 @@ export default function Home() {
       const responseData = await response.json();
       //console.log("Series created successfully:", responseData);
     } catch (error) {
-      console.error("Error creating series:", error);
+      //("Error creating series:", error);
     }
   };
 
@@ -562,7 +562,7 @@ export default function Home() {
       const responseData = await response.json();
       console.log("Movie saved successfully:", responseData);
     } catch (error) {
-      console.error("Error saving movie:", error);
+      //console.error("Error saving movie:", error);
     }
   };
 
@@ -592,7 +592,7 @@ export default function Home() {
       const responseData = await response.json();
       console.log("Series added to last seen successfully:", responseData);
     } catch (error) {
-      console.error("Error adding series to last seen:", error);
+     // console.error("Error adding series to last seen:", error);
     }
   };
 
@@ -621,7 +621,7 @@ export default function Home() {
       const responseData = await response.json();
       console.log("Movie updated successfully:", responseData);
     } catch (error) {
-      console.error("Error updating movie:", error);
+      //console.error("Error updating movie:", error);
     }
   };
 
@@ -648,7 +648,7 @@ export default function Home() {
       const responseData = await response.json();
       console.log("Series updated successfully:", responseData);
     } catch (error) {
-      console.error("Error updating series:", error);
+      //console.error("Error updating series:", error);
     }
   };
 
@@ -675,7 +675,7 @@ export default function Home() {
       console.log("Movie in last seen check response:", responseData);
       return responseData;
     } catch (error) {
-      console.error("Error checking if movie is in last seen:", error);
+      //console.error("Error checking if movie is in last seen:", error);
       return null;
     }
   };
@@ -703,7 +703,7 @@ export default function Home() {
       console.log("Series in last seen check response:", responseData);
       return responseData;
     } catch (error) {
-      console.error("Error checking if series is in last seen:", error);
+      //console.error("Error checking if series is in last seen:", error);
       return null;
     }
   };

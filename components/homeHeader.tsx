@@ -5,6 +5,7 @@ import {
   View,
   TextInput,
   StyleSheet,
+  Modal,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { MotiView } from "moti";
@@ -33,6 +34,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   emailUser,
 }) => {
   const [searchText, setSearchText] = useState(searchValue);
+  const [deleteModalShown, setDeleteModalShown] = useState(false);
+  
+  
 
   const handleLogOutPressed = async () => {
     console.log("Log Out Pressed");
@@ -56,9 +60,18 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     console.log("Search Filters Pressed");
     setModalShown(true);
   };
+
+  const confirmDeleteAccount = () => {
+    console.log("Account Deleted");
+    setDeleteModalShown(false);
+    // Aquí puedes agregar la lógica para eliminar la cuenta
+  };
+  
   const handleDeleteAccount = () => {
     console.log("Delete Account Pressed");
+    setDeleteModalShown(true);
   };
+
 
   const handleSearchGo = async () => {
     console.log("Search Go Pressed");
@@ -106,6 +119,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           style={headerstyles.logoutbutton}
           disabled={false}
         />
+  
       )}
       {
         originTab !== 4 && (
@@ -137,8 +151,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               disabled={false}
             />
           </View>
+
+          
         ) /* isProfile && BOTON DE ELIMINAR CUENTA, NOMBRE DE USUARIO Y E-MAIL */
       }
+
+      
       {originTab === 4 && (
         <View>
           <AnimatedButton
@@ -166,6 +184,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     </View>
   );
 };
+
 
 const headerstyles = StyleSheet.create({
   logoutbutton: {

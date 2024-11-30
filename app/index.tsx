@@ -74,7 +74,6 @@ export default function Index() {
 
   const handleLoginPressed = async () => {
     console.log("Login Pressed");
-    
 
     const dataLogin = {
       identifier: loginuser,
@@ -102,7 +101,8 @@ export default function Index() {
       }
 
       const data = await response.json();
-      console.log("Login successful:", data);
+      //console.log("Login successful:", data);
+      showToast("login success");
       routerTransition("push", "/(tabs)/discover", {
         personId: data.personId,
       });
@@ -124,6 +124,7 @@ export default function Index() {
   const handleGoToForgot = async () => {
     console.log("Go To Credentials Pressed");
     setTimeout(async () => {
+      setEmail("");
       await playSound(require("@/assets/sound/ToggleCard.wav"));
     }, 650);
     setLoginEnabled(false);
@@ -191,6 +192,7 @@ export default function Index() {
 
   const handleSendPressed = async () => {
     console.log("Send Button Pressed");
+    setSecretToken("");
     setTimeout(async () => {
       await playSound(require("@/assets/sound/ToggleCard.wav"));
     }, 650);
@@ -218,26 +220,29 @@ export default function Index() {
         throw new Error("Network response was not ok");
       }
 
+      showToast("code sent");
+
       const data = await response.json();
       console.log("Password reset request successful:", data);
     } catch (error) {
-      console.error("Password reset request failed:", error);
+      showToast("Error sending the code, check your remail");
+      //console.error("Password reset request failed:", error);
     }
   };
 
   const handleVerifyPressed = async () => {
     console.log("Verify Button Pressed");
-    setTimeout(async () => {
-      await playSound(require("@/assets/sound/ToggleCard.wav"));
-    }, 650);
-    setConfirmEnabled(true);
-    setVerifyEnabled(false);
-    setCardOpacity(2);
+
+    setNewPassword("")
+    setConfirmPassword("")
+    
 
     const dataCheckReset = {
       email_user: email,
-      secret_token: secretToken,
+      resetCode: secretToken,
     };
+
+    console.log(dataCheckReset);
 
     try {
       const response = await fetch(
@@ -256,20 +261,24 @@ export default function Index() {
       }
 
       const data = await response.json();
+      showToast("the code is correct");
+      setTimeout(async () => {
+        await playSound(require("@/assets/sound/ToggleCard.wav"));
+      }, 650);
+      setConfirmEnabled(true);
+      setVerifyEnabled(false);
+      setCardOpacity(2);
+
       console.log("Check reset successful:", data);
     } catch (error) {
+      showToast("the code is incorrect");
       console.error("Check reset failed:", error);
     }
   };
 
   const handleConfirmPressed = async () => {
     console.log("Confirm Button Pressed");
-    setTimeout(async () => {
-      await playSound(require("@/assets/sound/ToggleCard.wav"));
-    }, 650);
-    setLoginEnabled(true);
-    setConfirmEnabled(false);
-
+    
     const dataNewPassword = {
       email_user: email,
       new_password: newPassword,
@@ -293,6 +302,13 @@ export default function Index() {
       }
 
       const data = await response.json();
+      showToast("Password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter, one number, and one special character");
+      setTimeout(async () => {
+      await playSound(require("@/assets/sound/ToggleCard.wav"));
+    }, 650);
+    setLoginEnabled(true);
+    setConfirmEnabled(false);
+
       console.log("Password reset successful:", data);
     } catch (error) {
       console.error("Password reset failed:", error);
@@ -305,8 +321,8 @@ export default function Index() {
       await playSound(require("@/assets/sound/Back.wav"));
     }, 650);
     setEmail("");
-    setUsername("")
-    setPassword("")
+    setUsername("");
+    setPassword("");
     setLoginEnabled(true);
     setRegisterEnabled(false);
   };
@@ -791,7 +807,7 @@ export default function Index() {
             scrollEnabled={false} // Evitar que el input se desplace horizontalmente
             numberOfLines={1} // Forzar una sola línea
             //ellipsizeMode="tail"
-            maxLength={50}
+            maxLength={6}
           />
         </MotiView>
         <MotiView
