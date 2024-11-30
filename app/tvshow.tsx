@@ -291,10 +291,10 @@ export default function Movie() {
     }
   }, [reviewContent, reviewRating, reviewEditContent, reviewEditRating]);
 
-  useEffect(() => {
-    const avgRating = calculateAverageRating(otherReviews);
-    setAverageRating(avgRating);
-  }, [otherReviews]);
+  // useEffect(() => {
+  //   const avgRating = calculateAverageRating(otherReviews);
+  //   setAverageRating(avgRating);
+  // }, [otherReviews]);
   
   // const calculateAverageRating = (reviews: OtherReviews[]) => {
   //   if (reviews.length === 0) return 0;

@@ -47,6 +47,12 @@ export default function Search() {
   const bgnum = parseInt(originTab);
   const [modalShown, setModalShown] = useState(false);
   const [bestToggle, setBestToggle] = useState(false);
+  const [popularityAsc, setPopularityAsc] = useState(false);
+  const [popularityDec, setPopularityDec] = useState(true);
+  const [ratingAsc, setRatingAsc] = useState(false);
+  const [ratingDec, setRatingDec] = useState(false);
+  const [dateAsc, setDateAsc] = useState(false);
+  const [dateDec, setDateDec] = useState(false);
   const [filter, setFilter] = useState<"popularity" | "rating" | "date">(
     "popularity"
   );
@@ -57,12 +63,10 @@ export default function Search() {
     fetchSearchResults(query);
   }, [query]); // Add query as a dependency
 
-  const fetchSearchResults = async (query: string) => {
+  const fetchSearchResults = async (query: string, filter: string, bestToggle: boolean) => {
     try {
       const response = await fetch(
-        `https://backend-rottentomatoes.onrender.com/searchMulti?query=${encodeURIComponent(
-          query
-        )}`,
+        `https://backend-rottentomatoes.onrender.com/searchMulti?query=${encodeURIComponent(query)}`,
         {
           method: "GET",
           headers: {
@@ -70,30 +74,46 @@ export default function Search() {
           },
         }
       );
-
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
           `API response was not ok: ${response.statusText} - ${errorText}`
         );
       }
-
       const responseData = await response.json();
       console.log("Search results response:", responseData);
-
-      const formattedMovies = responseData.map((item: any) => ({
+      let formattedMovies = responseData.map((item: any) => ({
         id: item.movieId,
         type: formatType(item.media_type),
         title: item.name,
         score: Math.floor(item.vote_average * 10), // Use Math.floor to remove decimals
-        date: formatDate(item.first_air_date),
+        date: item.first_air_date, // Use the original date for sorting
         duration: item.runtime ? `${item.runtime} min` : "N/A",
+        gen_id: item.gen_id, // Use the correct field name
         desc: item.overview,
         poster: item.poster_path
-          ? "https://image.tmdb.org/t/p/w500${item.poster_path}"
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
           : null,
       }));
-
+  
+      // Ordenar los resultados según el valor del toggle
+      if (filter === "popularity") {
+        formattedMovies = formattedMovies.sort((a: any, b: any) =>
+          a.popularity - b.popularity
+        );
+      } else if (filter === "rating") {
+        formattedMovies = formattedMovies.sort((a: any, b: any) => b.score - a.score);
+      } else if (filter === "date") {
+        formattedMovies = formattedMovies.sort((a: any, b: any) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+      }
+  
+      // Invertir el orden si bestToggle está activo
+      if (bestToggle) {
+        formattedMovies.reverse();
+      }
+  
       setMovies(formattedMovies);
       console.log(formattedMovies);
     } catch (error) {
@@ -101,19 +121,30 @@ export default function Search() {
     }
   };
 
+  useEffect(() => {
+    fetchSearchResults(query, filter, bestToggle);
+  }, [query, filter, bestToggle]);
+  
   const handleBestToggle = () => {
     console.log("Best Toggle Pressed");
-    setBestToggle(!bestToggle);
-  };
-
-  const handleFilterToggle = () => {
-    setFilter((prevFilter) => {
-      if (prevFilter === "popularity") return "rating";
-      if (prevFilter === "rating") return "date";
-      return "popularity";
+    setBestToggle((prevBestToggle) => {
+      console.log(bestToggle)
+      const newBestToggle = !prevBestToggle;
+      fetchSearchResults(query, filter); // Recargar los datos después de actualizar el toggle
+      return newBestToggle;
     });
   };
-
+  
+  const handleFilterToggle = () => {
+    setFilter((prevFilter) => {
+      let newFilter;
+      if (prevFilter === "popularity") newFilter = "rating";
+      else if (prevFilter === "rating") newFilter = "date";
+      else newFilter = "popularity";
+      fetchSearchResults(query, newFilter); // Recargar los datos después de actualizar el filtro
+      return newFilter;
+    });
+  };
   const handleItemPress = (/*id: number*/) => {
     console.log("Item Pressed");
   };

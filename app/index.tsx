@@ -10,6 +10,11 @@ import AnimatedButton from "@/components/AnimatedButton";
 import routerTransition from "@/components/routerTransition";
 import styles from "./indexstyles";
 import { setTransition } from "@/components/globals";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { showToast } from "@/components/ToastUtils";
+import { RootSiblingParent } from "react-native-root-siblings";
+import "react-toastify/dist/ReactToastify.css";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,6 +52,7 @@ export default function Index() {
   const [secretToken, setSecretToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [backupUrl] = useState("https://backend-rottentomatoes.onrender.com");
 
   // useEffect(() => {
   //   const loadAndPlayMusic = async () => {
@@ -68,6 +74,7 @@ export default function Index() {
 
   const handleLoginPressed = async () => {
     console.log("Login Pressed");
+    
 
     const dataLogin = {
       identifier: loginuser,
@@ -100,7 +107,8 @@ export default function Index() {
         personId: data.personId,
       });
     } catch (error) {
-      console.error("Login failed:", error);
+      showToast("username or password are wrong");
+      //console.error("Login failed:", error);
     }
   };
 
@@ -125,24 +133,44 @@ export default function Index() {
 
   const handleRegisterPressed = async () => {
     console.log("Register Pressed");
+    console.log(email, username, password);
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const trimmedEmail = username.trim();
+    console.log(`Trimmed email: ${trimmedEmail}`); // Añadir log para depuración
+    if (!emailRegex.test(trimmedEmail)) {
+      showToast("Invalid email address");
+      console.log("invalid email");
+      return;
+    }
+
+    // Validar password
+    if (password.length < 8) {
+      showToast("Password must be at least 8 characters long");
+      return;
+    }
+
+    // Validar username
+    if (username.length < 3) {
+      showToast("Username must be at least 3 characters long");
+      return;
+    }
 
     const dataRegister = {
-      email_user: email,
+      email_user: username,
       password: password,
-      username: username,
+      username: email,
     };
 
     try {
-      const response = await fetch(
-        "http://backend-rottentomatoes-please-enough.up.railway.app/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dataRegister),
-        }
-      );
+      const response = await fetch(`${backupUrl}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataRegister),
+      });
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -150,15 +178,14 @@ export default function Index() {
 
       const data = await response.json();
       console.log("Registration successful:", data);
-
       setTimeout(async () => {
         await playSound(require("@/assets/sound/ToggleCard.wav"));
       }, 650);
-
       setLoginEnabled(true);
       setRegisterEnabled(false);
     } catch (error) {
-      console.error("Registration failed:", error);
+      //console.error("Registration failed:", error);
+      showToast("Register Failed, try again");
     }
   };
 
@@ -277,6 +304,9 @@ export default function Index() {
     setTimeout(async () => {
       await playSound(require("@/assets/sound/Back.wav"));
     }, 650);
+    setEmail("");
+    setUsername("")
+    setPassword("")
     setLoginEnabled(true);
     setRegisterEnabled(false);
   };
@@ -309,586 +339,590 @@ export default function Index() {
   };
 
   return (
-    <Pressable
-      onPress={handlePress}
-      disabled={pressableDisabled}
-      style={{ flex: 1 }}
-    >
-      <MotiView>
-        <MotiImage
-          source={require("@/assets/images/index/Logo.png")}
-          style={styles.logo}
+    <RootSiblingParent>
+      <Pressable
+        onPress={handlePress}
+        disabled={pressableDisabled}
+        style={{ flex: 1 }}
+      >
+        <MotiView>
+          <MotiImage
+            source={require("@/assets/images/index/Logo.png")}
+            style={styles.logo}
+            from={{
+              translateY: 0,
+              scale: 1,
+            }}
+            animate={
+              pressableDisabled
+                ? {
+                    translateY: -25,
+                    scale: 0.8,
+                  }
+                : {}
+            }
+            transition={{
+              type: "timing",
+              duration: 800,
+            }}
+          />
+          <MotiText
+            style={styles.padncar}
+            from={{ opacity: 1, translateY: 0, scale: 1 }}
+            animate={
+              pressableDisabled
+                ? { opacity: 0, translateY: -35, scale: 0.7 }
+                : {}
+            }
+            transition={{
+              type: "timing",
+              duration: 650,
+              delay: 100,
+              easing: Easing.in(Easing.ease),
+            }}
+          >
+            Pad N' Carrillo Entertainment Inc.
+          </MotiText>
+          <MotiView
+            style={styles.tapfade}
+            from={{
+              opacity: 0,
+            }}
+            animate={
+              pressableDisabled
+                ? {
+                    opacity: 0.6,
+                  }
+                : {}
+            }
+            transition={{
+              type: "timing",
+              duration: 900,
+            }}
+          />
+          <MotiImage
+            source={require("@/assets/images/index/TapToBegin.png")}
+            style={styles.taptobegin}
+            from={{
+              opacity: 1,
+            }}
+            animate={
+              pressableDisabled
+                ? {
+                    opacity: 0,
+                  }
+                : {}
+            }
+            transition={{
+              type: "timing",
+              duration: 900,
+            }}
+          />
+          <LottieView
+            source={require("@/assets/images/index/cuphead.json")}
+            loop={true}
+            speed={0.8}
+            autoPlay
+            style={styles.cuphead}
+          />
+          <Image
+            source={require("@/assets/images/index/chips.png")}
+            style={styles.chips}
+          />
+          <MotiImage
+            source={require("@/assets/images/backgrounds/bg_start.png")}
+            style={styles.background}
+            // from={{
+            //   transform: [{ rotateZ: "0deg" }],
+            // }}
+            // animate={{
+            //   transform: [{ rotateZ: "-360deg" }],
+            // }}
+            // transition={{
+            //   type: "timing",
+            //   duration: 45000,
+            //   loop: true,
+            //   repeatReverse: false,
+            //   easing: Easing.linear,
+            // }}
+          />
+        </MotiView>
+
+        {/* ASSETS DE LOGIN */}
+        <MotiView
           from={{
-            translateY: 0,
-            scale: 1,
+            translateX: 400,
           }}
           animate={
-            pressableDisabled
+            loginEnabled
               ? {
-                  translateY: -25,
-                  scale: 0.8,
+                  translateX: 0,
+                }
+              : registerEnabled
+              ? {
+                  translateX: -400,
                 }
               : {}
-          }
-          transition={{
-            type: "timing",
-            duration: 800,
-          }}
-        />
-        <MotiText
-          style={styles.padncar}
-          from={{ opacity: 1, translateY: 0, scale: 1 }}
-          animate={
-            pressableDisabled ? { opacity: 0, translateY: -35, scale: 0.7 } : {}
           }
           transition={{
             type: "timing",
             duration: 650,
-            delay: 100,
-            easing: Easing.in(Easing.ease),
+            easing: Easing.out(Easing.cubic),
+            delay: 700,
           }}
         >
-          Pad N' Carrillo Entertainment Inc.
-        </MotiText>
+          <Image
+            source={require("@/assets/images/index/logincard.png")}
+            style={styles.logincard}
+          />
+          <Image
+            source={require("@/assets/images/index/field.png")}
+            style={styles.field1login}
+          />
+          <TextInput
+            style={styles.text1login}
+            placeholder="Username or email..."
+            placeholderTextColor="#555"
+            value={loginuser}
+            onChangeText={(text) => setLoginuser(text.toLowerCase())} // Convierte a minúsculas
+            keyboardType="email-address"
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            numberOfLines={1} // Forzar una sola línea
+            //ellipsizeMode="tail"
+            maxLength={50}
+          />
+          <Image
+            source={require("@/assets/images/index/field.png")}
+            style={styles.field2login}
+          />
+          <TextInput
+            style={styles.text2login}
+            placeholder="Enter Password..."
+            placeholderTextColor="#555"
+            secureTextEntry={true}
+            value={password}
+            onChangeText={(text) => setPassword(text.toLowerCase())} // Convierte a minúsculas
+            keyboardType="email-address"
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            numberOfLines={1} // Forzar una sola línea
+            //ellipsizeMode="tail"
+            maxLength={50}
+          />
+        </MotiView>
         <MotiView
-          style={styles.tapfade}
           from={{
-            opacity: 0,
+            translateY: 300,
           }}
           animate={
-            pressableDisabled
+            loginEnabled
               ? {
-                  opacity: 0.6,
+                  translateY: 0,
                 }
               : {}
           }
           transition={{
             type: "timing",
-            duration: 900,
+            duration: 1000,
+            easing: Easing.out(Easing.cubic),
+            delay: 250,
           }}
-        />
-        <MotiImage
-          source={require("@/assets/images/index/TapToBegin.png")}
-          style={styles.taptobegin}
+        >
+          <Image
+            source={require("@/assets/images/index/boardlogin.png")}
+            style={styles.boardlogin}
+          />
+          <AnimatedButton
+            onPress={handleLoginPressed}
+            source={require("@/assets/images/index/loginbutton.png")}
+            style={styles.logbutton}
+            disabled={false}
+          />
+          <AnimatedButton
+            onPress={handleGoToRegister}
+            source={require("@/assets/images/index/gotoregister.png")}
+            style={styles.gotoregister}
+            disabled={false}
+          />
+          <AnimatedButton
+            onPress={handleGoToForgot}
+            source={require("@/assets/images/index/gotoforgotcreds.png")}
+            style={styles.gotoforgot}
+            disabled={false}
+          />
+        </MotiView>
+
+        {/* ASSETS DE REGISTER */}
+        <MotiView
           from={{
-            opacity: 1,
+            translateX: 400,
           }}
           animate={
-            pressableDisabled
+            registerEnabled
               ? {
-                  opacity: 0,
+                  translateX: 0,
                 }
               : {}
           }
           transition={{
             type: "timing",
-            duration: 900,
+            duration: 650,
+            easing: Easing.out(Easing.cubic),
+            delay: 700,
           }}
-        />
-        <LottieView
-          source={require("@/assets/images/index/cuphead.json")}
-          loop={true}
-          speed={0.8}
-          autoPlay
-          style={styles.cuphead}
-        />
-        <Image
-          source={require("@/assets/images/index/chips.png")}
-          style={styles.chips}
-        />
-        <MotiImage
-          source={require("@/assets/images/backgrounds/bg_start.png")}
-          style={styles.background}
-          // from={{
-          //   transform: [{ rotateZ: "0deg" }],
-          // }}
-          // animate={{
-          //   transform: [{ rotateZ: "-360deg" }],
-          // }}
-          // transition={{
-          //   type: "timing",
-          //   duration: 45000,
-          //   loop: true,
-          //   repeatReverse: false,
-          //   easing: Easing.linear,
-          // }}
-        />
-      </MotiView>
+        >
+          <Image
+            source={require("@/assets/images/index/registercard.png")}
+            style={styles.regcard}
+          />
+          <Image
+            source={require("@/assets/images/index/field.png")}
+            style={styles.field1reg}
+          />
+          <TextInput
+            style={styles.text1reg}
+            placeholder="Enter E-Mail..."
+            placeholderTextColor="#555"
+            value={email}
+            onChangeText={(text) => setEmail(text.toLowerCase())} // Convierte a minúsculas
+            keyboardType="email-address"
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            numberOfLines={1} // Forzar una sola línea
+            //ellipsizeMode="tail"
+            maxLength={50}
+          />
+          <Image
+            source={require("@/assets/images/index/field.png")}
+            style={styles.field2reg}
+          />
+          <TextInput
+            style={styles.text2reg}
+            placeholder="Enter Username..."
+            placeholderTextColor="#555"
+            value={username}
+            onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
+            keyboardType="email-address"
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            numberOfLines={1} // Forzar una sola línea
+            //ellipsizeMode="tail"
+            maxLength={50}
+          />
+          <Image
+            source={require("@/assets/images/index/field.png")}
+            style={styles.field3reg}
+          />
+          <TextInput
+            style={styles.text3reg}
+            placeholder="Enter Password..."
+            placeholderTextColor="#555"
+            value={password}
+            onChangeText={(text) => setPassword(text.toLowerCase())} // Convierte a minúsculas
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            numberOfLines={1} // Forzar una sola línea
+            // ellipsizeMode="tail"
+            maxLength={50}
+          />
+        </MotiView>
+        <MotiView
+          from={{
+            translateY: 300,
+          }}
+          animate={
+            registerEnabled
+              ? {
+                  translateY: 0,
+                }
+              : {}
+          }
+          transition={{
+            type: "timing",
+            duration: 1000,
+            easing: Easing.out(Easing.cubic),
+            delay: 350,
+          }}
+        >
+          <Image
+            source={require("@/assets/images/index/boardregister.png")}
+            style={styles.boardreg}
+          />
+          <AnimatedButton
+            onPress={handleRegisterPressed}
+            source={require("@/assets/images/index/registerbutton.png")}
+            style={styles.regbutton}
+            disabled={false}
+          />
+          <AnimatedButton
+            onPress={handleBackToLogin1}
+            source={require("@/assets/images/index/gobacktologin.png")}
+            style={styles.backtologin1}
+            disabled={false}
+          />
+        </MotiView>
 
-      {/* ASSETS DE LOGIN */}
-      <MotiView
-        from={{
-          translateX: 400,
-        }}
-        animate={
-          loginEnabled
-            ? {
-                translateX: 0,
-              }
-            : registerEnabled
-            ? {
-                translateX: -400,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 650,
-          easing: Easing.out(Easing.cubic),
-          delay: 700,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/logincard.png")}
-          style={styles.logincard}
-        />
-        <Image
-          source={require("@/assets/images/index/field.png")}
-          style={styles.field1login}
-        />
-        <TextInput
-          style={styles.text1login}
-          placeholder="Enter Username..."
-          placeholderTextColor="#555"
-          value={loginuser}
-          onChangeText={(text) => setLoginuser(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
-          multiline={false} // No permitir múltiples líneas
-          scrollEnabled={false} // Evitar que el input se desplace horizontalmente
-          numberOfLines={1} // Forzar una sola línea
-          //ellipsizeMode="tail"
-          maxLength={50}
-        />
-        <Image
-          source={require("@/assets/images/index/field.png")}
-          style={styles.field2login}
-        />
-        <TextInput
-          style={styles.text2login}
-          placeholder="Enter Password..."
-          placeholderTextColor="#555"
-          secureTextEntry={true}
-          value={password}
-          onChangeText={(text) => setPassword(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
-          multiline={false} // No permitir múltiples líneas
-          scrollEnabled={false} // Evitar que el input se desplace horizontalmente
-          numberOfLines={1} // Forzar una sola línea
-          //ellipsizeMode="tail"
-          maxLength={50}
-        />
-      </MotiView>
-      <MotiView
-        from={{
-          translateY: 300,
-        }}
-        animate={
-          loginEnabled
-            ? {
-                translateY: 0,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 1000,
-          easing: Easing.out(Easing.cubic),
-          delay: 250,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/boardlogin.png")}
-          style={styles.boardlogin}
-        />
-        <AnimatedButton
-          onPress={handleLoginPressed}
-          source={require("@/assets/images/index/loginbutton.png")}
-          style={styles.logbutton}
-          disabled={false}
-        />
-        <AnimatedButton
-          onPress={handleGoToRegister}
-          source={require("@/assets/images/index/gotoregister.png")}
-          style={styles.gotoregister}
-          disabled={false}
-        />
-        <AnimatedButton
-          onPress={handleGoToForgot}
-          source={require("@/assets/images/index/gotoforgotcreds.png")}
-          style={styles.gotoforgot}
-          disabled={false}
-        />
-      </MotiView>
+        {/* ASSETS DE FORGOT CREDENTIALS (SEND) */}
+        <MotiView
+          from={{
+            translateX: -400,
+          }}
+          animate={
+            sendEnabled
+              ? {
+                  translateX: 0,
+                }
+              : verifyEnabled || confirmEnabled
+              ? {
+                  translateX: 400,
+                }
+              : {}
+          }
+          transition={{
+            type: "timing",
+            duration: 650,
+            easing: Easing.out(Easing.cubic),
+            delay: 700,
+          }}
+          style={{
+            opacity: loginEnabled && cardOpacity !== 0 ? 0 : 1,
+          }}
+        >
+          <Image
+            source={require("@/assets/images/index/forgotcredcard.png")}
+            style={styles.sendcard}
+          />
+          <Image
+            source={require("@/assets/images/index/field.png")}
+            style={styles.field1forgot}
+          />
+          <TextInput
+            style={styles.text1forgot}
+            placeholder="Enter E-Mail..."
+            placeholderTextColor="#555"
+            value={email}
+            onChangeText={(text) => setEmail(text.toLowerCase())} // Convierte a minúsculas
+            keyboardType="email-address"
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            numberOfLines={1} // Forzar una sola línea
+            //ellipsizeMode="tail"
+            maxLength={50}
+          />
+        </MotiView>
+        <MotiView
+          from={{
+            translateY: 300,
+          }}
+          animate={
+            sendEnabled
+              ? {
+                  translateY: 0,
+                }
+              : {}
+          }
+          transition={{
+            type: "timing",
+            duration: 1000,
+            easing: Easing.out(Easing.cubic),
+            delay: 350,
+          }}
+        >
+          <Image
+            source={require("@/assets/images/index/boardregister.png")}
+            style={styles.boardsend}
+          />
+          <AnimatedButton
+            onPress={handleSendPressed}
+            source={require("@/assets/images/index/send.png")}
+            style={styles.sendbutton}
+            disabled={false}
+          />
+          <AnimatedButton
+            onPress={handleBackToLogin2}
+            source={require("@/assets/images/index/gobacktologin.png")}
+            style={styles.backtologin2}
+            disabled={false}
+          />
+        </MotiView>
 
-      {/* ASSETS DE REGISTER */}
-      <MotiView
-        from={{
-          translateX: 400,
-        }}
-        animate={
-          registerEnabled
-            ? {
-                translateX: 0,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 650,
-          easing: Easing.out(Easing.cubic),
-          delay: 700,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/registercard.png")}
-          style={styles.regcard}
-        />
-        <Image
-          source={require("@/assets/images/index/field.png")}
-          style={styles.field1reg}
-        />
-        <TextInput
-          style={styles.text1reg}
-          placeholder="Enter E-Mail..."
-          placeholderTextColor="#555"
-          value={email}
-          onChangeText={(text) => setEmail(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
-          multiline={false} // No permitir múltiples líneas
-          scrollEnabled={false} // Evitar que el input se desplace horizontalmente
-          numberOfLines={1} // Forzar una sola línea
-          //ellipsizeMode="tail"
-          maxLength={50}
-        />
-        <Image
-          source={require("@/assets/images/index/field.png")}
-          style={styles.field2reg}
-        />
-        <TextInput
-          style={styles.text2reg}
-          placeholder="Enter Username..."
-          placeholderTextColor="#555"
-          value={username}
-          onChangeText={(text) => setUsername(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
-          multiline={false} // No permitir múltiples líneas
-          scrollEnabled={false} // Evitar que el input se desplace horizontalmente
-          numberOfLines={1} // Forzar una sola línea
-          //ellipsizeMode="tail"
-          maxLength={50}
-        />
-        <Image
-          source={require("@/assets/images/index/field.png")}
-          style={styles.field3reg}
-        />
-        <TextInput
-          style={styles.text3reg}
-          placeholder="Enter Password..."
-          placeholderTextColor="#555"
-          value={password}
-          onChangeText={(text) => setPassword(text.toLowerCase())} // Convierte a minúsculas
-          multiline={false} // No permitir múltiples líneas
-          scrollEnabled={false} // Evitar que el input se desplace horizontalmente
-          numberOfLines={1} // Forzar una sola línea
-          // ellipsizeMode="tail"
-          maxLength={50}
-        />
-      </MotiView>
-      <MotiView
-        from={{
-          translateY: 300,
-        }}
-        animate={
-          registerEnabled
-            ? {
-                translateY: 0,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 1000,
-          easing: Easing.out(Easing.cubic),
-          delay: 350,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/boardregister.png")}
-          style={styles.boardreg}
-        />
-        <AnimatedButton
-          onPress={handleRegisterPressed}
-          source={require("@/assets/images/index/registerbutton.png")}
-          style={styles.regbutton}
-          disabled={false}
-        />
-        <AnimatedButton
-          onPress={handleBackToLogin1}
-          source={require("@/assets/images/index/gobacktologin.png")}
-          style={styles.backtologin1}
-          disabled={false}
-        />
-      </MotiView>
+        {/* ASSETS DE FORGOT CREDENTIALS (VERIFY) */}
+        <MotiView
+          from={{
+            translateX: -400,
+          }}
+          animate={
+            verifyEnabled
+              ? {
+                  translateX: 0,
+                }
+              : confirmEnabled
+              ? {
+                  translateX: 400,
+                }
+              : {}
+          }
+          transition={{
+            type: "timing",
+            duration: 650,
+            easing: Easing.out(Easing.cubic),
+            delay: 700,
+          }}
+          style={{
+            opacity: loginEnabled && cardOpacity === 2 ? 0 : 1,
+          }}
+        >
+          <Image
+            source={require("@/assets/images/index/forgotcard.png")}
+            style={styles.verifycard}
+          />
+          <Image
+            source={require("@/assets/images/index/field.png")}
+            style={styles.field2forgot}
+          />
+          <TextInput
+            style={styles.text2forgot}
+            placeholder="Enter the Code Sent..."
+            placeholderTextColor="#555"
+            value={secretToken}
+            onChangeText={(text) => setSecretToken(text.toLowerCase())} // Convierte a minúsculas
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            numberOfLines={1} // Forzar una sola línea
+            //ellipsizeMode="tail"
+            maxLength={50}
+          />
+        </MotiView>
+        <MotiView
+          from={{
+            translateY: 300,
+          }}
+          animate={
+            verifyEnabled
+              ? {
+                  translateY: 0,
+                }
+              : {}
+          }
+          transition={{
+            type: "timing",
+            duration: 1000,
+            easing: Easing.out(Easing.cubic),
+            delay: 350,
+          }}
+        >
+          <Image
+            source={require("@/assets/images/index/boardregister.png")}
+            style={styles.boardverify}
+          />
+          <AnimatedButton
+            onPress={handleVerifyPressed}
+            source={require("@/assets/images/index/verify.png")}
+            style={styles.verifybutton}
+            disabled={false}
+          />
+          <AnimatedButton
+            onPress={handleBackToLogin3}
+            source={require("@/assets/images/index/gobacktologin.png")}
+            style={styles.backtologin3}
+            disabled={false}
+          />
+        </MotiView>
 
-      {/* ASSETS DE FORGOT CREDENTIALS (SEND) */}
-      <MotiView
-        from={{
-          translateX: -400,
-        }}
-        animate={
-          sendEnabled
-            ? {
-                translateX: 0,
-              }
-            : verifyEnabled || confirmEnabled
-            ? {
-                translateX: 400,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 650,
-          easing: Easing.out(Easing.cubic),
-          delay: 700,
-        }}
-        style={{
-          opacity: loginEnabled && cardOpacity !== 0 ? 0 : 1,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/forgotcredcard.png")}
-          style={styles.sendcard}
-        />
-        <Image
-          source={require("@/assets/images/index/field.png")}
-          style={styles.field1forgot}
-        />
-        <TextInput
-          style={styles.text1forgot}
-          placeholder="Enter E-Mail..."
-          placeholderTextColor="#555"
-          value={email}
-          onChangeText={(text) => setEmail(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
-          multiline={false} // No permitir múltiples líneas
-          scrollEnabled={false} // Evitar que el input se desplace horizontalmente
-          numberOfLines={1} // Forzar una sola línea
-          //ellipsizeMode="tail"
-          maxLength={50}
-        />
-      </MotiView>
-      <MotiView
-        from={{
-          translateY: 300,
-        }}
-        animate={
-          sendEnabled
-            ? {
-                translateY: 0,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 1000,
-          easing: Easing.out(Easing.cubic),
-          delay: 350,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/boardregister.png")}
-          style={styles.boardsend}
-        />
-        <AnimatedButton
-          onPress={handleSendPressed}
-          source={require("@/assets/images/index/send.png")}
-          style={styles.sendbutton}
-          disabled={false}
-        />
-        <AnimatedButton
-          onPress={handleBackToLogin2}
-          source={require("@/assets/images/index/gobacktologin.png")}
-          style={styles.backtologin2}
-          disabled={false}
-        />
-      </MotiView>
-
-      {/* ASSETS DE FORGOT CREDENTIALS (VERIFY) */}
-      <MotiView
-        from={{
-          translateX: -400,
-        }}
-        animate={
-          verifyEnabled
-            ? {
-                translateX: 0,
-              }
-            : confirmEnabled
-            ? {
-                translateX: 400,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 650,
-          easing: Easing.out(Easing.cubic),
-          delay: 700,
-        }}
-        style={{
-          opacity: loginEnabled && cardOpacity === 2 ? 0 : 1,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/forgotcard.png")}
-          style={styles.verifycard}
-        />
-        <Image
-          source={require("@/assets/images/index/field.png")}
-          style={styles.field2forgot}
-        />
-        <TextInput
-          style={styles.text2forgot}
-          placeholder="Enter the Code Sent..."
-          placeholderTextColor="#555"
-          value={secretToken}
-          onChangeText={(text) => setSecretToken(text.toLowerCase())} // Convierte a minúsculas
-          multiline={false} // No permitir múltiples líneas
-          scrollEnabled={false} // Evitar que el input se desplace horizontalmente
-          numberOfLines={1} // Forzar una sola línea
-          //ellipsizeMode="tail"
-          maxLength={50}
-        />
-      </MotiView>
-      <MotiView
-        from={{
-          translateY: 300,
-        }}
-        animate={
-          verifyEnabled
-            ? {
-                translateY: 0,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 1000,
-          easing: Easing.out(Easing.cubic),
-          delay: 350,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/boardregister.png")}
-          style={styles.boardverify}
-        />
-        <AnimatedButton
-          onPress={handleVerifyPressed}
-          source={require("@/assets/images/index/verify.png")}
-          style={styles.verifybutton}
-          disabled={false}
-        />
-        <AnimatedButton
-          onPress={handleBackToLogin3}
-          source={require("@/assets/images/index/gobacktologin.png")}
-          style={styles.backtologin3}
-          disabled={false}
-        />
-      </MotiView>
-
-      {/* ASSETS DE FORGOT CREDENTIALS (CONFIRM) */}
-      <MotiView
-        from={{
-          translateX: -400,
-        }}
-        animate={
-          confirmEnabled
-            ? {
-                translateX: 0,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 650,
-          easing: Easing.out(Easing.cubic),
-          delay: 700,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/confirmcard.png")}
-          style={styles.sendcard}
-        />
-        <Image
-          source={require("@/assets/images/index/field.png")}
-          style={styles.field3forgot}
-        />
-        <TextInput
-          style={styles.text3forgot}
-          placeholder="Enter Password..."
-          placeholderTextColor="#555"
-          value={newPassword}
-          onChangeText={(text) => setNewPassword(text.toLowerCase())} // Convierte a minúsculas
-          multiline={false} // No permitir múltiples líneas
-          scrollEnabled={false} // Evitar que el input se desplace horizontalmente
-          numberOfLines={1} // Forzar una sola línea
-          //ellipsizeMode="tail"
-          maxLength={50}
-        />
-        <Image
-          source={require("@/assets/images/index/field.png")}
-          style={styles.field4forgot}
-        />
-        <TextInput
-          style={styles.text4forgot}
-          placeholder="Verify Password@."
-          placeholderTextColor="#555"
-          value={confirmPassword}
-          onChangeText={(text) => setConfirmPassword(text.toLowerCase())} // Convierte a minúsculas
-          keyboardType="email-address"
-          multiline={false} // No permitir múltiples líneas
-          scrollEnabled={false} // Evitar que el input se desplace horizontalmente
-          numberOfLines={1} // Forzar una sola línea
-          //ellipsizeMode="tail"
-          maxLength={50}
-        />
-      </MotiView>
-      <MotiView
-        from={{
-          translateY: 300,
-        }}
-        animate={
-          confirmEnabled
-            ? {
-                translateY: 0,
-              }
-            : {}
-        }
-        transition={{
-          type: "timing",
-          duration: 1000,
-          easing: Easing.out(Easing.cubic),
-          delay: 350,
-        }}
-      >
-        <Image
-          source={require("@/assets/images/index/boardregister.png")}
-          style={styles.boardsend}
-        />
-        <AnimatedButton
-          onPress={handleConfirmPressed}
-          source={require("@/assets/images/index/confirm.png")}
-          style={styles.confirmbutton}
-          disabled={false}
-        />
-        <AnimatedButton
-          onPress={handleBackToLogin4}
-          source={require("@/assets/images/index/gobacktologin.png")}
-          style={styles.backtologin2}
-          disabled={false}
-        />
-      </MotiView>
-    </Pressable>
+        {/* ASSETS DE FORGOT CREDENTIALS (CONFIRM) */}
+        <MotiView
+          from={{
+            translateX: -400,
+          }}
+          animate={
+            confirmEnabled
+              ? {
+                  translateX: 0,
+                }
+              : {}
+          }
+          transition={{
+            type: "timing",
+            duration: 650,
+            easing: Easing.out(Easing.cubic),
+            delay: 700,
+          }}
+        >
+          <Image
+            source={require("@/assets/images/index/confirmcard.png")}
+            style={styles.sendcard}
+          />
+          <Image
+            source={require("@/assets/images/index/field.png")}
+            style={styles.field3forgot}
+          />
+          <TextInput
+            style={styles.text3forgot}
+            placeholder="Enter Password..."
+            placeholderTextColor="#555"
+            value={newPassword}
+            onChangeText={(text) => setNewPassword(text.toLowerCase())} // Convierte a minúsculas
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            numberOfLines={1} // Forzar una sola línea
+            //ellipsizeMode="tail"
+            maxLength={50}
+          />
+          <Image
+            source={require("@/assets/images/index/field.png")}
+            style={styles.field4forgot}
+          />
+          <TextInput
+            style={styles.text4forgot}
+            placeholder="Verify Password@."
+            placeholderTextColor="#555"
+            value={confirmPassword}
+            onChangeText={(text) => setConfirmPassword(text.toLowerCase())} // Convierte a minúsculas
+            keyboardType="email-address"
+            multiline={false} // No permitir múltiples líneas
+            scrollEnabled={false} // Evitar que el input se desplace horizontalmente
+            numberOfLines={1} // Forzar una sola línea
+            //ellipsizeMode="tail"
+            maxLength={50}
+          />
+        </MotiView>
+        <MotiView
+          from={{
+            translateY: 300,
+          }}
+          animate={
+            confirmEnabled
+              ? {
+                  translateY: 0,
+                }
+              : {}
+          }
+          transition={{
+            type: "timing",
+            duration: 1000,
+            easing: Easing.out(Easing.cubic),
+            delay: 350,
+          }}
+        >
+          <Image
+            source={require("@/assets/images/index/boardregister.png")}
+            style={styles.boardsend}
+          />
+          <AnimatedButton
+            onPress={handleConfirmPressed}
+            source={require("@/assets/images/index/confirm.png")}
+            style={styles.confirmbutton}
+            disabled={false}
+          />
+          <AnimatedButton
+            onPress={handleBackToLogin4}
+            source={require("@/assets/images/index/gobacktologin.png")}
+            style={styles.backtologin2}
+            disabled={false}
+          />
+        </MotiView>
+      </Pressable>
+    </RootSiblingParent>
   );
 }
